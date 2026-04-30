@@ -89,8 +89,7 @@ secrets.json
 .cache/
 
 # Ralph/Trae
-.trae/
-.claude/
+
 
 # Compiled files
 *.o
