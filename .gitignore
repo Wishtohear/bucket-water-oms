@@ -1,0 +1,106 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+target/
+build/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.eggs/
+
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.lock
+
+# Mobile build outputs
+*.apk
+*.aab
+*.ipa
+*.app
+*.app.dSYM
+
+# Gradle
+.gradle/
+gradle-app.setting
+
+# Android
+*.ap_
+*.dex
+local.properties
+
+# iOS
+Pods/
+xcuserdata/
+*.xcuserdatad
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Credentials and secrets
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+
+# Ralph/Trae
+.trae/
+.claude/
+
+# Compiled files
+*.o
+*.so
+*.dll
+*.exe
+
+# Spring Boot
+*.log
+
+# Confidential files
+**/application-prod.yml
+**/application-prod.properties
