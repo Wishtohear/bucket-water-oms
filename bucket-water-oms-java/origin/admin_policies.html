@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>销售政策 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f0f2f5; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        .sidebar-item:hover { background: #f5f5f5; }
+        .sidebar-item-active { background: #e6f7ff; color: #1890FF; border-right: 3px solid #1890FF; }
+        .policy-card:hover { transform: translateY(-4px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white flex flex-col border-r border-gray-200">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-[#1890FF] rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white text-xl" icon="mdi:water"></iconify-icon>
+</div>
+<span class="text-lg font-bold text-gray-800">水厂运营后台</span>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_index.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:view-dashboard-outline"></iconify-icon>
+<span class="font-medium">后台首页</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_stations.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:store-outline"></iconify-icon>
+<span class="font-medium">水站管理</span>
+</a>
+<a class="sidebar-item sidebar-item-active flex items-center px-6 py-4 transition-colors" href="admin_policies.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:file-certificate-outline"></iconify-icon>
+<span class="font-medium">销售政策</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_inventory.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">库存管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_finance.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:finance"></iconify-icon>
+<span class="font-medium">财务管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_reports.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:chart-bar"></iconify-icon>
+<span class="font-medium">报表统计</span>
+</a>
+<div class="px-6 py-4 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">系统设置</div>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_settings.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:cog-outline"></iconify-icon>
+<span class="font-medium">系统配置</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-100">
+<a class="flex items-center px-4 py-3 text-gray-500 hover:text-red-500 transition-colors rounded-xl" href="admin_login.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:logout"></iconify-icon>
+<span class="font-medium">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold text-gray-800">销售政策管理</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-[#1890FF] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+<span>创建新政策</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Body -->
+<div class="flex-1 overflow-y-auto p-8">
+<!-- Summary -->
+<div class="mb-8">
+<h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">当前生效模板</h3>
+<div class="grid grid-cols-3 gap-6">
+<!-- Policy Template 1 -->
+<div class="policy-card bg-white p-6 rounded-2xl shadow-sm border border-gray-50 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="bg-blue-50 text-blue-500 text-[10px] font-bold px-2 py-1 rounded">默认通用</span>
+</div>
+<div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-4">
+<iconify-icon class="text-2xl" icon="mdi:tag-outline"></iconify-icon>
+</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">标准经销政策</h4>
+<p class="text-sm text-gray-400 mb-6 leading-relaxed">适用于大多数常规合作水站，包含基础水票价格与起订量要求。</p>
+<div class="space-y-2 border-t border-gray-50 pt-4 mb-6">
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">桶装水(18L)</span>
+<span class="font-bold text-gray-700">¥ 8.00 / 桶</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">最低起订量</span>
+<span class="font-bold text-gray-700">50 桶</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-gray-400">覆盖 32 家水站</span>
+<button class="text-blue-500 text-sm font-bold">配置详情</button>
+</div>
+</div>
+<!-- Policy Template 2 -->
+<div class="policy-card bg-white p-6 rounded-2xl shadow-sm border border-gray-50 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 text-green-500">
+<span class="bg-green-50 text-green-500 text-[10px] font-bold px-2 py-1 rounded">VIP客户</span>
+</div>
+<div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-500 mb-4">
+<iconify-icon class="text-2xl" icon="mdi:crown-outline"></iconify-icon>
+</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">战略伙伴政策</h4>
+<p class="text-sm text-gray-400 mb-6 leading-relaxed">针对核心区域大型水站，提供更具竞争力的价格支持。满足月销2000桶以上。</p>
+<div class="space-y-2 border-t border-gray-50 pt-4 mb-6">
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">桶装水(18L)</span>
+<span class="font-bold text-gray-700">¥ 7.20 / 桶</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">信用额度</span>
+<span class="font-bold text-gray-700">¥ 50,000</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-gray-400">覆盖 8 家水站</span>
+<button class="text-blue-500 text-sm font-bold">配置详情</button>
+</div>
+</div>
+<!-- Policy Template 3 -->
+<div class="policy-card bg-white p-6 rounded-2xl shadow-sm border border-gray-50 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="bg-orange-50 text-orange-500 text-[10px] font-bold px-2 py-1 rounded">限时促销</span>
+</div>
+<div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-4">
+<iconify-icon class="text-2xl" icon="mdi:fire"></iconify-icon>
+</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">春季订货优惠</h4>
+<p class="text-sm text-gray-400 mb-6 leading-relaxed">2026年4月期间生效。每订购100桶赠送10桶，或赠送空桶5个。</p>
+<div class="space-y-2 border-t border-gray-50 pt-4 mb-6">
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">生效期</span>
+<span class="font-bold text-gray-700">04-01 ~ 04-30</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-400">赠品比例</span>
+<span class="font-bold text-gray-700">10:1</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-gray-400">覆盖 120 家水站</span>
+<button class="text-blue-500 text-sm font-bold">配置详情</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Config -->
+<div class="bg-white rounded-3xl shadow-sm border border-gray-50 overflow-hidden">
+<div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
+<h4 class="font-bold text-gray-800 text-lg">产品定价列表</h4>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">批量修改</button>
+<button class="px-4 py-2 bg-blue-50 text-blue-500 rounded-lg text-sm font-bold border border-blue-100">导出定价单</button>
+</div>
+</div>
+<table class="w-full text-left">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">产品名称</th>
+<th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">标准出厂价</th>
+<th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">经销商指导价</th>
+<th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">当前库存</th>
+<th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50">
+<tr>
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<img alt="Product" class="w-10 h-10 rounded border border-gray-100" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/474fabf365c34ecaa6ead55081330746.jpg"/>
+<div>
+<p class="text-sm font-bold text-gray-800">18L 桶装纯净水</p>
+<p class="text-[10px] text-gray-400">分类：桶装水</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4 text-sm font-bold text-gray-800">¥ 8.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">¥ 15.00 ~ 18.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">12,500 桶</td>
+<td class="px-8 py-4">
+<button class="text-blue-500 hover:underline text-sm font-medium">调整定价</button>
+</td>
+</tr>
+<tr>
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<img alt="Product" class="w-10 h-10 rounded border border-gray-100" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/474fabf365c34ecaa6ead55081330746.jpg"/>
+<div>
+<p class="text-sm font-bold text-gray-800">550ml 瓶装矿泉水 (24瓶/箱)</p>
+<p class="text-[10px] text-gray-400">分类：瓶装水</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4 text-sm font-bold text-gray-800">¥ 22.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">¥ 35.00 ~ 40.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">800 箱</td>
+<td class="px-8 py-4">
+<button class="text-blue-500 hover:underline text-sm font-medium">调整定价</button>
+</td>
+</tr>
+<tr>
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<img alt="Product" class="w-10 h-10 rounded border border-gray-100" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/474fabf365c34ecaa6ead55081330746.jpg"/>
+<div>
+<p class="text-sm font-bold text-gray-800">4.5L 家庭装纯净水 (4桶/箱)</p>
+<p class="text-[10px] text-gray-400">分类：一次性桶装水</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4 text-sm font-bold text-gray-800">¥ 28.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">¥ 45.00 ~ 50.00</td>
+<td class="px-8 py-4 text-sm text-gray-600">2,100 箱</td>
+<td class="px-8 py-4">
+<button class="text-blue-500 hover:underline text-sm font-medium">调整定价</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body>
+</html>

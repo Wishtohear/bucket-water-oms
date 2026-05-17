@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 任务中心</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F4F7F9; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .tab-active { color: #1890FF; border-bottom: 2px solid #1890FF; }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-[#1890FF] px-6 pt-12 pb-8 rounded-b-[40px] text-white shadow-lg">
+<!-- Online Status Bar -->
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<span id="online-indicator" class="w-2 h-2 bg-green-400 rounded-full pulse-animation"></span>
+<span id="status-text" class="text-xs opacity-90">在线</span>
+</div>
+<div id="location-info" class="text-xs opacity-80 flex items-center gap-1">
+<iconify-icon icon="mdi:map-marker"></iconify-icon>
+<span id="current-address">桂林市秀峰区</span>
+</div>
+</div>
+<div class="flex justify-between items-center mb-6">
+<div>
+<p class="text-xs opacity-80">早上好，</p>
+<h1 class="text-xl font-bold tracking-wide">王力师傅</h1>
+<p class="text-xs opacity-80 mt-1">豫A·88888 · 中心仓库A库区</p>
+</div>
+<a href="driver_settings.html" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+</a>
+</div>
+<!-- Statistics Card -->
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-white/10 rounded-2xl p-3 backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">今日待配送</p>
+<div class="flex items-baseline gap-1">
+<span id="pending-count" class="text-xl font-bold">8</span>
+<span class="text-[10px]">单</span>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-3 backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">配送中</p>
+<div class="flex items-baseline gap-1">
+<span id="delivering-count" class="text-xl font-bold text-yellow-300">2</span>
+<span class="text-[10px]">单</span>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-3 backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">累计完成</p>
+<div class="flex items-baseline gap-1">
+<span id="completed-count" class="text-xl font-bold">5</span>
+<span class="text-[10px]">单</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-6 pb-24 space-y-4">
+<!-- Route Planning Entrance -->
+<a href="driver_route_planning.html" class="block w-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 shadow-lg flex items-center justify-between group active:scale-98 transition-all">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+<iconify-icon class="text-3xl text-white" icon="mdi:map-marker-path"></iconify-icon>
+</div>
+<div class="text-left">
+<p class="text-sm font-bold text-white">智能规划配送路线</p>
+<p class="text-[10px] text-blue-100 mt-0.5">已避开拥堵路段，预计用时 45min</p>
+<p class="text-[10px] text-blue-200 mt-0.5">共 <span class="font-bold">3</span> 个配送点 · 总里程 <span class="font-bold">12.5km</span></p>
+</div>
+</div>
+<div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+<iconify-icon class="text-white text-xl group-hover:translate-x-1 transition-transform" icon="mdi:arrow-right-circle"></iconify-icon>
+</div>
+</a>
+<!-- Task Section Header -->
+<div class="flex items-center justify-between px-1 pt-2">
+<div class="flex gap-4">
+<button id="tab-pending" class="text-sm font-bold text-[#1890FF] pb-1 tab-active" onclick="switchTab('pending')">待配送 (<span id="tab-pending-count">8</span>)</button>
+<button id="tab-delivering" class="text-sm font-bold text-gray-400 pb-1" onclick="switchTab('delivering')">配送中 (<span id="tab-delivering-count">2</span>)</button>
+<button id="tab-completed" class="text-sm font-bold text-gray-400 pb-1" onclick="switchTab('completed')">已完成 (<span id="tab-completed-count">5</span>)</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-xs text-gray-400 px-2 py-1 rounded-lg bg-gray-100" onclick="toggleSort()">
+<iconify-icon class="text-xs" icon="mdi:sort"></iconify-icon>
+<span id="sort-text">距离</span>
+</button>
+</div>
+</div>
+<!-- Task List Container -->
+<div id="task-list" class="space-y-4">
+<!-- Task Card 1 - Current -->
+<div class="bg-white rounded-3xl p-5 shadow-lg border-l-4 border-[#1890FF] ring-2 ring-blue-100">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-[#1890FF] text-white text-[10px] font-bold rounded-lg">第1单</span>
+<span class="text-[10px] text-gray-400">配送序列</span>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">预约 14:00</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex-1">
+<h4 class="font-bold text-gray-800">张记旗舰水站</h4>
+<div class="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+<iconify-icon icon="mdi:navigation-variant-outline"></iconify-icon>
+<span id="distance-1">距您 2.5km</span> · <span id="address-1">秀峰区XX路88号</span>
+</div>
+<div class="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+<iconify-icon icon="mdi:phone-outline"></iconify-icon>
+<span>张老板 138****8888</span>
+</div>
+</div>
+<button class="w-10 h-10 bg-[#52C41A] text-white rounded-full flex items-center justify-center shadow-md" onclick="callCustomer('138****8888')">
+<iconify-icon class="text-xl" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gradient-to-r from-blue-50 to-blue-50/50 rounded-2xl p-3 mb-4">
+<div class="flex items-center justify-between text-xs mb-2">
+<span class="text-gray-500 font-medium">货物明细:</span>
+<span class="text-[10px] text-gray-400">点击查看详情</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex items-center justify-between text-sm">
+<span class="text-gray-700">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">× 50 桶</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-gray-700">11.3L 桶装水</span>
+<span class="font-bold text-gray-800">× 20 桶</span>
+</div>
+<div class="flex items-center justify-between text-sm text-blue-600">
+<span class="text-xs">其他商品</span>
+<span class="font-bold text-xs">× 5 件</span>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-blue-100 flex items-center justify-between">
+<span class="text-[10px] text-gray-500">当前欠桶: <span class="text-orange-500 font-bold">5个</span></span>
+<span class="text-[10px] text-blue-500 font-medium">历史欠桶: <span class="font-bold">8个</span></span>
+</div>
+</div>
+<div class="flex gap-2">
+<a class="flex-1 py-3 bg-[#1890FF] text-white rounded-xl text-xs font-bold active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-lg shadow-blue-100" href="driver_order_detail.html?id=1">
+<iconify-icon icon="mdi:navigation"></iconify-icon>
+开始配送
+</a>
+<a class="w-12 h-12 flex items-center justify-center border border-gray-100 rounded-xl active:bg-gray-50" href="driver_sign.html?orderId=1">
+<iconify-icon class="text-[#1890FF] text-xl" icon="mdi:map-marker-check"></iconify-icon>
+</a>
+</div>
+</div>
+<!-- Task Card 2 - Queued -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border-l-4 border-gray-200 opacity-95">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded-lg">第2单</span>
+<span class="text-[10px] text-gray-400">配送序列</span>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">待配送</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-bold text-gray-800">李家水铺</h4>
+<div class="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+<iconify-icon icon="mdi:navigation-variant-outline"></iconify-icon>
+<span>距您 4.8km · 七星区龙隐路12号</span>
+</div>
+<div class="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+<iconify-icon icon="mdi:phone-outline"></iconify-icon>
+<span>李老板 139****6666</span>
+</div>
+</div>
+<button class="w-10 h-10 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center">
+<iconify-icon class="text-xl" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-2xl p-3 mb-4">
+<div class="flex items-center justify-between text-xs">
+<span class="text-gray-500">货物明细:</span>
+<span class="font-bold text-gray-800">18.9L × 100桶</span>
+</div>
+</div>
+<button class="w-full py-3 bg-gray-100 text-gray-500 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+<iconify-icon icon="mdi:clock-outline"></iconify-icon>
+待前面的单完成后再配送
+</button>
+</div>
+<!-- Task Card 3 -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border-l-4 border-gray-200 opacity-90">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded-lg">第3单</span>
+<span class="text-[10px] text-gray-400">配送序列</span>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">待配送</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-3">
+<div>
+<h4 class="font-bold text-gray-800">好运来水店</h4>
+<div class="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5">
+<iconify-icon icon="mdi:navigation-variant-outline"></iconify-icon>
+<span>距您 6.2km · 象山区环城南二路...</span>
+</div>
+</div>
+<button class="w-10 h-10 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center">
+<iconify-icon class="text-xl" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-2xl p-3 mb-4">
+<div class="flex items-center justify-between text-xs">
+<span class="text-gray-500">货物明细:</span>
+<span class="font-bold text-gray-800">18.9L × 30桶 / 11.3L × 15桶</span>
+</div>
+</div>
+<button class="w-full py-3 bg-gray-100 text-gray-500 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+<iconify-icon icon="mdi:clock-outline"></iconify-icon>
+待前面的单完成后再配送
+</button>
+</div>
+</div>
+<!-- Empty State for Other Tabs -->
+<div id="task-list-delivering" class="space-y-4 hidden">
+<!-- Delivering Order Card -->
+<div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-5 shadow-lg border border-yellow-200">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></span>
+<span class="text-sm font-bold text-yellow-700">配送中</span>
+</div>
+<span class="text-xs text-gray-400">开始时间: 14:20</span>
+</div>
+<div class="bg-white rounded-2xl p-4 mb-4">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-bold text-gray-800">张记旗舰水站</span>
+<span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">进行中</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<iconify-icon icon="mdi:map-marker"></iconify-icon>
+<span>秀峰区XX路88号</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-gray-500 mt-1">
+<iconify-icon icon="mdi:barrel"></iconify-icon>
+<span>18.9L × 50桶 / 11.3L × 20桶</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 bg-[#1890FF] text-white rounded-xl text-xs font-bold active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="showMapNavigation()">
+<iconify-icon icon="mdi:navigation"></iconify-icon>
+查看导航
+</button>
+<a class="flex-1 py-3 bg-[#52C41A] text-white rounded-xl text-xs font-bold active:scale-95 transition-transform flex items-center justify-center gap-2" href="driver_sign.html?orderId=1">
+<iconify-icon icon="mdi:check-circle"></iconify-icon>
+确认送达
+</a>
+</div>
+</div>
+</div>
+<div id="task-list-completed" class="space-y-4 hidden">
+<!-- Completed Order Card -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+<iconify-icon class="text-green-600 text-sm" icon="mdi:check"></iconify-icon>
+</span>
+<span class="font-bold text-gray-800">已完成</span>
+</div>
+<span class="text-xs text-gray-400">14:35</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-600">青山水店</span>
+<span class="font-bold text-gray-800">18.9L × 40桶</span>
+</div>
+<div class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-50">
+<img class="w-12 h-12 rounded-lg object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg" alt="签收照片"/>
+<span class="text-xs text-gray-500">回桶: +35个 · 欠桶: 5个</span>
+</div>
+</div>
+</div>
+<!-- Return Center Card -->
+<div class="bg-gradient-to-r from-green-600 to-green-500 rounded-2xl p-4 text-white flex items-center justify-between shadow-lg shadow-green-100">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold">回仓申请与清点</p>
+<p class="text-[10px] opacity-80 mt-0.5">当前车上空桶：<span class="font-bold">75</span>个</p>
+<p class="text-[10px] opacity-80">待交回仓库：<span class="font-bold">15</span>个</p>
+</div>
+</div>
+<a class="bg-white/20 px-4 py-2 rounded-xl text-xs font-bold backdrop-blur-sm flex items-center gap-2 active:scale-95 transition-transform" href="driver_warehouse_return.html">
+<iconify-icon icon="mdi:arrow-right"></iconify-icon>
+去处理
+</a>
+</div>
+</div>
+<!-- Driver Bottom Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="driver_tasks.html">
+<iconify-icon class="text-2xl" icon="mdi:view-dashboard"></iconify-icon>
+<span class="text-[10px] font-bold">任务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_barrel_manage.html">
+<iconify-icon class="text-2xl" icon="mdi:barrel"></iconify-icon>
+<span class="text-[10px]">空桶</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement_driver.html">
+<iconify-icon class="text-2xl" icon="mdi:file-document-outline"></iconify-icon>
+<span class="text-[10px]">对账</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+<script>
+// Tab switching functionality
+let currentTab = 'pending';
+let currentSort = 'distance';
+const sortOptions = ['distance', 'time', 'priority'];
+
+function switchTab(tab) {
+    currentTab = tab;
+    const tabs = ['pending', 'delivering', 'completed'];
+    
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const list = document.getElementById(`task-list${t !== 'pending' ? '-' + t : ''}`);
+        
+        if (t === tab) {
+            btn.classList.add('tab-active');
+            btn.classList.remove('text-gray-400');
+            btn.classList.add('text-[#1890FF]');
+            list.classList.remove('hidden');
+        } else {
+            btn.classList.remove('tab-active');
+            btn.classList.add('text-gray-400');
+            btn.classList.remove('text-[#1890FF]');
+            list.classList.add('hidden');
+        }
+    });
+}
+
+function toggleSort() {
+    const currentIndex = sortOptions.indexOf(currentSort);
+    const nextIndex = (currentIndex + 1) % sortOptions.length;
+    currentSort = sortOptions[nextIndex];
+    
+    const sortText = document.getElementById('sort-text');
+    const sortLabels = {
+        'distance': '距离',
+        'time': '时间',
+        'priority': '优先级'
+    };
+    sortText.textContent = sortLabels[currentSort];
+    
+    // Sort the task list based on current sort option
+    console.log(`Tasks sorted by: ${currentSort}`);
+}
+
+function callCustomer(phone) {
+    console.log(`Calling customer: ${phone}`);
+    // In real app, use tel: link or call API
+    window.location.href = `tel:${phone.replace(/[*]/g, '0')}`;
+}
+
+function showMapNavigation() {
+    console.log('Opening map navigation');
+    // In real app, open map app with navigation
+    alert('正在打开地图导航...');
+}
+
+// Initialize location tracking (simulated)
+function updateLocation() {
+    const addresses = ['桂林市秀峰区', '桂林市七星区', '桂林市象山区'];
+    const randomAddress = addresses[Math.floor(Math.random() * addresses.length)];
+    document.getElementById('current-address').textContent = randomAddress;
+}
+
+// Simulate real-time updates
+setInterval(() => {
+    // In production, fetch new data from API
+    console.log('Checking for new orders...');
+}, 30000);
+
+// Auto-refresh location
+setInterval(updateLocation, 60000);
+
+// Page load initialization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Driver tasks page loaded');
+    updateLocation();
+});
+</script>
+</body>
+</html>

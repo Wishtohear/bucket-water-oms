@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>数据统计 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4">
+<a class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50" href="owner_index.html">
+<iconify-icon class="text-xl text-gray-600" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">经营看板</h1>
+</div>
+<!-- Time Filter -->
+<div class="mt-4 flex bg-gray-100 p-1 rounded-xl">
+<button class="flex-1 py-1.5 bg-white text-[#1890FF] rounded-lg text-xs font-bold shadow-sm">今日</button>
+<button class="flex-1 py-1.5 text-gray-500 rounded-lg text-xs">近7天</button>
+<button class="flex-1 py-1.5 text-gray-500 rounded-lg text-xs">本月</button>
+<button class="flex-1 py-1.5 text-gray-500 rounded-lg text-xs">全年</button>
+</div>
+</div>
+<!-- Scroll Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Key Metrics -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-[#1890FF]">
+<iconify-icon icon="mdi:cash-multiple"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-400">总营收 (元)</span>
+</div>
+<p class="text-xl font-bold text-gray-800">¥ 3,850.00</p>
+<p class="text-[10px] text-green-500 mt-1 flex items-center gap-1">
+<iconify-icon icon="mdi:arrow-up"></iconify-icon>
+                        12.5% 较昨日
+                    </p>
+</div>
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 bg-green-50 rounded-lg flex items-center justify-center text-[#52C41A]">
+<iconify-icon icon="mdi:cart-outline"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-400">订单量 (笔)</span>
+</div>
+<p class="text-xl font-bold text-gray-800">48</p>
+<p class="text-[10px] text-red-400 mt-1 flex items-center gap-1">
+<iconify-icon icon="mdi:arrow-down"></iconify-icon>
+                        2.1% 较昨日
+                    </p>
+</div>
+</div>
+<!-- Revenue Chart Placeholder -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-bold text-gray-800 text-sm">营收趋势</h3>
+<iconify-icon class="text-gray-400" icon="mdi:information-outline"></iconify-icon>
+</div>
+<div class="h-40 bg-blue-50/30 rounded-2xl relative flex items-end justify-between px-4 pb-2 overflow-hidden">
+<img alt="Revenue Trend Chart" class="absolute inset-0 w-full h-full object-cover opacity-20" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/f60016ab25b24ae6b7090d51b93865cb.jpg"/>
+<div class="w-6 bg-blue-400 rounded-t-lg h-24 z-10"></div>
+<div class="w-6 bg-blue-400 rounded-t-lg h-16 z-10"></div>
+<div class="w-6 bg-blue-400 rounded-t-lg h-32 z-10"></div>
+<div class="w-6 bg-blue-600 rounded-t-lg h-36 z-10"></div>
+<div class="w-6 bg-blue-400 rounded-t-lg h-28 z-10"></div>
+<div class="w-6 bg-blue-400 rounded-t-lg h-20 z-10"></div>
+</div>
+<div class="flex justify-between mt-2 px-2">
+<span class="text-[8px] text-gray-400">04-13</span>
+<span class="text-[8px] text-gray-400">04-14</span>
+<span class="text-[8px] text-gray-400">04-15</span>
+<span class="text-[8px] text-blue-600 font-bold">今日</span>
+<span class="text-[8px] text-gray-400">04-17</span>
+<span class="text-[8px] text-gray-400">04-18</span>
+</div>
+</div>
+<!-- Product Sales Ranking -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<h3 class="font-bold text-gray-800 text-sm mb-4">产品热销榜</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-5 h-5 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
+<span class="text-xs text-gray-700">18.9L 经典桶装水</span>
+</div>
+<span class="text-xs font-bold text-gray-800">320 桶</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-5 h-5 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+<span class="text-xs text-gray-700">11.3L 迷你桶装水</span>
+</div>
+<span class="text-xs font-bold text-gray-800">125 桶</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-5 h-5 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-[10px] font-bold">3</span>
+<span class="text-xs text-gray-700">550ml 瓶装水</span>
+</div>
+<span class="text-xs font-bold text-gray-800">85 箱</span>
+</div>
+</div>
+</div>
+<!-- Customer Distribution Placeholder -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<h3 class="font-bold text-gray-800 text-sm mb-4">新老客户占比</h3>
+<div class="flex items-center justify-center py-4">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<img alt="Customer Distribution Chart" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/f4ae3ad16d644a7daf04cbaa5eefedbf.jpg"/>
+<div class="absolute inset-2 bg-white rounded-full flex flex-col items-center justify-center">
+<p class="text-[8px] text-gray-400">总客户</p>
+<p class="text-xs font-bold">1,248</p>
+</div>
+</div>
+<div class="ml-8 space-y-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+<span class="text-[10px] text-gray-500">老客户 75%</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 bg-blue-200 rounded-full"></div>
+<span class="text-[10px] text-gray-500">新客户 25%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="owner_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="order_list.html">
+<iconify-icon class="text-2xl" icon="mdi:format-list-bulleted"></iconify-icon>
+<span class="text-[10px]">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement.html">
+<iconify-icon class="text-2xl" icon="mdi:finance"></iconify-icon>
+<span class="text-[10px]">财务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="my.html">
+<iconify-icon class="text-2xl" icon="mdi:account-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

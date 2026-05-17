@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 回仓申请</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .step-line { position: absolute; left: 19px; top: 24px; bottom: 0; width: 2px; background: #E2E8F0; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-gradient-to-r from-[#1890FF] to-blue-500 px-6 pt-12 pb-6 text-white shadow-lg">
+<div class="flex items-center gap-4 mb-4">
+<a class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full" href="driver_tasks.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold flex-1">回仓申请</h1>
+<button class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full" onclick="showHelp()">
+<iconify-icon class="text-xl" icon="mdi:help-circle-outline"></iconify-icon>
+</button>
+</div>
+<div class="text-center">
+<p class="text-sm opacity-90 mb-2">当前车上空桶: <span class="font-bold text-xl">75</span> 个</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-32">
+<!-- Progress Steps -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<div class="space-y-6 relative" id="progress-steps">
+<div class="step-line"></div>
+<!-- Step 1 -->
+<div class="flex gap-4 relative z-10" id="step-1">
+<div class="w-10 h-10 rounded-full bg-[#52C41A] flex items-center justify-center text-white flex-shrink-0">
+<iconify-icon class="text-lg" icon="mdi:check-bold"></iconify-icon>
+</div>
+<div class="flex-1 pt-1">
+<p class="text-sm font-bold text-gray-800">选择仓库</p>
+<p class="text-xs text-gray-400 mt-0.5">已选择: 中心仓库 A库区</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex gap-4 relative z-10" id="step-2">
+<div class="w-10 h-10 rounded-full bg-[#1890FF] flex items-center justify-center text-white flex-shrink-0 pulse-animation">
+<span class="text-sm font-bold">2</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="text-sm font-bold text-gray-800">交回空桶</p>
+<p class="text-xs text-gray-400 mt-0.5">填写本次交回数量</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex gap-4 relative z-10" id="step-3">
+<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-white flex-shrink-0">
+<span class="text-sm font-bold">3</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="text-sm font-bold text-gray-400">等待核对</p>
+<p class="text-xs text-gray-300 mt-0.5">仓库清点确认</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Warehouse Selection -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:warehouse"></iconify-icon>
+选择回仓仓库
+</h3>
+<div class="space-y-3" id="warehouse-list">
+<!-- Warehouse 1 (Selected) -->
+<button class="warehouse-btn w-full p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectWarehouse(1)">
+<div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-2xl text-white" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-800">中心仓库 A库区</p>
+<p class="text-xs text-gray-500 mt-1">秀峰区XX路12号 · 距您 1.2km</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded">空闲</span>
+<span class="text-xs text-gray-400">空桶容量: 500个</span>
+</div>
+</div>
+<iconify-icon class="text-blue-500 text-2xl" icon="mdi:check-circle"></iconify-icon>
+</button>
+<!-- Warehouse 2 -->
+<button class="warehouse-btn w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectWarehouse(2)">
+<div class="w-12 h-12 bg-gray-300 rounded-xl flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-2xl text-gray-600" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-700">七星仓库 B库区</p>
+<p class="text-xs text-gray-500 mt-1">七星区龙隐路56号 · 距您 3.5km</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-yellow-100 text-yellow-600 text-[10px] rounded">忙碌</span>
+<span class="text-xs text-gray-400">空桶容量: 120个</span>
+</div>
+</div>
+<iconify-icon class="text-gray-300 text-2xl" icon="mdi:circle-outline"></iconify-icon>
+</button>
+<!-- Warehouse 3 -->
+<button class="warehouse-btn w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectWarehouse(3)">
+<div class="w-12 h-12 bg-gray-300 rounded-xl flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-2xl text-gray-600" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-700">象山仓库 C库区</p>
+<p class="text-xs text-gray-500 mt-1">象山区环城南路89号 · 距您 5.8km</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-green-100 text-green-600 text-[10px] rounded">空闲</span>
+<span class="text-xs text-gray-400">空桶容量: 350个</span>
+</div>
+</div>
+<iconify-icon class="text-gray-300 text-2xl" icon="mdi:circle-outline"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Bucket Return Form -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-5">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:barrel"></iconify-icon>
+交回空桶
+</h3>
+<!-- Current Status -->
+<div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-xl text-blue-600" icon="mdi:information"></iconify-icon>
+<span class="text-sm text-blue-700 font-medium">当前车上空桶</span>
+</div>
+<span class="text-xl font-bold text-blue-600">75 个</span>
+</div>
+</div>
+<!-- Return Quantity Input -->
+<div class="space-y-3">
+<label class="text-sm font-medium text-gray-700">本次交回空桶数量</label>
+<div class="flex items-center gap-4">
+<button class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 active:bg-gray-200 transition-colors" onclick="adjustReturnQuantity(-10)">
+<iconify-icon class="text-2xl" icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 px-6 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-center text-3xl font-bold focus:outline-none focus:border-blue-500" type="number" id="return-quantity" value="45" min="0" max="75"/>
+<button class="w-14 h-14 bg-[#1890FF] rounded-xl flex items-center justify-center text-white active:bg-blue-600 transition-colors" onclick="adjustReturnQuantity(10)">
+<iconify-icon class="text-2xl" icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+<div class="flex justify-center gap-4 mt-3">
+<button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium active:bg-gray-200" onclick="setReturnQuantity(30)">30个</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium active:bg-gray-200" onclick="setReturnQuantity(45)">45个</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium active:bg-gray-200" onclick="setReturnQuantity(60)">60个</button>
+<button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium active:bg-blue-100" onclick="setReturnQuantity(75)">全部</button>
+</div>
+</div>
+<!-- Remaining Buckets -->
+<div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-xl text-orange-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-sm text-orange-700 font-medium">交回后剩余</span>
+</div>
+<span class="text-xl font-bold text-orange-600" id="remaining-quantity">30 个</span>
+</div>
+<div class="text-xs text-orange-600 mt-2">
+* 剩余空桶将用于后续配送
+</div>
+</div>
+<!-- Quick Stats -->
+<div class="grid grid-cols-3 gap-4 text-center">
+<div class="p-3 bg-green-50 rounded-xl">
+<p class="text-xs text-gray-500 mb-1">今日回收</p>
+<p class="text-lg font-bold text-green-600" id="today-return">120</p>
+</div>
+<div class="p-3 bg-blue-50 rounded-xl">
+<p class="text-xs text-gray-500 mb-1">待交回</p>
+<p class="text-lg font-bold text-blue-600">45</p>
+</div>
+<div class="p-3 bg-orange-50 rounded-xl">
+<p class="text-xs text-gray-500 mb-1">车上剩余</p>
+<p class="text-lg font-bold text-orange-600">30</p>
+</div>
+</div>
+</div>
+<!-- Restock Request -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:truck-delivery-outline"></iconify-icon>
+补货申请 <span class="text-xs font-normal text-gray-400">(可选)</span>
+</h3>
+<div class="p-4 bg-gray-50 rounded-xl">
+<div class="flex items-center justify-between">
+<span class="text-sm text-gray-600">是否需要领取新货?</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" id="restock-toggle"/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#1890FF]"></div>
+</label>
+</div>
+</div>
+<div id="restock-form" class="hidden space-y-3">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-xs text-gray-500">18.9L 桶装水</label>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 active:bg-gray-200" onclick="adjustRestock('189', -10)">
+<iconify-icon class="text-sm" icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-center text-sm font-medium" type="number" id="restock-189" value="0" min="0"/>
+<button class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white active:bg-blue-600" onclick="adjustRestock('189', 10)">
+<iconify-icon class="text-sm" icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs text-gray-500">11.3L 桶装水</label>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 active:bg-gray-200" onclick="adjustRestock('113', -10)">
+<iconify-icon class="text-sm" icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-center text-sm font-medium" type="number" id="restock-113" value="0" min="0"/>
+<button class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white active:bg-blue-600" onclick="adjustRestock('113', 10)">
+<iconify-icon class="text-sm" icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+</div>
+<div class="p-3 bg-blue-50 rounded-xl text-xs text-blue-600">
+<iconify-icon icon="mdi:information-outline"></iconify-icon>
+补货将在仓库核对完成后领取
+</div>
+</div>
+<!-- Notes -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-3">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:note-text-outline"></iconify-icon>
+备注信息
+</h3>
+<textarea class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" rows="2" placeholder="可添加备注，如：部分桶有破损需清洗..."></textarea>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="absolute bottom-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 pb-8 space-y-3">
+<button class="w-full py-4 bg-[#1890FF] text-white rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="submitReturn()">
+<iconify-icon class="text-2xl" icon="mdi:check"></iconify-icon>
+提交回仓申请
+</button>
+<button class="w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-medium active:bg-gray-200 flex items-center justify-center gap-2" onclick="saveDraft()">
+<iconify-icon icon="mdi:content-save-outline"></iconify-icon>
+保存草稿
+</button>
+</div>
+</div>
+<style>
+    .pulse-animation {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+</style>
+<script>
+// Current state
+let selectedWarehouse = 1;
+let returnQuantity = 45;
+let maxReturnQuantity = 75;
+
+function showHelp() {
+    alert('回仓申请说明:\n\n1. 选择要回仓的仓库\n2. 填写本次交回的空桶数量\n3. 如需补货，可勾选补货申请\n4. 提交后前往仓库进行清点核对\n5. 仓库确认后完成回仓流程');
+}
+
+function selectWarehouse(id) {
+    selectedWarehouse = id;
+    
+    // Update button styles
+    document.querySelectorAll('.warehouse-btn').forEach((btn, index) => {
+        const icons = btn.querySelectorAll('iconify-icon');
+        const icon = icons[icons.length - 1];
+        const divIcon = btn.querySelector('div:first-child');
+        
+        if ((id === 1 && index === 0) || (id === 2 && index === 1) || (id === 3 && index === 2)) {
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-blue-50', 'border-blue-500');
+            divIcon.classList.remove('bg-gray-300', 'text-gray-600');
+            divIcon.classList.add('bg-blue-500', 'text-white');
+            icon.classList.remove('text-gray-300');
+            icon.classList.add('text-blue-500');
+            icon.setAttribute('icon', 'mdi:check-circle');
+        } else {
+            btn.classList.add('bg-gray-50', 'border-gray-200');
+            btn.classList.remove('bg-blue-50', 'border-blue-500');
+            divIcon.classList.add('bg-gray-300', 'text-gray-600');
+            divIcon.classList.remove('bg-blue-500', 'text-white');
+            icon.classList.add('text-gray-300');
+            icon.classList.remove('text-blue-500');
+            icon.setAttribute('icon', 'mdi:circle-outline');
+        }
+    });
+    
+    // Update progress steps
+    updateProgressSteps();
+}
+
+function adjustReturnQuantity(delta) {
+    returnQuantity = Math.max(0, Math.min(maxReturnQuantity, returnQuantity + delta));
+    document.getElementById('return-quantity').value = returnQuantity;
+    updateRemaining();
+}
+
+function setReturnQuantity(quantity) {
+    returnQuantity = Math.min(quantity, maxReturnQuantity);
+    document.getElementById('return-quantity').value = returnQuantity;
+    updateRemaining();
+}
+
+function updateRemaining() {
+    const remaining = maxReturnQuantity - returnQuantity;
+    document.getElementById('remaining-quantity').textContent = remaining + ' 个';
+    
+    // Update quick buttons
+    const buttons = document.querySelectorAll('#restock-form ~ div button, #restock-form ~ div ~ div button, #restock-form ~ div ~ div ~ div button');
+    // Just update the remaining display
+}
+
+function updateProgressSteps() {
+    // Update step indicators
+    for (let i = 1; i <= 3; i++) {
+        const step = document.getElementById(`step-${i}`);
+        const circle = step.querySelector('div:first-child');
+        
+        if (i === 1) {
+            circle.classList.remove('bg-gray-200');
+            circle.classList.add('bg-[#52C41A]');
+            circle.innerHTML = '<iconify-icon class="text-lg" icon="mdi:check-bold"></iconify-icon>';
+        } else if (i === 2) {
+            circle.classList.remove('bg-gray-200', 'pulse-animation');
+            circle.classList.add('bg-[#1890FF]', 'pulse-animation');
+            circle.innerHTML = '<span class="text-sm font-bold">' + i + '</span>';
+        } else {
+            circle.classList.add('bg-gray-200');
+            circle.classList.remove('bg-[#1890FF]');
+            circle.innerHTML = '<span class="text-sm font-bold">' + i + '</span>';
+        }
+    }
+}
+
+// Restock toggle
+document.getElementById('restock-toggle').addEventListener('change', function() {
+    const form = document.getElementById('restock-form');
+    form.classList.toggle('hidden', !this.checked);
+});
+
+function adjustRestock(type, delta) {
+    const input = document.getElementById(`restock-${type}`);
+    let value = parseInt(input.value) || 0;
+    value = Math.max(0, value + delta);
+    input.value = value;
+}
+
+function saveDraft() {
+    console.log('Saving draft...');
+    alert('草稿已保存\n\n回仓仓库: 中心仓库 A库区\n交回数量: ' + returnQuantity + '个\n\n您可以稍后继续提交');
+}
+
+function submitReturn() {
+    // Validate
+    if (returnQuantity <= 0) {
+        alert('请输入交回的空桶数量');
+        return;
+    }
+    
+    // Prepare submission data
+    const submissionData = {
+        warehouseId: selectedWarehouse,
+        returnQuantity: returnQuantity,
+        remainingQuantity: maxReturnQuantity - returnQuantity,
+        restockRequest: document.getElementById('restock-toggle').checked,
+        restockItems: {
+            '189': parseInt(document.getElementById('restock-189').value) || 0,
+            '113': parseInt(document.getElementById('restock-113').value) || 0
+        },
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('Submitting return:', submissionData);
+    
+    // Show confirmation
+    const warehouseName = selectedWarehouse === 1 ? '中心仓库 A库区' : selectedWarehouse === 2 ? '七星仓库 B库区' : '象山仓库 C库区';
+    
+    alert(`回仓申请已提交!\n\n仓库: ${warehouseName}\n交回数量: ${returnQuantity}个\n剩余空桶: ${submissionData.remainingQuantity}个\n补货申请: ${submissionData.restockRequest ? '是' : '否'}\n\n请前往仓库进行清点核对\n预计等待时间: 5-10分钟`);
+    
+    // Redirect to tasks page
+    window.location.href = 'driver_tasks.html';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Warehouse return page loaded');
+    updateRemaining();
+    
+    // Initialize restock form visibility
+    const toggle = document.getElementById('restock-toggle');
+    const form = document.getElementById('restock-form');
+    form.classList.toggle('hidden', !toggle.checked);
+});
+</script>
+</body>
+</html>

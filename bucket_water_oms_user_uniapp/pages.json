@@ -1,0 +1,299 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationBarTitleText": "我的订单"
+      }
+    },
+    {
+      "path": "pages/cart/index",
+      "style": {
+        "navigationBarTitleText": "购物车"
+      }
+    },
+    {
+      "path": "pages/user/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "pages-auth",
+      "pages": [
+        {
+          "path": "login",
+          "style": {
+            "navigationBarTitleText": "登录",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "register",
+          "style": {
+            "navigationBarTitleText": "注册"
+          }
+        },
+        {
+          "path": "forget-password",
+          "style": {
+            "navigationBarTitleText": "忘记密码"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-station",
+      "pages": [
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "水站详情"
+          }
+        },
+        {
+          "path": "search",
+          "style": {
+            "navigationBarTitleText": "搜索水站"
+          }
+        },
+        {
+          "path": "favorites",
+          "style": {
+            "navigationBarTitleText": "收藏水站"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-product",
+      "pages": [
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "商品详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-address",
+      "pages": [
+        {
+          "path": "list",
+          "style": {
+            "navigationBarTitleText": "地址管理"
+          }
+        },
+        {
+          "path": "edit",
+          "style": {
+            "navigationBarTitleText": "编辑地址"
+          }
+        },
+        {
+          "path": "select",
+          "style": {
+            "navigationBarTitleText": "选择地址"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-order",
+      "pages": [
+        {
+          "path": "create",
+          "style": {
+            "navigationBarTitleText": "确认订单"
+          }
+        },
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "订单详情"
+          }
+        },
+        {
+          "path": "evaluate",
+          "style": {
+            "navigationBarTitleText": "评价订单"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-station-order",
+      "pages": [
+        {
+          "path": "list",
+          "style": {
+            "navigationBarTitleText": "水站订单"
+          }
+        },
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "订单详情"
+          }
+        },
+        {
+          "path": "track",
+          "style": {
+            "navigationBarTitleText": "配送追踪"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-delivery",
+      "pages": [
+        {
+          "path": "task-list",
+          "style": {
+            "navigationBarTitleText": "配送任务"
+          }
+        },
+        {
+          "path": "task-detail",
+          "style": {
+            "navigationBarTitleText": "任务详情"
+          }
+        },
+        {
+          "path": "bind",
+          "style": {
+            "navigationBarTitleText": "配送员登录"
+          }
+        },
+        {
+          "path": "my-stats",
+          "style": {
+            "navigationBarTitleText": "我的统计"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-ticket",
+      "pages": [
+        {
+          "path": "my-tickets",
+          "style": {
+            "navigationBarTitleText": "我的水票"
+          }
+        },
+        {
+          "path": "product-tickets",
+          "style": {
+            "navigationBarTitleText": "水票套餐"
+          }
+        },
+        {
+          "path": "use-record",
+          "style": {
+            "navigationBarTitleText": "使用记录"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-station-manage",
+      "pages": [
+        {
+          "path": "order-manage",
+          "style": {
+            "navigationBarTitleText": "订单管理"
+          }
+        },
+        {
+          "path": "dispatch",
+          "style": {
+            "navigationBarTitleText": "派单"
+          }
+        },
+        {
+          "path": "delivery-persons",
+          "style": {
+            "navigationBarTitleText": "配送员管理"
+          }
+        },
+        {
+          "path": "ticket-manage",
+          "style": {
+            "navigationBarTitleText": "水票管理"
+          }
+        },
+        {
+          "path": "ticket-edit",
+          "style": {
+            "navigationBarTitleText": "编辑水票"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-payment",
+      "pages": [
+        {
+          "path": "result",
+          "style": {
+            "navigationBarTitleText": "支付结果"
+          }
+        }
+      ]
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "订水平台",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F8FAFC"
+  },
+  "tabBar": {
+    "color": "#8C8C8C",
+    "selectedColor": "#1890FF",
+    "borderStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/order/list",
+        "text": "订单",
+        "iconPath": "static/tabbar/order.png",
+        "selectedIconPath": "static/tabbar/order-active.png"
+      },
+      {
+        "pagePath": "pages/cart/index",
+        "text": "购物车",
+        "iconPath": "static/tabbar/cart.png",
+        "selectedIconPath": "static/tabbar/cart-active.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-active.png"
+      }
+    ]
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  }
+}

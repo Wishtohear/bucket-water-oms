@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 仓库设置</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header / Profile Profile -->
+<div class="bg-[#1890FF] px-6 pt-16 pb-8 rounded-b-[40px] shadow-lg shadow-blue-100 relative">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-2xl border-2 border-white/50 p-1">
+<img alt="Admin Avatar" class="w-full h-full rounded-xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/ccffcecb3a5c481d86feb6258243b7e8.jpg"/>
+</div>
+<div class="text-white">
+<h2 class="text-xl font-bold">王管理</h2>
+<p class="text-xs opacity-80 mt-1">工号: WMS-2026-001</p>
+</div>
+<div class="ml-auto">
+<span class="px-2 py-1 bg-white/20 rounded-lg text-[10px] text-white font-bold backdrop-blur-sm">高级管理员</span>
+</div>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-6 space-y-6 pb-24 -mt-4">
+<!-- Warehouse Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-xl" icon="mdi:office-building-marker-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400">所属机构</p>
+<p class="text-sm font-bold text-gray-800">水务科技中心仓库</p>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500">
+<iconify-icon class="text-xl" icon="mdi:map-marker-radius-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400">库位管理</p>
+<p class="text-sm font-bold text-gray-800">A区、B区、成品库</p>
+</div>
+</div>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+<!-- Settings List -->
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm">
+<a class="flex items-center gap-4 p-4 active:bg-gray-50 border-b border-gray-50" href="#">
+<div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-[#52C41A]">
+<iconify-icon class="text-lg" icon="mdi:shield-check-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700 flex-1">权限设置</span>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<a class="flex items-center gap-4 p-4 active:bg-gray-50 border-b border-gray-50" href="#">
+<div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-orange-500">
+<iconify-icon class="text-lg" icon="mdi:history"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700 flex-1">操作日志</span>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<a class="flex items-center gap-4 p-4 active:bg-gray-50 border-b border-gray-50" href="#">
+<div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-lg" icon="mdi:bell-ring-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700 flex-1">消息提醒</span>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<a class="flex items-center gap-4 p-4 active:bg-gray-50" href="login.html">
+<div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center text-[#FF4D4F]">
+<iconify-icon class="text-lg" icon="mdi:logout-variant"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-[#FF4D4F] flex-1">退出登录</span>
+</a>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400">水厂订货管理系统 V4.2.0</p>
+<p class="text-[10px] text-gray-300 mt-1">数据最后同步: 2026-04-19 14:30</p>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_outbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-up"></iconify-icon>
+<span class="text-[10px]">出库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px]">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

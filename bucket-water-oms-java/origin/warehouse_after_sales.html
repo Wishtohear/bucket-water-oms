@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 售后处理</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4 mb-4">
+<a class="text-gray-500" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">售后处理</h1>
+<div class="ml-auto">
+<span class="px-2 py-1 bg-orange-100 text-orange-500 text-[10px] font-bold rounded-lg">2 待处理</span>
+</div>
+</div>
+<!-- Sub Tabs -->
+<div class="flex gap-6 text-sm">
+<a class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF] font-medium" href="#">待处理 (2)</a>
+<a class="pb-2 text-gray-400" href="#">处理中 (1)</a>
+<a class="pb-2 text-gray-400" href="#">已完成 (15)</a>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- After Sales Card 1 - Replenishment -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-orange-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-800">售后单 #AS2026042101</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] px-2 py-0.5 bg-orange-100 text-orange-600 rounded-lg font-bold">补货申请</span>
+<span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">等待 30分钟</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">张记旗舰水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市秀峰区XX路XX号</p>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="text-xs text-gray-500 mb-2">关联订单: #850018</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-600">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">缺少 3 桶</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-600">11.3L 迷你桶</span>
+<span class="font-bold text-gray-800">缺少 2 桶</span>
+</div>
+</div>
+</div>
+<div class="p-3 bg-orange-50 rounded-xl mb-4">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-orange-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs text-orange-700">原因: 配送时数量不足，水站投诉</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-[#52C41A] text-white rounded-xl text-xs font-bold shadow-md shadow-green-100" onclick="window.location.href='warehouse_after_sales_detail.html'">
+处理申请
+</button>
+<button class="px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl">
+<iconify-icon icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- After Sales Card 2 - Quality Issue -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-red-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-800">售后单 #AS2026042102</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] px-2 py-0.5 bg-red-100 text-red-600 rounded-lg font-bold">质量问题</span>
+<span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">等待 45分钟</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">王记纯净水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市象山区XX路XX号</p>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="text-xs text-gray-500 mb-2">关联订单: #850015</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-600">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">质量问题 5 桶</span>
+</div>
+</div>
+</div>
+<div class="p-3 bg-red-50 rounded-xl mb-4">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-red-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs text-red-700">原因: 客户反映水质有异味，要求更换</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-[#52C41A] text-white rounded-xl text-xs font-bold shadow-md shadow-green-100" onclick="window.location.href='warehouse_after_sales_detail.html'">
+处理申请
+</button>
+<button class="px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl">
+<iconify-icon icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Completed Card -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50 opacity-80">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-bold text-gray-800">售后单 #AS2026042003</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] px-2 py-0.5 bg-green-100 text-green-600 rounded-lg font-bold">已完成</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">李老板水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市七星区XX路XX号</p>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="text-xs text-gray-500 mb-2">关联订单: #850010</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-600">空桶回收</span>
+<span class="font-bold text-gray-800">缺少 3 个</span>
+</div>
+</div>
+</div>
+<div class="p-3 bg-green-50 rounded-xl mb-4">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle-outline"></iconify-icon>
+<span class="text-xs text-green-700">处理结果: 已补发 3 个空桶</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-xs font-bold">
+查看详情
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_orders.html">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+<span class="text-[10px] font-bold">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px]">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

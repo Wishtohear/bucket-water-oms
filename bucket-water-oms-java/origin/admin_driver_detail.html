@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机详情 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f0f2f5; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        .sidebar-item:hover { background: #f5f5f5; }
+        .sidebar-item-active { background: #e6f7ff; color: #1890FF; border-right: 3px solid #1890FF; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white flex flex-col border-r border-gray-200">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-[#1890FF] rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white text-xl" icon="mdi:water"></iconify-icon>
+</div>
+<span class="text-lg font-bold text-gray-800">水厂运营后台</span>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_index.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:view-dashboard-outline"></iconify-icon>
+<span class="font-medium">后台首页</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_stations.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:store-outline"></iconify-icon>
+<span class="font-medium">水站管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_warehouses.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">仓库管理</span>
+</a>
+<a class="sidebar-item sidebar-item-active flex items-center px-6 py-4 transition-colors" href="admin_drivers.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:truck-outline"></iconify-icon>
+<span class="font-medium">司机管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_products.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:package-variant"></iconify-icon>
+<span class="font-medium">产品管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_policies.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:file-certificate-outline"></iconify-icon>
+<span class="font-medium">销售政策</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_inventory.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">库存管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_finance.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:finance"></iconify-icon>
+<span class="font-medium">财务管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_reports.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:chart-bar"></iconify-icon>
+<span class="font-medium">报表统计</span>
+</a>
+<div class="px-6 py-4 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">系统设置</div>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_settings.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:cog-outline"></iconify-icon>
+<span class="font-medium">系统配置</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-100">
+<a class="flex items-center px-4 py-3 text-gray-500 hover:text-red-500 transition-colors rounded-xl" href="admin_login.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:logout"></iconify-icon>
+<span class="font-medium">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
+<div class="flex items-center gap-4">
+<a class="text-gray-500 hover:text-blue-500" href="admin_drivers.html">
+<iconify-icon class="text-xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h2 class="text-lg font-semibold text-gray-800">司机详情</h2>
+<nav class="flex text-sm text-gray-400">
+<span class="hover:text-blue-500 cursor-pointer">司机管理</span>
+<span class="mx-2">/</span>
+<span class="text-gray-600">司机详情</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+<iconify-icon class="mr-2" icon="mdi:pencil-outline"></iconify-icon>
+编辑信息
+</button>
+<button class="bg-[#1890FF] text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+<iconify-icon class="mr-2" icon="mdi:reset"></iconify-icon>
+重置密码
+</button>
+</div>
+</header>
+<!-- Scrollable Body -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="grid grid-cols-3 gap-8">
+<!-- Left Column -->
+<div class="col-span-2 space-y-6">
+<!-- Basic Info Card -->
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Driver" class="w-20 h-20 rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+<div class="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs border-2 border-white">
+<iconify-icon icon="mdi:check"></iconify-icon>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold text-gray-800">张小龙</h3>
+<p class="text-sm text-gray-400 mt-1">工号: DRV-2024-001 | 入职: 2024-03-15</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full border border-green-100">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+在线配送中
+</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">联系电话</label>
+<p class="text-sm font-medium text-gray-800">138-0000-1001</p>
+</div>
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">紧急联系人</label>
+<p class="text-sm font-medium text-gray-800">王小红 (妻子) 139-0000-1002</p>
+</div>
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">车牌号</label>
+<p class="text-sm font-medium text-gray-800">浙A·88888</p>
+</div>
+<div>
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">车辆类型</label>
+<p class="text-sm font-medium text-gray-800">厢式货车 4.2米</p>
+</div>
+<div class="col-span-2">
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">负责仓库</label>
+<p class="text-sm font-medium text-gray-800">中心仓库 A库区</p>
+</div>
+<div class="col-span-2">
+<label class="block text-xs font-bold text-gray-400 uppercase mb-2">负责区域</label>
+<p class="text-sm font-medium text-gray-800">中心城区、滨江区</p>
+</div>
+</div>
+</div>
+<!-- Performance Stats -->
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+<h4 class="font-bold text-gray-800 text-lg mb-6">配送业绩统计</h4>
+<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="p-4 bg-blue-50 rounded-2xl text-center">
+<p class="text-xs text-gray-400 mb-1">本月完成</p>
+<p class="text-2xl font-bold text-blue-600">312 单</p>
+</div>
+<div class="p-4 bg-green-50 rounded-2xl text-center">
+<p class="text-xs text-gray-400 mb-1">配送桶数</p>
+<p class="text-2xl font-bold text-green-600">8,560 桶</p>
+</div>
+<div class="p-4 bg-purple-50 rounded-2xl text-center">
+<p class="text-xs text-gray-400 mb-1">好评率</p>
+<p class="text-2xl font-bold text-purple-600">99.2%</p>
+</div>
+<div class="p-4 bg-orange-50 rounded-2xl text-center">
+<p class="text-xs text-gray-400 mb-1">配送里程</p>
+<p class="text-2xl font-bold text-orange-600">1,850 km</p>
+</div>
+</div>
+<div class="p-4 bg-gray-50 rounded-xl">
+<div class="flex justify-between items-center mb-3">
+<span class="text-sm font-bold text-gray-700">本月配送效率趋势</span>
+<span class="text-xs text-gray-400">4月份</span>
+</div>
+<div class="flex items-end gap-2 h-24">
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 60%"></div>
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 75%"></div>
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 55%"></div>
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 80%"></div>
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 70%"></div>
+<div class="flex-1 bg-blue-100 rounded-t-lg hover:bg-blue-400 transition-colors" style="height: 85%"></div>
+<div class="flex-1 bg-blue-400 rounded-t-lg" style="height: 90%"></div>
+</div>
+<div class="flex justify-between text-xs text-gray-400 mt-2">
+<span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
+</div>
+</div>
+</div>
+<!-- Recent Tasks -->
+<div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-bold text-gray-800 text-lg">最近配送任务</h4>
+<button class="text-blue-500 text-sm font-bold">查看全部</button>
+</div>
+<table class="w-full text-left">
+<thead class="bg-gray-50 rounded-xl">
+<tr>
+<th class="px-4 py-3 text-xs font-bold text-gray-400 uppercase">订单编号</th>
+<th class="px-4 py-3 text-xs font-bold text-gray-400 uppercase">水站</th>
+<th class="px-4 py-3 text-xs font-bold text-gray-400 uppercase">配送时间</th>
+<th class="px-4 py-3 text-xs font-bold text-gray-400 uppercase text-right">桶数</th>
+<th class="px-4 py-3 text-xs font-bold text-gray-400 uppercase">状态</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50">
+<tr>
+<td class="px-4 py-4 text-sm text-gray-800 font-mono">#ORD2026041901</td>
+<td class="px-4 py-4 text-sm text-gray-600">滨江花园水站</td>
+<td class="px-4 py-4 text-sm text-gray-400">04-19 14:20</td>
+<td class="px-4 py-4 text-sm text-gray-800 text-right font-bold">50 桶</td>
+<td class="px-4 py-4"><span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full">已完成</span></td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-sm text-gray-800 font-mono">#ORD2026041902</td>
+<td class="px-4 py-4 text-sm text-gray-600">西湖灵隐路水站</td>
+<td class="px-4 py-4 text-sm text-gray-400">04-19 10:30</td>
+<td class="px-4 py-4 text-sm text-gray-800 text-right font-bold">80 桶</td>
+<td class="px-4 py-4"><span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full">已完成</span></td>
+</tr>
+<tr>
+<td class="px-4 py-4 text-sm text-gray-800 font-mono">#ORD2026041805</td>
+<td class="px-4 py-4 text-sm text-gray-600">上城湖滨水站</td>
+<td class="px-4 py-4 text-sm text-gray-400">04-18 16:15</td>
+<td class="px-4 py-4 text-sm text-gray-800 text-right font-bold">100 桶</td>
+<td class="px-4 py-4"><span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full">已完成</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Column -->
+<div class="space-y-6">
+<!-- Current Status -->
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<h4 class="font-bold text-gray-800 mb-4">实时状态</h4>
+<div class="space-y-4">
+<div class="p-4 bg-green-50 rounded-2xl">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm text-gray-600">当前位置</span>
+<span class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full font-bold">GPS在线</span>
+</div>
+<p class="text-sm font-bold text-gray-800">滨江区网商路699号附近</p>
+<p class="text-[10px] text-gray-400 mt-1">最后更新: 2分钟前</p>
+</div>
+<div class="flex gap-4">
+<div class="flex-1 p-4 bg-blue-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400 mb-1">当前任务</p>
+<p class="text-xl font-bold text-blue-600">2 单</p>
+</div>
+<div class="flex-1 p-4 bg-purple-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400 mb-1">车上空桶</p>
+<p class="text-xl font-bold text-purple-600">45 个</p>
+</div>
+</div>
+</div>
+<!-- Today Summary -->
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<h4 class="font-bold text-gray-800 mb-4">今日汇总</h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center py-3 border-b border-gray-50">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-blue-500" icon="mdi:clipboard-check"></iconify-icon>
+<span class="text-sm text-gray-600">完成配送</span>
+</div>
+<span class="text-sm font-bold text-gray-800">12 单</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-gray-50">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:barrel"></iconify-icon>
+<span class="text-sm text-gray-600">送水桶数</span>
+</div>
+<span class="text-sm font-bold text-gray-800">320 桶</span>
+</div>
+<div class="flex justify-between items-center py-3 border-b border-gray-50">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-orange-500" icon="mdi:map-marker-distance"></iconify-icon>
+<span class="text-sm text-gray-600">行驶里程</span>
+</div>
+<span class="text-sm font-bold text-gray-800">85 km</span>
+</div>
+<div class="flex justify-between items-center py-3">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-purple-500" icon="mdi:clock-outline"></iconify-icon>
+<span class="text-sm text-gray-600">工作时长</span>
+</div>
+<span class="text-sm font-bold text-gray-800">6.5 小时</span>
+</div>
+</div>
+</div>
+<!-- Bucket Balance -->
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<h4 class="font-bold text-gray-800 mb-4">空桶往来</h4>
+<div class="p-4 bg-gradient-to-br from-[#1890FF] to-blue-500 rounded-2xl text-white mb-4">
+<p class="text-xs opacity-80 mb-1">车上空桶</p>
+<p class="text-2xl font-bold">45 <span class="text-sm font-normal opacity-70">个</span></p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
+<span class="text-xs text-gray-500">回收空桶</span>
+<span class="text-xs font-bold text-green-600">+120 个</span>
+</div>
+<div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
+<span class="text-xs text-gray-500">送出空桶</span>
+<span class="text-xs font-bold text-orange-600">-75 个</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<h4 class="font-bold text-gray-800 mb-4">快捷操作</h4>
+<div class="space-y-2">
+<button class="w-full py-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors">
+<iconify-icon icon="mdi:phone"></iconify-icon>
+联系司机
+</button>
+<button class="w-full py-3 bg-orange-50 text-orange-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-orange-100 transition-colors">
+<iconify-icon icon="mdi:map-marker-path"></iconify-icon>
+查看位置
+</button>
+<button class="w-full py-3 bg-red-50 text-red-500 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
+<iconify-icon icon="mdi:account-off"></iconify-icon>
+设为休息
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body>
+</html>

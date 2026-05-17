@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 订单详情</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .step-line { position: absolute; left: 15px; top: 20px; bottom: 0; width: 2px; background: #E2E8F0; }
+        .step-active .step-dot { background: #1890FF; box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2); }
+        .step-completed .step-dot { background: #52C41A; }
+        .pulse-animation { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(24, 144, 255, 0); }
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10 flex items-center gap-4">
+<a class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full" href="driver_tasks.html">
+<iconify-icon class="text-2xl text-gray-800" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800 flex-1">订单详情</h1>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg">#1</span>
+<span class="text-xs text-gray-400">配送序列</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-32">
+<!-- GPS Check-in Status -->
+<div id="checkin-status" class="bg-gradient-to-r from-green-50 to-green-50/50 rounded-2xl p-4 border border-green-200">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-xl text-green-600" icon="mdi:map-marker-check"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-green-700">已到达打卡</p>
+<p class="text-xs text-green-600 mt-0.5">打卡时间: <span id="checkin-time">14:23</span></p>
+</div>
+</div>
+<button class="text-xs text-green-600 font-medium" onclick="showCheckinDetail()">查看详情</button>
+</div>
+<div class="mt-3 pt-3 border-t border-green-200">
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2 text-gray-600">
+<iconify-icon icon="mdi:map-marker-radius"></iconify-icon>
+<span>打卡位置:</span>
+</div>
+<span class="text-gray-800 font-medium" id="checkin-address">桂林市秀峰区XX路88号</span>
+</div>
+<div class="flex items-center justify-between text-xs mt-1">
+<div class="flex items-center gap-2 text-gray-600">
+<iconify-icon icon="mdi:map-marker-distance"></iconify-icon>
+<span>距离水站:</span>
+</div>
+<span class="text-gray-800 font-medium" id="checkin-distance">50米</span>
+</div>
+</div>
+</div>
+<!-- Order Status Tracking -->
+<div class="bg-white rounded-3xl p-6 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-6 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:timeline-clock-outline"></iconify-icon>
+配送进度
+</h3>
+<div class="space-y-8 relative" id="progress-timeline">
+<div class="step-line"></div>
+<!-- Step 1 - Pending -->
+<div class="flex gap-4 relative z-10 step-completed">
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-white step-dot">
+<iconify-icon class="text-sm" icon="mdi:check-bold"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">已接单</p>
+<p class="text-[10px] text-gray-400">10:00</p>
+</div>
+</div>
+<!-- Step 2 - Dispatched -->
+<div class="flex gap-4 relative z-10 step-completed">
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-white step-dot">
+<iconify-icon class="text-sm" icon="mdi:truck-delivery-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">已派单</p>
+<p class="text-[10px] text-gray-400">10:15 - 仓库已分配给您</p>
+</div>
+</div>
+<!-- Step 3 - Started Delivery -->
+<div class="flex gap-4 relative z-10 step-active">
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-white step-dot">
+<iconify-icon class="text-sm" icon="mdi:navigation"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">开始配送</p>
+<p class="text-[10px] text-gray-400">14:20</p>
+</div>
+</div>
+<!-- Step 4 - Arrived -->
+<div class="flex gap-4 relative z-10 step-active">
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-white step-dot pulse-animation">
+<iconify-icon class="text-sm" icon="mdi:map-marker-check"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">已到达打卡</p>
+<p class="text-[10px] text-gray-400">14:23</p>
+</div>
+</div>
+<!-- Step 5 - Completed -->
+<div class="flex gap-4 relative z-10">
+<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-white step-dot">
+<iconify-icon class="text-sm" icon="mdi:home-check-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-400">已送达</p>
+<p class="text-[10px] text-gray-300">待确认</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Customer & Delivery Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-xl" icon="mdi:account-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">张老板</p>
+<p class="text-xs text-gray-500">138****8888</p>
+<p class="text-xs text-gray-400 mt-0.5">张记旗舰水站</p>
+</div>
+</div>
+<button class="w-10 h-10 bg-[#52C41A] text-white rounded-full flex items-center justify-center shadow-md" onclick="callCustomer()">
+<iconify-icon class="text-xl" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="flex gap-3 pt-2 border-t border-gray-50">
+<iconify-icon class="text-[#1890FF] mt-1" icon="mdi:map-marker-outline"></iconify-icon>
+<div class="flex-1">
+<p class="text-xs text-gray-800 leading-relaxed">桂林市秀峰区XX路88号张记旗舰水站</p>
+<div class="flex items-center gap-4 mt-1">
+<span class="text-[10px] text-gray-400">预约时间: 14:00</span>
+<span class="text-[10px] text-gray-400">|</span>
+<span class="text-[10px] text-blue-500">距您 2.5km</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 bg-blue-50 text-[#1890FF] text-xs font-bold rounded-xl flex items-center justify-center gap-2" onclick="startNavigation()">
+<iconify-icon icon="mdi:navigation-variant-outline"></iconify-icon>
+启动导航
+</button>
+</div>
+<!-- Product Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:cube-outline"></iconify-icon>
+商品信息
+</h3>
+<div class="space-y-3" id="product-list">
+<!-- Product Item 1 -->
+<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-blue-600 text-sm" icon="mdi:water"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">18.9L 桶装水</p>
+<p class="text-xs text-gray-400">单价: ¥15.00</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-gray-800">× 50 桶</p>
+<p class="text-xs text-gray-500">¥750.00</p>
+</div>
+</div>
+<!-- Product Item 2 -->
+<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-blue-600 text-sm" icon="mdi:water-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">11.3L 桶装水</p>
+<p class="text-xs text-gray-400">单价: ¥12.00</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-gray-800">× 20 桶</p>
+<p class="text-xs text-gray-500">¥240.00</p>
+</div>
+</div>
+<!-- Product Item 3 -->
+<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-orange-600 text-sm" icon="mdi:bottle-soda-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">瓶装水 (24瓶/件)</p>
+<p class="text-xs text-gray-400">单价: ¥36.00/件</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-gray-800">× 5 件</p>
+<p class="text-xs text-gray-500">¥180.00</p>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+<span class="text-sm text-gray-600">订单总计</span>
+<span class="text-lg font-bold text-[#1890FF]">¥1,170.00</span>
+</div>
+</div>
+<!-- Delivery Confirmation Form -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-5">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:clipboard-check-outline"></iconify-icon>
+实收确认
+</h3>
+<!-- Bucket Return Status -->
+<div class="p-4 bg-gradient-to-r from-blue-50 to-blue-50/50 rounded-2xl border border-blue-100">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs text-gray-600">历史欠桶信息</span>
+<button class="text-xs text-blue-600 font-medium" onclick="showBucketHistory()">查看详情</button>
+</div>
+<div class="flex items-center gap-4 text-xs">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 bg-orange-400 rounded-full"></span>
+<span class="text-gray-600">历史欠桶:</span>
+<span class="font-bold text-orange-500">8个</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+<span class="text-gray-600">押金桶:</span>
+<span class="font-bold text-gray-700">100个</span>
+</div>
+</div>
+</div>
+<!-- Delivery Quantity Input -->
+<div class="space-y-3">
+<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">实际配送数量</h4>
+<div class="grid grid-cols-2 gap-4" id="delivery-quantity-list">
+<!-- Water 18.9L -->
+<div class="space-y-2">
+<label class="text-[10px] text-gray-400 font-medium">18.9L 桶装水</label>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 active:bg-gray-200" onclick="adjustQuantity('qty-189', -1)">
+<iconify-icon icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-[#1890FF]" type="number" id="qty-189" value="50" min="0" max="100"/>
+<button class="w-10 h-10 bg-[#1890FF] rounded-xl flex items-center justify-center text-white active:bg-blue-600" onclick="adjustQuantity('qty-189', 1)">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Water 11.3L -->
+<div class="space-y-2">
+<label class="text-[10px] text-gray-400 font-medium">11.3L 桶装水</label>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 active:bg-gray-200" onclick="adjustQuantity('qty-113', -1)">
+<iconify-icon icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-[#1890FF]" type="number" id="qty-113" value="20" min="0" max="50"/>
+<button class="w-10 h-10 bg-[#1890FF] rounded-xl flex items-center justify-center text-white active:bg-blue-600" onclick="adjustQuantity('qty-113', 1)">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+</div>
+<div class="p-3 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-orange-500 text-lg" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs text-orange-700 font-medium">注意: 实际配送数量可以修改</span>
+</div>
+</div>
+</div>
+<!-- Bucket Return Input -->
+<div class="space-y-3">
+<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">空桶回收</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-[10px] text-gray-400 font-medium">本次回收空桶</label>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 active:bg-green-100" onclick="adjustBucket('return', -1)">
+<iconify-icon icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 bg-green-50 border border-green-100 rounded-xl px-4 py-3 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-green-500" type="number" id="bucket-return" value="45" min="0"/>
+<button class="w-10 h-10 bg-[#52C41A] rounded-xl flex items-center justify-center text-white active:bg-green-600" onclick="adjustBucket('return', 1)">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+<div class="text-[10px] text-gray-400 text-center">可用空桶: 65个</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] text-gray-400 font-medium">本次欠桶</label>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-400 active:bg-red-100" onclick="adjustBucket('owed', -1)">
+<iconify-icon icon="mdi:minus"></iconify-icon>
+</button>
+<input class="flex-1 bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-red-500 text-red-500" type="number" id="bucket-owed" value="5" min="0"/>
+<button class="w-10 h-10 bg-red-400 rounded-xl flex items-center justify-center text-white active:bg-red-500" onclick="adjustBucket('owed', 1)">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+<div class="text-[10px] text-red-400 text-center font-medium">客户无法退还</div>
+</div>
+</div>
+<!-- Bucket Summary -->
+<div class="p-4 bg-gradient-to-r from-gray-50 to-gray-50/50 rounded-2xl border border-gray-200">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs text-gray-600">空桶统计</span>
+</div>
+<div class="grid grid-cols-3 gap-4 text-center">
+<div>
+<p class="text-lg font-bold text-gray-800" id="total-return">45</p>
+<p class="text-[10px] text-gray-400">本次回收</p>
+</div>
+<div>
+<p class="text-lg font-bold text-red-500" id="total-owed">5</p>
+<p class="text-[10px] text-gray-400">本次欠桶</p>
+</div>
+<div>
+<p class="text-lg font-bold text-orange-500" id="total-historical-owed">8</p>
+<p class="text-[10px] text-gray-400">历史欠桶</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Photo Upload -->
+<div class="space-y-3">
+<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:camera-outline"></iconify-icon>
+签收照片 <span class="text-red-400">*</span>
+</h4>
+<div class="flex gap-3 flex-wrap" id="photo-list">
+<!-- Photo Item 1 -->
+<div class="relative w-20 h-20">
+<img alt="签收照片1" class="w-full h-full rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg"/>
+<button class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg" onclick="removePhoto(0)">
+<iconify-icon class="text-xs" icon="mdi:close"></iconify-icon>
+</button>
+<span class="absolute bottom-1 left-1 bg-black/50 text-white text-[8px] px-1 rounded">门头照</span>
+</div>
+<!-- Photo Item 2 -->
+<div class="relative w-20 h-20">
+<img alt="签收照片2" class="w-full h-full rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg"/>
+<button class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg" onclick="removePhoto(1)">
+<iconify-icon class="text-xs" icon="mdi:close"></iconify-icon>
+</button>
+<span class="absolute bottom-1 left-1 bg-black/50 text-white text-[8px] px-1 rounded">签收单</span>
+</div>
+<!-- Add Photo Button -->
+<div class="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 active:bg-gray-100" onclick="addPhoto()">
+<iconify-icon class="text-2xl" icon="mdi:camera-plus"></iconify-icon>
+<span class="text-[8px] mt-1">添加照片</span>
+</div>
+</div>
+<p class="text-[10px] text-gray-400">至少上传3张照片（门头、签收单、异常情况）</p>
+</div>
+<!-- Signature Section -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:draw"></iconify-icon>
+客户签收确认 <span class="text-red-400">*</span>
+</h3>
+<!-- Sign Methods -->
+<div class="grid grid-cols-3 gap-2" id="sign-methods">
+<button class="sign-method-btn active flex flex-col items-center gap-2 p-3 bg-blue-50 border-2 border-blue-500 rounded-xl" onclick="selectSignMethod('signature')">
+<iconify-icon class="text-2xl text-blue-600" icon="mdi:draw"></iconify-icon>
+<span class="text-xs font-medium text-blue-600">签字签收</span>
+</button>
+<button class="sign-method-btn flex flex-col items-center gap-2 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl" onclick="selectSignMethod('sms')">
+<iconify-icon class="text-2xl text-gray-400" icon="mdi:message-text-outline"></iconify-icon>
+<span class="text-xs font-medium text-gray-500">验证码</span>
+</button>
+<button class="sign-method-btn flex flex-col items-center gap-2 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl" onclick="selectSignMethod('confirm')">
+<iconify-icon class="text-2xl text-gray-400" icon="mdi:cellphone-check"></iconify-icon>
+<span class="text-xs font-medium text-gray-500">老板确认</span>
+</button>
+</div>
+<!-- Signature Pad -->
+<div id="signature-section" class="mt-4">
+<div class="p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+<canvas id="signature-pad" class="w-full h-32 bg-white rounded-xl border border-gray-200" style="touch-action: none;"></canvas>
+<div class="flex justify-between items-center mt-2">
+<span class="text-xs text-gray-400">请客户在此签字</span>
+<button class="text-xs text-blue-600 font-medium" onclick="clearSignature()">清除重写</button>
+</div>
+</div>
+</div>
+<!-- SMS Code Section (Hidden by default) -->
+<div id="sms-section" class="mt-4 hidden">
+<div class="space-y-3">
+<div class="flex gap-2">
+<input class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#1890FF]" type="text" id="sms-code" placeholder="请输入6位验证码" maxlength="6"/>
+<button class="px-4 py-3 bg-[#1890FF] text-white rounded-xl text-sm font-bold active:bg-blue-600" onclick="sendSmsCode()">发送验证码</button>
+</div>
+<div class="p-3 bg-blue-50 rounded-xl text-xs text-blue-600">
+<iconify-icon icon="mdi:information-outline"></iconify-icon>
+验证码已发送至客户手机 138****8888
+</div>
+</div>
+</div>
+<!-- Boss Confirm Section (Hidden by default) -->
+<div id="boss-section" class="mt-4 hidden">
+<div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-xl text-blue-600" icon="mdi:account-check"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-blue-700">等待水站老板确认</p>
+<p class="text-xs text-blue-600">老板可在APP或小程序中确认订单</p>
+</div>
+</div>
+<div class="flex gap-2">
+<input class="flex-1 bg-white border border-blue-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="或输入老板确认码"/>
+<button class="px-4 py-3 bg-blue-500 text-white rounded-xl text-sm font-bold">确认</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="absolute bottom-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex gap-3 pb-8">
+<button class="flex-1 py-4 bg-gray-100 text-gray-600 rounded-2xl font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="showCancelConfirm()">
+<iconify-icon icon="mdi:close-circle-outline"></iconify-icon>
+取消配送
+</button>
+<button class="flex-[2] py-4 bg-[#1890FF] text-white rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition-transform" onclick="confirmDelivery()">
+确认送达
+</button>
+</div>
+</div>
+<script>
+// Current state
+let currentSignMethod = 'signature';
+let photos = [
+    { type: '门头照', url: 'https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg' },
+    { type: '签收单', url: 'https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg' }
+];
+
+function callCustomer() {
+    console.log('Calling customer...');
+    window.location.href = 'tel:13800008888';
+}
+
+function startNavigation() {
+    console.log('Starting navigation to customer location');
+    // In production, open map app with coordinates
+    alert('正在打开高德地图导航...\n目的地: 桂林市秀峰区XX路88号');
+}
+
+function showCheckinDetail() {
+    console.log('Showing check-in details');
+    alert('打卡详情:\n打卡时间: 14:23\n打卡位置: 桂林市秀峰区XX路88号\n距离水站: 50米\nGPS精度: ±10米');
+}
+
+function showBucketHistory() {
+    console.log('Showing bucket history');
+    alert('空桶历史记录:\n- 押金桶总数: 100个\n- 历史欠桶: 8个\n- 本次预计回收: 45个\n- 本次欠桶: 5个');
+}
+
+function adjustQuantity(inputId, delta) {
+    const input = document.getElementById(inputId);
+    let value = parseInt(input.value) || 0;
+    const max = parseInt(input.max) || 999;
+    value = Math.max(0, Math.min(max, value + delta));
+    input.value = value;
+    updateDeliverySummary();
+}
+
+function adjustBucket(type, delta) {
+    const inputId = type === 'return' ? 'bucket-return' : 'bucket-owed';
+    const input = document.getElementById(inputId);
+    let value = parseInt(input.value) || 0;
+    value = Math.max(0, value + delta);
+    input.value = value;
+    updateBucketSummary();
+}
+
+function updateDeliverySummary() {
+    const qty189 = parseInt(document.getElementById('qty-189').value) || 0;
+    const qty113 = parseInt(document.getElementById('qty-113').value) || 0;
+    // In production, calculate total based on quantities
+    console.log(`Delivery quantity: 18.9L: ${qty189}, 11.3L: ${qty113}`);
+}
+
+function updateBucketSummary() {
+    const returnQty = parseInt(document.getElementById('bucket-return').value) || 0;
+    const owedQty = parseInt(document.getElementById('bucket-owed').value) || 0;
+    
+    document.getElementById('total-return').textContent = returnQty;
+    document.getElementById('total-owed').textContent = owedQty;
+    console.log(`Bucket summary: Return: ${returnQty}, Owed: ${owedQty}`);
+}
+
+function removePhoto(index) {
+    console.log(`Removing photo at index ${index}`);
+    // In production, remove from array and update UI
+    alert('照片已删除');
+}
+
+function addPhoto() {
+    console.log('Adding new photo...');
+    // In production, open camera or file picker
+    alert('打开相机/相册选择照片\n\n注意: 至少需要上传3张照片\n1. 门头照\n2. 签收单\n3. 异常情况（如有）');
+}
+
+function selectSignMethod(method) {
+    currentSignMethod = method;
+    
+    // Update button styles
+    document.querySelectorAll('.sign-method-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-50', 'border-blue-500');
+        btn.classList.add('bg-gray-50', 'border-gray-200');
+        btn.querySelector('iconify-icon').classList.remove('text-blue-600');
+        btn.querySelector('iconify-icon').classList.add('text-gray-400');
+        const text = btn.querySelector('span');
+        text.classList.remove('text-blue-600');
+        text.classList.add('text-gray-500');
+    });
+    
+    // Highlight selected method
+    const selectedBtn = event.currentTarget;
+    selectedBtn.classList.add('active', 'bg-blue-50', 'border-blue-500');
+    selectedBtn.classList.remove('bg-gray-50', 'border-gray-200');
+    selectedBtn.querySelector('iconify-icon').classList.add('text-blue-600');
+    selectedBtn.querySelector('iconify-icon').classList.remove('text-gray-400');
+    const selectedText = selectedBtn.querySelector('span');
+    selectedText.classList.add('text-blue-600');
+    selectedText.classList.remove('text-gray-500');
+    
+    // Show/hide sections
+    document.getElementById('signature-section').classList.toggle('hidden', method !== 'signature');
+    document.getElementById('sms-section').classList.toggle('hidden', method !== 'sms');
+    document.getElementById('boss-section').classList.toggle('hidden', method !== 'confirm');
+}
+
+function clearSignature() {
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log('Signature cleared');
+}
+
+function sendSmsCode() {
+    console.log('Sending SMS verification code...');
+    alert('验证码已发送至客户手机:\n138****8888\n\n请客户将收到的验证码告知您');
+}
+
+function showCancelConfirm() {
+    if (confirm('确定要取消此配送任务吗？\n\n取消后订单将重新分配给其他司机。')) {
+        console.log('Delivery cancelled');
+        window.location.href = 'driver_tasks.html';
+    }
+}
+
+function confirmDelivery() {
+    // Validate required fields
+    const qty189 = parseInt(document.getElementById('qty-189').value) || 0;
+    const qty113 = parseInt(document.getElementById('qty-113').value) || 0;
+    const returnQty = parseInt(document.getElementById('bucket-return').value) || 0;
+    const owedQty = parseInt(document.getElementById('bucket-owed').value) || 0;
+    
+    if (qty189 === 0 && qty113 === 0) {
+        alert('请输入实际配送数量');
+        return;
+    }
+    
+    if (currentSignMethod === 'signature') {
+        // Check if signature is provided (simplified check)
+        const canvas = document.getElementById('signature-pad');
+        if (canvas.width > 0 && canvas.height > 0) {
+            // In production, check if there's actual signature drawn
+        }
+    } else if (currentSignMethod === 'sms') {
+        const code = document.getElementById('sms-code').value;
+        if (code.length !== 6) {
+            alert('请输入6位验证码');
+            return;
+        }
+    }
+    
+    // Prepare delivery data
+    const deliveryData = {
+        orderId: 1,
+        products: [
+            { productId: 1, name: '18.9L 桶装水', quantity: qty189 },
+            { productId: 2, name: '11.3L 桶装水', quantity: qty113 }
+        ],
+        bucketReturn: returnQty,
+        bucketOwed: owedQty,
+        photos: photos,
+        signMethod: currentSignMethod,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('Delivery confirmed:', deliveryData);
+    
+    // In production, send to API
+    alert(`配送确认成功！\n\n订单号: #${deliveryData.orderId}\n配送数量: ${qty189 + qty113}桶\n回收空桶: ${returnQty}个\n欠桶: ${owedQty}个\n签收方式: ${currentSignMethod === 'signature' ? '签字签收' : currentSignMethod === 'sms' ? '验证码确认' : '老板确认'}`);
+    
+    // Redirect to tasks page
+    window.location.href = 'driver_tasks.html';
+}
+
+// Initialize signature pad
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 128;
+    
+    // Drawing variables
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', stopDrawing);
+    
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+    
+    function draw(e) {
+        if (!isDrawing) return;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = '#1890FF';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+    
+    function stopDrawing() {
+        isDrawing = false;
+    }
+    
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        lastX = touch.clientX - rect.left;
+        lastY = touch.clientY - rect.top;
+        isDrawing = true;
+    }
+    
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.strokeStyle = '#1890FF';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+    }
+    
+    console.log('Order detail page initialized');
+});
+</script>
+</body>
+</html>

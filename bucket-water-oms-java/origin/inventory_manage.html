@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>库存管理 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4">
+<a class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50" href="owner_index.html">
+<iconify-icon class="text-xl text-gray-600" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">库存管理</h1>
+</div>
+<!-- Stock Summary -->
+<div class="mt-4 grid grid-cols-2 gap-4">
+<div class="bg-blue-50 p-3 rounded-2xl border border-blue-100">
+<p class="text-[10px] text-blue-400">在库总桶数</p>
+<p class="text-xl font-bold text-[#1890FF]">1,280</p>
+</div>
+<div class="bg-green-50 p-3 rounded-2xl border border-green-100">
+<p class="text-[10px] text-green-400">在途入库</p>
+<p class="text-xl font-bold text-[#52C41A]">200</p>
+</div>
+</div>
+</div>
+<!-- Scroll Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Action Buttons -->
+<div class="flex gap-4">
+<button class="flex-1 py-3 bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-1 shadow-sm active:bg-gray-50">
+<iconify-icon class="text-xl text-blue-500" icon="mdi:plus-circle-outline"></iconify-icon>
+<span class="text-[10px] font-bold text-gray-700">商品入库</span>
+</button>
+<button class="flex-1 py-3 bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-1 shadow-sm active:bg-gray-50">
+<iconify-icon class="text-xl text-red-500" icon="mdi:minus-circle-outline"></iconify-icon>
+<span class="text-[10px] font-bold text-gray-700">损耗出库</span>
+</button>
+<button class="flex-1 py-3 bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-1 shadow-sm active:bg-gray-50">
+<iconify-icon class="text-xl text-orange-500" icon="mdi:refresh"></iconify-icon>
+<span class="text-[10px] font-bold text-gray-700">库存盘点</span>
+</button>
+</div>
+<!-- Inventory List -->
+<div class="space-y-3">
+<h3 class="font-bold text-gray-800 px-1">商品列表</h3>
+<!-- Product Item 1 -->
+<div class="bg-white rounded-3xl p-4 flex items-center gap-4 shadow-sm border border-gray-50">
+<div class="w-14 h-14 bg-gray-50 rounded-2xl overflow-hidden">
+<img alt="Water 18.9L" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/6133d6912b5d4bf4b7bbb633cba81c6c.jpg"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-gray-800 text-sm">18.9L 桶装矿泉水</h4>
+<div class="flex justify-between items-end mt-1">
+<div>
+<p class="text-[10px] text-gray-400">规格: 18.9L/桶</p>
+<p class="text-xs font-bold text-blue-600">库存: 850 桶</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-red-400 font-bold">库存预警: 100</span>
+<button class="text-[10px] text-blue-500 font-bold mt-1">查看日志</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Item 2 -->
+<div class="bg-white rounded-3xl p-4 flex items-center gap-4 shadow-sm border border-gray-50">
+<div class="w-14 h-14 bg-gray-50 rounded-2xl overflow-hidden">
+<img alt="Water 11.3L" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/e6fbb610d2cf4f178f8d9705ce90c1b1.jpg"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-gray-800 text-sm">11.3L 迷你桶装水</h4>
+<div class="flex justify-between items-end mt-1">
+<div>
+<p class="text-[10px] text-gray-400">规格: 11.3L/桶</p>
+<p class="text-xs font-bold text-blue-600">库存: 320 桶</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-gray-400">库存预警: 50</span>
+<button class="text-[10px] text-blue-500 font-bold mt-1">查看日志</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Product Item 3 -->
+<div class="bg-white rounded-3xl p-4 flex items-center gap-4 shadow-sm border border-gray-50">
+<div class="w-14 h-14 bg-gray-50 rounded-2xl overflow-hidden">
+<img alt="Bottled Water" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/10f6470a079b401fa9033a63251b979b.jpg"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-gray-800 text-sm">550ml 瓶装水 (24瓶/箱)</h4>
+<div class="flex justify-between items-end mt-1">
+<div>
+<p class="text-[10px] text-gray-400">规格: 550ml*24</p>
+<p class="text-xs font-bold text-blue-600">库存: 110 箱</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] text-gray-400">库存预警: 20</span>
+<button class="text-[10px] text-blue-500 font-bold mt-1">查看日志</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Records -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-gray-800">最近动态</h3>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="w-1 h-8 bg-blue-500 rounded-full"></div>
+<div>
+<p class="text-xs font-bold text-gray-800">18.9L 桶装水 入库 100 桶</p>
+<p class="text-[10px] text-gray-400">2026-04-19 09:30 · 操作员: 张三</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="w-1 h-8 bg-red-500 rounded-full"></div>
+<div>
+<p class="text-xs font-bold text-gray-800">11.3L 迷你桶 损耗出库 2 桶</p>
+<p class="text-[10px] text-gray-400">2026-04-18 16:20 · 备注: 运输破损</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="owner_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="order_list.html">
+<iconify-icon class="text-2xl" icon="mdi:format-list-bulleted"></iconify-icon>
+<span class="text-[10px]">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement.html">
+<iconify-icon class="text-2xl" icon="mdi:finance"></iconify-icon>
+<span class="text-[10px]">财务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="my.html">
+<iconify-icon class="text-2xl" icon="mdi:account-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>
