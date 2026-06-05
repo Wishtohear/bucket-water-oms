@@ -28,7 +28,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
-import axios from 'axios'
+import { authApi } from '../api/platform'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -51,21 +51,17 @@ const handleLogin = async () => {
 
     loading.value = true
     try {
-      const response = await axios.post('/api/platform/auth/login', {
-        username: loginForm.username,
-        password: loginForm.password
-      })
-
-      if (response.data.success) {
-        authStore.setToken(response.data.data.accessToken)
-        authStore.setAdmin(response.data.data.admin)
+      const response: any = await authApi.login(loginForm.username, loginForm.password)
+      if (response.success) {
+        authStore.setToken(response.data.accessToken || response.data.token)
+        authStore.setAdmin(response.data.user || response.data.admin || { name: '平台管理员' })
         ElMessage.success('登录成功')
         router.push('/dashboard')
       } else {
-        ElMessage.error(response.data.message || '登录失败')
+        ElMessage.error(response.message || '登录失败')
       }
     } catch (error: any) {
-      ElMessage.error(error.response?.data?.message || '登录失败，请检查用户名和密码')
+      ElMessage.error(error.response?.data?.message || error.message || '登录失败，请检查用户名和密码')
     } finally {
       loading.value = false
     }

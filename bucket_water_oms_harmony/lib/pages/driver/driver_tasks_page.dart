@@ -37,7 +37,32 @@ class _DriverTasksPageState extends State<DriverTasksPage>
   List<OrderModel> _deliveringTasks = [];
   List<OrderModel> _completedTasks = [];
 
+  String _routeInfo = '请添加配送任务后规划路线';
+  String _routeSummary = '等待任务加载';
+
   late DriverStatusService _statusService;
+
+  String _formatTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  int _calculateBarrelsOnWay() {
+    int total = 0;
+    for (final t in _deliveringTasks) {
+      total += t.totalQuantity;
+    }
+    return total;
+  }
+
+  int _calculatePendingReturn() {
+    int total = 0;
+    for (final t in _completedTasks) {
+      total += (t.returnedBuckets ?? 0);
+    }
+    return total;
+  }
 
   @override
   void initState() {
@@ -194,7 +219,14 @@ class _DriverTasksPageState extends State<DriverTasksPage>
     try {
       final appState = context.read<AppState>();
       final driverService = DriverService();
-      final driverId = appState.userId ?? 'demo';
+      final driverId = appState.userId;
+      if (driverId == null || driverId.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '未检测到司机身份，请重新登录';
+        });
+        return;
+      }
       final tasks = await driverService.getDriverTasks(driverId);
 
       if (mounted) {
@@ -208,95 +240,32 @@ class _DriverTasksPageState extends State<DriverTasksPage>
           _completedTasks = tasks
               .where((t) => t.status == 'completed' || t.status == 'delivered')
               .toList();
+          // 基于真实任务数据计算路线信息
+          final activeTasks = [..._pendingTasks, ..._deliveringTasks];
+          if (activeTasks.isEmpty) {
+            _routeInfo = '暂无待配送任务';
+            _routeSummary = '请等待仓库派单';
+          } else {
+            _routeInfo = '已为您规划最优配送顺序';
+            _routeSummary = '共 ${activeTasks.length} 个配送点';
+          }
           _isLoading = false;
         });
       }
     } on ApiException catch (e) {
-      _loadMockData();
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.message;
+        });
+      }
     } catch (e) {
-      _loadMockData();
-    }
-  }
-
-  void _loadMockData() {
-    if (mounted) {
-      setState(() {
-        _pendingTasks = [
-          OrderModel(
-            id: '1',
-            orderNo: 'ORD001',
-            status: 'pending',
-            contactName: '张老板',
-            contactPhone: '138****8888',
-            deliveryAddress: '秀峰区XX路88号',
-            totalAmount: 1850.00,
-            stationName: '张记旗舰水站',
-            items: [
-              OrderItemModel(productName: '18.9L 桶装水', quantity: 50),
-              OrderItemModel(productName: '11.3L 桶装水', quantity: 20),
-            ],
-          ),
-          OrderModel(
-            id: '2',
-            orderNo: 'ORD002',
-            status: 'pending',
-            contactName: '李老板',
-            contactPhone: '139****6666',
-            deliveryAddress: '七星区龙隐路12号',
-            totalAmount: 750.00,
-            stationName: '李家水铺',
-            items: [
-              OrderItemModel(productName: '18.9L 桶装水', quantity: 30),
-            ],
-          ),
-          OrderModel(
-            id: '3',
-            orderNo: 'ORD003',
-            status: 'pending',
-            contactName: '老板',
-            contactPhone: '137****5555',
-            deliveryAddress: '象山区环城南二路...',
-            totalAmount: 1200.00,
-            stationName: '好运来水店',
-            items: [
-              OrderItemModel(productName: '18.9L 桶装水', quantity: 30),
-              OrderItemModel(productName: '11.3L 桶装水', quantity: 15),
-            ],
-          ),
-        ];
-        _deliveringTasks = [
-          OrderModel(
-            id: '4',
-            orderNo: 'ORD004',
-            status: 'delivering',
-            contactName: '张老板',
-            contactPhone: '138****8888',
-            deliveryAddress: '秀峰区XX路88号',
-            totalAmount: 1850.00,
-            stationName: '张记旗舰水站',
-            items: [
-              OrderItemModel(productName: '18.9L 桶装水', quantity: 50),
-              OrderItemModel(productName: '11.3L 桶装水', quantity: 20),
-            ],
-          ),
-        ];
-        _completedTasks = [
-          OrderModel(
-            id: '5',
-            orderNo: 'ORD005',
-            status: 'completed',
-            contactName: '老板',
-            contactPhone: '136****4444',
-            deliveryAddress: '七星区XX路',
-            totalAmount: 950.00,
-            stationName: '青山水店',
-            items: [
-              OrderItemModel(productName: '18.9L 桶装水', quantity: 40),
-            ],
-          ),
-        ];
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '加载失败：${e.toString()}';
+        });
+      }
     }
   }
 
@@ -456,8 +425,8 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   ),
                   Text(
                     appState.currentUserName.isNotEmpty
-                        ? '${appState.currentUserName}师傅'
-                        : '王力师傅',
+                        ? appState.currentUserName
+                        : (appState.userId.isNotEmpty ? '司机${appState.userId}' : '司机'),
                     style: AppTextStyles.h3.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
@@ -465,7 +434,9 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${appState.currentStationName} · 中心仓库A库区',
+                    appState.currentWarehouseName.isNotEmpty
+                        ? appState.currentWarehouseName
+                        : appState.currentStationName,
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.white.withOpacity(0.8),
                     ),
@@ -495,7 +466,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
               Expanded(
                 child: _buildMiniStatCard(
                   value:
-                      '${_pendingTasks.length > 0 ? _pendingTasks.length : 8}',
+                      '${_pendingTasks.length}',
                   label: '今日待配送',
                 ),
               ),
@@ -512,7 +483,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
               Expanded(
                 child: _buildMiniStatCard(
                   value:
-                      '${_completedTasks.length > 0 ? _completedTasks.length : 5}',
+                      '${_completedTasks.length}',
                   label: '累计完成',
                 ),
               ),
@@ -734,14 +705,14 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '已避开拥堵路段，预计用时 45min',
+                    _routeInfo,
                     style: AppTextStyles.captionSmall.copyWith(
                       color: AppColors.white.withOpacity(0.8),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '共 3 个配送点 · 总里程 12.5km',
+                    _routeSummary,
                     style: AppTextStyles.captionSmall.copyWith(
                       color: AppColors.white.withOpacity(0.8),
                     ),
@@ -777,7 +748,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                     bottom: BorderSide(color: AppColors.primary, width: 2)),
               ),
               child: Text(
-                '待配送 (${_pendingTasks.length > 0 ? _pendingTasks.length : 8})',
+                '待配送 (${_pendingTasks.length})',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.subtitle2.copyWith(
                   color: AppColors.primary,
@@ -808,7 +779,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                '已完成 (${_completedTasks.length > 0 ? _completedTasks.length : 5})',
+                '已完成 (${_completedTasks.length})',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.subtitle2.copyWith(
                   color: AppColors.textSecondary,
@@ -956,7 +927,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                             size: 12, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
-                            '距您 2.5km · ${order.deliveryAddress ?? '秀峰区XX路88号'}',
+                            '配送至 · ${order.deliveryAddress ?? '地址待补充'}',
                             style: AppTextStyles.captionSmall),
                       ],
                     ),
@@ -967,7 +938,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                             size: 12, color: AppColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
-                            '${order.contactName ?? '张老板'} ${order.contactPhone ?? '138****8888'}',
+                            '${order.contactName ?? '联系人'} ${order.contactPhone ?? ''}',
                             style: AppTextStyles.captionSmall),
                       ],
                     ),
@@ -1011,7 +982,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(item.productName ?? '18.9L 桶装水',
+                          Text(item.productName ?? '桶装水',
                               style: AppTextStyles.body2),
                           Text('× ${item.quantity ?? 0} 桶',
                               style: AppTextStyles.body2
@@ -1024,8 +995,8 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('18.9L 桶装水', style: AppTextStyles.body2),
-                      Text('× ${order.totalQuantity ?? 50} 桶',
+                      Text(order.items?.first.productName ?? '桶装水', style: AppTextStyles.body2),
+                      Text('× ${order.totalQuantity} 桶',
                           style: AppTextStyles.body2
                               .copyWith(fontWeight: FontWeight.bold)),
                     ],
@@ -1037,13 +1008,13 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('当前欠桶:', style: AppTextStyles.captionSmall),
-                    Text('5个',
+                    Text('${order.owedBuckets ?? 0}个',
                         style: AppTextStyles.captionSmall.copyWith(
                             color: AppColors.warning,
                             fontWeight: FontWeight.bold)),
                     const SizedBox(width: 16),
                     Text('历史欠桶:', style: AppTextStyles.captionSmall),
-                    Text('8个',
+                    Text('${order.totalOwedBuckets ?? 0}个',
                         style: AppTextStyles.captionSmall.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold)),
@@ -1059,10 +1030,22 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
+                      final orderId = order.id;
+                      if (orderId == null || orderId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('该订单缺少编号，无法查看详情'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                        return;
+                      }
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const DriverOrderDetailPage()));
+                              builder: (_) => DriverOrderDetailPage(
+                                    orderId: orderId,
+                                  )));
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1188,7 +1171,12 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   ),
                 ],
               ),
-              Text('开始时间: 14:20', style: AppTextStyles.captionSmall),
+               Text(
+                order.deliveredAt != null
+                    ? '开始时间: ${_formatTime(order.deliveredAt)}'
+                    : '开始时间: 待开始',
+                style: AppTextStyles.captionSmall,
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -1203,7 +1191,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(order.stationName ?? '张记旗舰水站',
+                    Text(order.stationName ?? '水站',
                         style: AppTextStyles.subtitle2
                             .copyWith(fontWeight: FontWeight.bold)),
                     Container(
@@ -1226,7 +1214,7 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                     const Icon(Icons.location_on,
                         size: 12, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
-                    Text(order.deliveryAddress ?? '秀峰区XX路88号',
+                    Text(order.deliveryAddress ?? '地址待补充',
                         style: AppTextStyles.captionSmall),
                   ],
                 ),
@@ -1336,7 +1324,14 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                           .copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
-              Text('14:35', style: AppTextStyles.captionSmall),
+              Text(
+                order.deliveredAt != null
+                    ? _formatTime(order.deliveredAt!)
+                    : (order.createdAt != null
+                        ? _formatTime(order.createdAt!)
+                        : '时间待记录'),
+                style: AppTextStyles.captionSmall,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1362,7 +1357,10 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                 child: const Icon(Icons.image, color: AppColors.textSecondary),
               ),
               const SizedBox(width: 12),
-              Text('回桶: +35个 · 欠桶: 5个', style: AppTextStyles.caption),
+              Text(
+                '回桶: +${order.returnedBuckets ?? 0}个 · 欠桶: ${order.owedBuckets ?? 0}个',
+                style: AppTextStyles.caption,
+              ),
             ],
           ),
         ],
@@ -1421,13 +1419,13 @@ class _DriverTasksPageState extends State<DriverTasksPage>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '当前车上空桶：75个',
+                    '当前车上空桶：${_calculateBarrelsOnWay()}个',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.white.withOpacity(0.8),
                     ),
                   ),
                   Text(
-                    '待交回仓库：15个',
+                    '待交回仓库：${_calculatePendingReturn()}个',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.white.withOpacity(0.8),
                     ),

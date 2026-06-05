@@ -5,20 +5,51 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bucketwater.oms.common.exception.BusinessException;
 import com.bucketwater.oms.common.response.ResultCode;
+import com.bucketwater.oms.module.driver.entity.Driver;
+import com.bucketwater.oms.module.driver.mapper.DriverMapper;
+import com.bucketwater.oms.module.factory.dto.FactoryDetailDTO;
 import com.bucketwater.oms.module.factory.entity.Factory;
 import com.bucketwater.oms.module.factory.mapper.FactoryMapper;
+import com.bucketwater.oms.module.order.entity.Order;
+import com.bucketwater.oms.module.order.mapper.OrderMapper;
+import com.bucketwater.oms.module.station.entity.Station;
+import com.bucketwater.oms.module.station.mapper.StationMapper;
+import com.bucketwater.oms.module.user.entity.User;
+import com.bucketwater.oms.module.user.mapper.UserMapper;
+import com.bucketwater.oms.module.warehouse.entity.Warehouse;
+import com.bucketwater.oms.module.warehouse.mapper.WarehouseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FactoryService {
 
     @Autowired
     private FactoryMapper factoryMapper;
+
+    @Autowired
+    private StationMapper stationMapper;
+
+    @Autowired
+    private WarehouseMapper warehouseMapper;
+
+    @Autowired
+    private DriverMapper driverMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     public IPage<Factory> getFactoryPage(String keyword, String status, Integer page, Integer size) {
         Page<Factory> pageParam = new Page<>(page, size);
@@ -53,6 +84,69 @@ public class FactoryService {
             throw new BusinessException(ResultCode.NOT_FOUND, "水厂不存在");
         }
         return factory;
+    }
+
+    public FactoryDetailDTO getFactoryDetail(Long id) {
+        Factory factory = getFactoryById(id);
+        FactoryDetailDTO dto = new FactoryDetailDTO();
+
+        Map<String, Object> factoryMap = new HashMap<>();
+        factoryMap.put("id", factory.getId());
+        factoryMap.put("name", factory.getName());
+        factoryMap.put("code", factory.getCode());
+        factoryMap.put("contact", factory.getContact());
+        factoryMap.put("phone", factory.getPhone());
+        factoryMap.put("address", factory.getAddress());
+        factoryMap.put("status", factory.getStatus());
+        factoryMap.put("remark", factory.getRemark());
+        factoryMap.put("createTime", factory.getCreateTime());
+        factoryMap.put("updateTime", factory.getUpdateTime());
+        dto.setFactory(factoryMap);
+
+        FactoryDetailDTO.Stats stats = new FactoryDetailDTO.Stats();
+        stats.setStations(stationMapper.selectCount(
+                new LambdaQueryWrapper<Station>().eq(Station::getFactoryId, id)));
+        stats.setWarehouses(warehouseMapper.selectCount(
+                new LambdaQueryWrapper<Warehouse>().eq(Warehouse::getFactoryId, id)));
+        stats.setDrivers(driverMapper.selectCount(
+                new LambdaQueryWrapper<Driver>().eq(Driver::getFactoryId, id)));
+        stats.setOrders(orderMapper.selectCount(
+                new LambdaQueryWrapper<Order>().eq(Order::getFactoryId, id)));
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        stats.setTodayOrders(orderMapper.selectCount(
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getFactoryId, id)
+                        .ge(Order::getCreateTime, startOfDay)));
+
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        List<Order> monthOrders = orderMapper.selectList(
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getFactoryId, id)
+                        .ge(Order::getCreateTime, startOfMonth));
+        BigDecimal monthSales = monthOrders.stream()
+                .map(Order::getTotalAmount)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        stats.setMonthSales(monthSales);
+        dto.setStats(stats);
+
+        List<User> admins = userMapper.selectList(
+                new LambdaQueryWrapper<User>().eq(User::getFactoryId, id));
+        List<Map<String, Object>> adminList = new ArrayList<>();
+        for (User u : admins) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", u.getId());
+            m.put("name", u.getName());
+            m.put("phone", u.getPhone());
+            m.put("role", u.getRole());
+            m.put("status", u.getStatus());
+            m.put("lastLoginTime", u.getLastLoginTime());
+            m.put("createTime", u.getCreateTime());
+            adminList.add(m);
+        }
+        dto.setAdmins(adminList);
+        return dto;
     }
 
     public Factory getFactoryByCode(String code) {

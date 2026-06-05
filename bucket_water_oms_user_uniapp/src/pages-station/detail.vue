@@ -111,6 +111,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { stationService, StationDetail, Product } from '@/services/stationService'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 import { formatDistance } from '@/utils/location'
 
 const stationId = ref('')
@@ -122,6 +123,7 @@ const isFavorite = ref(false)
 const loading = ref(true)
 
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 const cartCount = computed(() => cartStore.totalCount)
 
 const filteredProducts = computed(() => {
@@ -200,7 +202,25 @@ const goToCart = () => {
 }
 
 const goToCreateOrder = () => {
-  uni.showToast({ title: '请先添加商品到购物车', icon: 'none' })
+  if (!authStore.isLoggedIn) {
+    uni.navigateTo({ url: '/pages-auth/login' })
+    return
+  }
+  if (!station.value) {
+    uni.showToast({ title: '水站信息加载中', icon: 'none' })
+    return
+  }
+  const stationItems = cartStore.getStationItems(station.value.id)
+  if (!stationItems || stationItems.length === 0) {
+    // 跳转到商品列表页（如果有），否则提示
+    uni.showToast({
+      title: '请先在商品页加入购物车',
+      icon: 'none',
+      duration: 2000
+    })
+    return
+  }
+  uni.navigateTo({ url: '/pages-order/create?stationId=' + station.value.id })
 }
 
 const openMap = () => {

@@ -9,179 +9,105 @@ class DashboardService {
   final ApiClient _apiClient = ApiClient();
 
   Future<DashboardModel> getDashboardData() async {
-    try {
-      final response = await _apiClient.get('/admin/dashboard');
-
-      if (response.success && response.data != null) {
-        return DashboardModel.fromJson(response.data);
-      } else {
-        return _getMockDashboardData();
-      }
-    } catch (e) {
-      return _getMockDashboardData();
+    final response = await _apiClient.get('/admin/dashboard');
+    if (response.success && response.data != null) {
+      return DashboardModel.fromJson(response.data);
     }
+    throw ApiException(
+      code: response.code ?? 500,
+      message: response.message ?? '获取 Dashboard 数据失败',
+    );
   }
 
   Future<TodayStatsModel> getTodayStats() async {
-    try {
-      final response = await _apiClient.get('/admin/dashboard/stats');
-
-      if (response.success && response.data != null) {
-        return TodayStatsModel.fromJson(response.data);
-      } else {
-        return _getMockTodayStats();
-      }
-    } catch (e) {
-      return _getMockTodayStats();
+    final response = await _apiClient.get('/admin/dashboard/stats');
+    if (response.success && response.data != null) {
+      return TodayStatsModel.fromJson(response.data);
     }
+    throw ApiException(
+      code: response.code ?? 500,
+      message: response.message ?? '获取今日统计失败',
+    );
   }
 
   Future<List<SalesTrendModel>> getSalesTrend({int days = 7}) async {
-    try {
-      final response = await _apiClient.get(
-        '/admin/dashboard/sales-trend',
-        queryParams: {'days': days.toString()},
-      );
+    final response = await _apiClient.get(
+      '/admin/dashboard/sales-trend',
+      queryParams: {'days': days.toString()},
+    );
 
-      if (response.success) {
-        final data = response.data;
-        if (data is List) {
-          return data.map((e) => SalesTrendModel.fromJson(e)).toList();
-        }
-        return _getMockSalesTrend();
-      } else {
-        return _getMockSalesTrend();
+    if (response.success) {
+      final data = response.data;
+      if (data is List) {
+        return data.map((e) => SalesTrendModel.fromJson(e)).toList();
       }
-    } catch (e) {
-      return _getMockSalesTrend();
+      if (data is Map && data['list'] is List) {
+        return (data['list'] as List)
+            .map((e) => SalesTrendModel.fromJson(e))
+            .toList();
+      }
+      return <SalesTrendModel>[];
     }
+    throw ApiException(
+      code: response.code ?? 500,
+      message: response.message ?? '获取销售趋势失败',
+    );
   }
 
   Future<List<NotificationModel>> getNotifications({bool unreadOnly = false}) async {
-    try {
-      final response = await _apiClient.get(
-        '/notifications',
-        queryParams: {'unreadOnly': unreadOnly.toString()},
-      );
+    final response = await _apiClient.get(
+      '/notifications',
+      queryParams: {'unreadOnly': unreadOnly.toString()},
+    );
 
-      if (response.success) {
-        final data = response.data;
-        if (data is List) {
-          return data.map((e) => NotificationModel.fromJson(e)).toList();
-        }
-        return _getMockNotifications();
-      } else {
-        return _getMockNotifications();
+    if (response.success) {
+      final data = response.data;
+      if (data is List) {
+        return data.map((e) => NotificationModel.fromJson(e)).toList();
       }
-    } catch (e) {
-      return _getMockNotifications();
+      if (data is Map && data['list'] is List) {
+        return (data['list'] as List)
+            .map((e) => NotificationModel.fromJson(e))
+            .toList();
+      }
+      return <NotificationModel>[];
     }
-  }
-
-  DashboardModel _getMockDashboardData() {
-    return DashboardModel(
-      todayStats: _getMockTodayStats(),
-      salesTrend: _getMockSalesTrend(),
-      notifications: _getMockNotifications(),
-      recentOrders: _getMockRecentOrders(),
+    throw ApiException(
+      code: response.code ?? 500,
+      message: response.message ?? '获取通知失败',
     );
   }
 
-  TodayStatsModel _getMockTodayStats() {
-    return TodayStatsModel(
-      salesAmount: 42850.00,
-      orderCount: 156,
-      activeStations: 48,
-      inventoryWarnings: 12,
-      comparedToYesterday: 12.5,
+  Future<List<RecentOrderModel>> getRecentOrders({int limit = 10}) async {
+    final response = await _apiClient.get(
+      '/admin/orders/page',
+      queryParams: {'page': '1', 'size': limit.toString()},
+    );
+    if (response.success) {
+      final data = response.data;
+      List rawList = [];
+      if (data is Map && data['records'] is List) {
+        rawList = data['records'] as List;
+      } else if (data is List) {
+        rawList = data;
+      }
+      return rawList.map((e) {
+        if (e is RecentOrderModel) return e;
+        if (e is Map) return RecentOrderModel.fromJson(e);
+        return null;
+      }).whereType<RecentOrderModel>().toList();
+    }
+    throw ApiException(
+      code: response.code ?? 500,
+      message: response.message ?? '获取最近订单失败',
     );
   }
+}
 
-  List<SalesTrendModel> _getMockSalesTrend() {
-    final now = DateTime.now();
-    return List.generate(7, (index) {
-      final date = now.subtract(Duration(days: 6 - index));
-      return SalesTrendModel(
-        date: '${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
-        amount: 30000.0 + (index * 2000) + (index % 2 == 0 ? 5000 : 0),
-        count: 100 + (index * 10),
-      );
-    });
-  }
-
-  List<NotificationModel> _getMockNotifications() {
-    final now = DateTime.now();
-    return [
-      NotificationModel(
-        id: '1',
-        title: '库存告警：桶装纯净水剩余不足100桶',
-        content: '中心仓库A区18.9L桶装水库存告警，当前库存95桶，低于最低库存阈值100桶。',
-        type: 'warning',
-        isRead: false,
-        createdAt: now.subtract(const Duration(minutes: 10)),
-      ),
-      NotificationModel(
-        id: '2',
-        title: '新对账单争议：滨江水站 #O20260418',
-        content: '滨江花园水站对对账单#O20260418有争议，金额差异¥230元。',
-        type: 'info',
-        isRead: false,
-        createdAt: now.subtract(const Duration(hours: 1)),
-      ),
-      NotificationModel(
-        id: '3',
-        title: '系统维护公告：4月20日凌晨02:00-04:00',
-        content: '系统将于4月20日凌晨02:00-04:00进行例行维护，届时系统将暂停服务。',
-        type: 'system',
-        isRead: true,
-        createdAt: now.subtract(const Duration(hours: 3)),
-      ),
-    ];
-  }
-
-  List<RecentOrderModel> _getMockRecentOrders() {
-    final now = DateTime.now();
-    return [
-      RecentOrderModel(
-        id: '1',
-        orderNo: '#850019',
-        stationName: '张记旗舰水站',
-        amount: 1250.00,
-        status: '待配送',
-        createdAt: now.subtract(const Duration(minutes: 30)),
-      ),
-      RecentOrderModel(
-        id: '2',
-        orderNo: '#850018',
-        stationName: '滨江花园水站',
-        amount: 2380.00,
-        status: '配送中',
-        createdAt: now.subtract(const Duration(hours: 1)),
-      ),
-      RecentOrderModel(
-        id: '3',
-        orderNo: '#850017',
-        stationName: '七星区配送中心',
-        amount: 4500.00,
-        status: '已完成',
-        createdAt: now.subtract(const Duration(hours: 2)),
-      ),
-      RecentOrderModel(
-        id: '4',
-        orderNo: '#850016',
-        stationName: '象山区供水站',
-        amount: 1890.00,
-        status: '已完成',
-        createdAt: now.subtract(const Duration(hours: 3)),
-      ),
-      RecentOrderModel(
-        id: '5',
-        orderNo: '#850015',
-        stationName: '秀峰区净水厂',
-        amount: 3200.00,
-        status: '已完成',
-        createdAt: now.subtract(const Duration(hours: 4)),
-      ),
-    ];
-  }
+class ApiException implements Exception {
+  final int code;
+  final String message;
+  ApiException({required this.code, required this.message});
+  @override
+  String toString() => 'ApiException($code, $message)';
 }

@@ -3,6 +3,7 @@ package com.bucketwater.oms.module.factory.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.bucketwater.oms.common.response.Result;
 import com.bucketwater.oms.common.security.RequireRole;
+import com.bucketwater.oms.module.factory.dto.FactoryDetailDTO;
 import com.bucketwater.oms.module.factory.entity.Factory;
 import com.bucketwater.oms.module.factory.service.FactoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,8 +43,16 @@ public class FactoryController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "获取水厂详情", description = "根据ID获取水厂详细信息")
-    public Result<Factory> getFactoryById(
+    @Operation(summary = "获取水厂详情", description = "根据ID获取水厂详细信息(含统计和关联账号)")
+    public Result<FactoryDetailDTO> getFactoryById(
+            @PathVariable @Parameter(description = "水厂ID") Long id) {
+        FactoryDetailDTO detail = factoryService.getFactoryDetail(id);
+        return Result.ok(detail);
+    }
+
+    @GetMapping("/{id}/raw")
+    @Operation(summary = "获取水厂原始实体", description = "获取水厂基础实体（不含统计）")
+    public Result<Factory> getFactoryRaw(
             @PathVariable @Parameter(description = "水厂ID") Long id) {
         Factory factory = factoryService.getFactoryById(id);
         return Result.ok(factory);

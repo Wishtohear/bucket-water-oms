@@ -250,6 +250,52 @@
           }
         }
       ]
+    },
+    {
+      "root": "pages-user",
+      "pages": [
+        {
+          "path": "settings",
+          "style": {
+            "navigationBarTitleText": "设置"
+          }
+        },
+        {
+          "path": "agreement",
+          "style": {
+            "navigationBarTitleText": "协议"
+          }
+        },
+        {
+          "path": "edit-profile",
+          "style": {
+            "navigationBarTitleText": "编辑资料"
+          }
+        },
+        {
+          "path": "about",
+          "style": {
+            "navigationBarTitleText": "关于我们"
+          }
+        },
+        {
+          "path": "help",
+          "style": {
+            "navigationBarTitleText": "帮助与反馈"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-history",
+      "pages": [
+        {
+          "path": "delivery-history",
+          "style": {
+            "navigationBarTitleText": "配送历史"
+          }
+        }
+      ]
     }
   ],
   "globalStyle": {

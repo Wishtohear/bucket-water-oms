@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { platformApi } from '../api/platform'
 
 const router = useRouter()
 const factoryChartRef = ref<HTMLElement>()
@@ -126,17 +126,29 @@ const stats = reactive({
   totalFactories: 0,
   totalStations: 0,
   totalDrivers: 0,
-  totalOrders: 0
+  totalOrders: 0,
+  totalWarehouses: 0,
+  todayOrders: 0,
+  todaySales: 0
 })
 
-const factories = ref([])
+const factories = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/platform/dashboard/stats')
-    if (response.data.success) {
-      Object.assign(stats, response.data.data.stats)
-      factories.value = response.data.data.factories || []
+    const response: any = await platformApi.getDashboardStats()
+    if (response.success && response.data) {
+      const s = response.data.stats || {}
+      Object.assign(stats, {
+        totalFactories: s.totalFactories || 0,
+        totalStations: s.totalStations || 0,
+        totalDrivers: s.totalDrivers || 0,
+        totalOrders: s.totalOrders || 0,
+        totalWarehouses: s.totalWarehouses || 0,
+        todayOrders: s.todayOrders || 0,
+        todaySales: s.todaySales || 0
+      })
+      factories.value = response.data.factories || []
     }
   } catch (error) {
     console.error('获取数据失败', error)

@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../models/order_model.dart';
+import '../../services/driver_service.dart';
+import '../../services/order_service.dart';
+import '../../core/network/api_client.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/scanner_widget.dart';
 
 class DriverOrderDetailPage extends StatefulWidget {
-  const DriverOrderDetailPage({super.key});
+  final String orderId;
+
+  const DriverOrderDetailPage({super.key, required this.orderId});
 
   @override
   State<DriverOrderDetailPage> createState() => _DriverOrderDetailPageState();
 }
 
 class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
-  final TextEditingController _deliveryQuantityController = TextEditingController(text: '70');
-  final TextEditingController _returnBarrelController = TextEditingController(text: '65');
+  final TextEditingController _deliveryQuantityController =
+      TextEditingController();
+  final TextEditingController _returnBarrelController =
+      TextEditingController();
   final List<String> _scannedBarrels = [];
 
-  // Mock data for demonstration
-  final Map<String, dynamic> _orderData = {
-    'orderNumber': '#1',
-    'customerName': '张老板',
-    'customerPhone': '138****8888',
-    'address': '桂林市秀峰区XX路XX号张记旗舰水站',
-    'appointmentTime': '2026-04-19 14:00',
-    'products': [
-      {'name': '18.9L 桶装水', 'quantity': 50},
-      {'name': '11.3L 桶装水', 'quantity': 20},
-    ],
-    'deliveryQuantity': 70,
-    'returnBarrel': 65,
-    'statusSteps': [
-      {'title': '待配送', 'time': '2026-04-19 10:00', 'isCompleted': true, 'icon': Icons.check},
-      {'title': '配送中', 'time': '2026-04-19 11:30', 'isCompleted': true, 'icon': Icons.local_shipping},
-      {'title': '已送达', 'time': '', 'isCompleted': false, 'icon': Icons.home},
-    ],
-  };
+  final OrderService _orderService = OrderService();
+  final DriverService _driverService = DriverService();
+
+  bool _isLoading = true;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+  OrderModel? _order;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrderDetail();
+  }
 
   @override
   void dispose() {
@@ -43,18 +46,119 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
     super.dispose();
   }
 
+  Future<void> _loadOrderDetail() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final order = await _orderService.getOrderDetail(widget.orderId);
+      if (!mounted) return;
+      setState(() {
+        _order = order;
+        _deliveryQuantityController.text = (order.totalQuantity).toString();
+        _returnBarrelController.text = (order.returnedBuckets ?? 0).toString();
+        _isLoading = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.message;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '加载订单失败：${e.toString()}';
+      });
+    }
+  }
+
   int get _shortageBarrel {
     final delivery = int.tryParse(_deliveryQuantityController.text) ?? 0;
     final returnBarrel = int.tryParse(_returnBarrelController.text) ?? 0;
     return delivery - returnBarrel;
   }
 
+  bool get _canStartDelivery {
+    final status = _order?.status;
+    return status == 'pending' || status == 'assigned' || status == 'confirmed';
+  }
+
+  bool get _canConfirmDelivery {
+    final status = _order?.status;
+    return status == 'picked_up' ||
+        status == 'processing' ||
+        status == 'delivering';
+  }
+
+  bool get _isCompleted {
+    final status = _order?.status;
+    return status == 'delivered' || status == 'completed';
+  }
+
+  Future<void> _handleStartDelivery() async {
+    if (_isSubmitting || _order == null) return;
+    setState(() => _isSubmitting = true);
+
+    try {
+      final updated =
+          await _driverService.startDelivery(_order!.id ?? widget.orderId);
+      if (!mounted) return;
+      setState(() {
+        _order = updated;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('已开始配送'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _showError('开始配送失败：${e.message}');
+    } catch (e) {
+      if (!mounted) return;
+      _showError('开始配送失败：${e.toString()}');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
   void _handleConfirmDelivery() {
+    if (_order == null) return;
+
+    final delivery =
+        int.tryParse(_deliveryQuantityController.text) ?? 0;
+    final returnBarrel =
+        int.tryParse(_returnBarrelController.text) ?? 0;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认送达'),
-        content: Text('确认订单 ${_orderData['orderNumber']} 已完成配送？'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('确认订单 ${_order!.orderNo ?? _order!.id} 已完成配送？'),
+            const SizedBox(height: 12),
+            Text('实送数量：$delivery 桶',
+                style: AppTextStyles.caption),
+            Text('回收空桶：$returnBarrel 个',
+                style: AppTextStyles.caption),
+            if (_shortageBarrel > 0) ...[
+              const SizedBox(height: 4),
+              Text('欠桶数量：${_shortageBarrel} 个',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.warning)),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -63,14 +167,63 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('订单已确认完成')),
-              );
-              Navigator.pop(context);
+              _submitDelivery();
             },
             child: const Text('确认'),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _submitDelivery() async {
+    if (_isSubmitting || _order == null) return;
+    setState(() => _isSubmitting = true);
+
+    final delivery =
+        int.tryParse(_deliveryQuantityController.text) ?? 0;
+    final returnBarrel =
+        int.tryParse(_returnBarrelController.text) ?? 0;
+
+    try {
+      final updated = await _driverService.deliverOrder(
+        _order!.id ?? widget.orderId,
+        photos: _scannedBarrels.isEmpty ? null : List.of(_scannedBarrels),
+      );
+      if (!mounted) return;
+      setState(() {
+        _order = updated;
+        _deliveryQuantityController.text =
+            (updated.totalQuantity > 0 ? updated.totalQuantity : delivery)
+                .toString();
+        _returnBarrelController.text =
+            (updated.returnedBuckets ?? returnBarrel).toString();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('订单已确认完成'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      Navigator.pop(context, true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _showError('配送签收失败：${e.message}');
+    } catch (e) {
+      if (!mounted) return;
+      _showError('配送签收失败：${e.toString()}');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
       ),
     );
   }
@@ -118,8 +271,128 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
     }
   }
 
+  void _handleCallCustomer() {
+    final phone = _order?.contactPhone;
+    if (phone == null || phone.isEmpty) {
+      _showError('该订单未提供联系电话');
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: phone));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('已复制联系电话：$phone'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _handleOpenMap() {
+    final address = _order?.deliveryAddress;
+    if (address == null || address.isEmpty) {
+      _showError('该订单未提供配送地址');
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: address));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('地址已复制：$address'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _handleUploadPhoto() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('签收照片功能开发中，请使用扫码录入'),
+        backgroundColor: AppColors.warning,
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime? dt) {
+    if (dt == null) return '未完成';
+    final y = dt.year.toString().padLeft(4, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    final h = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '$y-$m-$d $h:$min';
+  }
+
+  List<Map<String, dynamic>> _buildStatusSteps() {
+    final order = _order;
+    if (order == null) return [];
+    final createdAt = order.createdAt;
+    final pickedUpAt = order.deliveredAt;
+    return [
+      {
+        'title': '待配送',
+        'time': createdAt != null ? _formatDateTime(createdAt) : '未开始',
+        'isCompleted':
+            createdAt != null && (order.status != null && order.status != ''),
+        'icon': Icons.check,
+      },
+      {
+        'title': '配送中',
+        'time': (order.status == 'picked_up' ||
+                order.status == 'processing' ||
+                order.status == 'delivering' ||
+                order.status == 'delivered' ||
+                order.status == 'completed')
+            ? _formatDateTime(createdAt)
+            : '未完成',
+        'isCompleted': order.status == 'picked_up' ||
+            order.status == 'processing' ||
+            order.status == 'delivering' ||
+            order.status == 'delivered' ||
+            order.status == 'completed',
+        'icon': Icons.local_shipping,
+      },
+      {
+        'title': '已送达',
+        'time': pickedUpAt != null ? _formatDateTime(pickedUpAt) : '未完成',
+        'isCompleted': order.status == 'delivered' || order.status == 'completed',
+        'icon': Icons.home,
+      },
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgPage,
+        appBar: _buildHeader(),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null || _order == null) {
+      return Scaffold(
+        backgroundColor: AppColors.bgPage,
+        appBar: _buildHeader(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline,
+                  size: 64, color: AppColors.error.withOpacity(0.5)),
+              const SizedBox(height: 16),
+              Text(_errorMessage ?? '订单数据加载失败',
+                  style: AppTextStyles.body1
+                      .copyWith(color: AppColors.textSecondary)),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _loadOrderDetail,
+                child: const Text('重新加载'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bgPage,
       body: Column(
@@ -148,72 +421,43 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        MediaQuery.of(context).padding.top + 12,
-        16,
-        16,
+  PreferredSizeWidget _buildHeader() {
+    return AppBar(
+      backgroundColor: AppColors.bgCard,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      title: Text(
+        '订单详情 ${_order?.orderNo ?? _order?.id ?? ''}',
+        style: AppTextStyles.h3,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+      leading: IconButton(
+        icon: const Icon(Icons.chevron_left, size: 28),
+        onPressed: () => Navigator.pop(context),
       ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.bgInput,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.chevron_left,
-                color: AppColors.textPrimary,
-                size: 28,
-              ),
+      actions: [
+        IconButton(
+          onPressed: _scanOrderCode,
+          icon: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.qr_code_scanner,
+              color: AppColors.white,
+              size: 24,
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              '订单详情 ${_orderData['orderNumber']}',
-              style: AppTextStyles.h3,
-            ),
-          ),
-          GestureDetector(
-            onTap: _scanOrderCode,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.qr_code_scanner,
-                color: AppColors.white,
-                size: 24,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
   Widget _buildDeliveryProgress() {
-    final steps = _orderData['statusSteps'] as List<Map<String, dynamic>>;
+    final steps = _buildStatusSteps();
 
     return AppCard(
       padding: const EdgeInsets.all(24),
@@ -279,14 +523,20 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
                           step['title'] as String,
                           style: AppTextStyles.subtitle2.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: isCompleted ? AppColors.textPrimary : AppColors.textTertiary,
+                            color: isCompleted
+                                ? AppColors.textPrimary
+                                : AppColors.textTertiary,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          step['time'].isNotEmpty ? step['time'] : '未完成',
+                          (step['time'] as String).isNotEmpty
+                              ? step['time'] as String
+                              : '未完成',
                           style: AppTextStyles.captionSmall.copyWith(
-                            color: isCompleted ? AppColors.textSecondary : AppColors.textTertiary,
+                            color: isCompleted
+                                ? AppColors.textSecondary
+                                : AppColors.textTertiary,
                           ),
                         ),
                       ],
@@ -302,6 +552,7 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
   }
 
   Widget _buildCustomerInfo() {
+    final order = _order!;
     return AppCard(
       padding: const EdgeInsets.all(20),
       borderRadius: 24,
@@ -330,13 +581,13 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _orderData['customerName'] as String,
+                        order.contactName ?? '联系人待补充',
                         style: AppTextStyles.subtitle2.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        _orderData['customerPhone'] as String,
+                        order.contactPhone ?? '电话待补充',
                         style: AppTextStyles.caption,
                       ),
                     ],
@@ -344,9 +595,7 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
                 ],
               ),
               GestureDetector(
-                onTap: () {
-                  // Call phone action
-                },
+                onTap: _handleCallCustomer,
                 child: Container(
                   width: 40,
                   height: 40,
@@ -385,12 +634,14 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _orderData['address'] as String,
+                        order.deliveryAddress ?? '地址待补充',
                         style: AppTextStyles.subtitle2,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '预约时间: ${_orderData['appointmentTime']}',
+                        order.remark?.isNotEmpty == true
+                            ? '备注：${order.remark}'
+                            : '订单号：${order.orderNo ?? order.id ?? '-'}',
                         style: AppTextStyles.captionSmall,
                       ),
                     ],
@@ -401,9 +652,7 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
           ),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: () {
-              // Navigate to map
-            },
+            onTap: _handleOpenMap,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -437,7 +686,8 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
   }
 
   Widget _buildProductInfo() {
-    final products = _orderData['products'] as List<Map<String, dynamic>>;
+    final order = _order!;
+    final products = order.items ?? const <OrderItemModel>[];
 
     return AppCard(
       padding: const EdgeInsets.all(20),
@@ -452,28 +702,61 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
             ),
           ),
           const SizedBox(height: 16),
-          ...products.map((product) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+          if (products.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                '该订单暂无商品明细',
+                style: AppTextStyles.caption
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            )
+          else
+            ...products.map((product) {
+              final name = product.productName ?? '桶装水';
+              final spec = product.productSpec;
+              final displayName =
+                  spec != null && spec.isNotEmpty ? '$name ($spec)' : name;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        displayName,
+                        style: AppTextStyles.subtitle2.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '× ${product.quantity ?? 0} 桶',
+                      style: AppTextStyles.subtitle2.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          if (products.isNotEmpty) ...[
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Text('合计', style: AppTextStyles.caption),
                   Text(
-                    product['name'] as String,
-                    style: AppTextStyles.subtitle2.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  Text(
-                    '× ${product['quantity']} 桶',
-                    style: AppTextStyles.subtitle2.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    '共 ${order.totalQuantity} 桶',
+                    style: AppTextStyles.caption
+                        .copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-            );
-          }),
+            ),
+          ],
         ],
       ),
     );
@@ -592,9 +875,7 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      // Upload photo action
-                    },
+                    onTap: _handleUploadPhoto,
                     child: Container(
                       width: 80,
                       height: 80,
@@ -623,20 +904,6 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg',
-                        ),
-                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -712,58 +979,99 @@ class _DriverOrderDetailPageState extends State<DriverOrderDetailPage> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.bgInput,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '取消',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.subtitle1.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.bold,
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgInput,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: _handleConfirmDelivery,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                  child: Text(
+                    '取消',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.subtitle1.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                child: Text(
-                  '确认送达',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.subtitle1.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: _buildPrimaryActionButton(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryActionButton() {
+    String label;
+    VoidCallback? onTap;
+    Color background = AppColors.primary;
+    bool showLoader = _isSubmitting;
+
+    if (_isCompleted) {
+      label = '订单已完成';
+      onTap = () => Navigator.pop(context);
+      background = AppColors.textSecondary;
+    } else if (_canStartDelivery) {
+      label = '开始配送';
+      onTap = _isSubmitting ? null : _handleStartDelivery;
+    } else if (_canConfirmDelivery) {
+      label = '确认送达';
+      onTap = _isSubmitting ? null : _handleConfirmDelivery;
+    } else {
+      label = '当前状态：${_order?.statusText ?? '-'}';
+      onTap = () => Navigator.pop(context);
+      background = AppColors.textSecondary;
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: onTap == null
+              ? null
+              : [
+                  BoxShadow(
+                    color: background.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
+        child: showLoader
+            ? const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: AppColors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+            : Text(
+                label,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.subtitle1.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }

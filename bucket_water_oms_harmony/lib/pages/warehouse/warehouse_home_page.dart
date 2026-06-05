@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../shared/widgets/app_card.dart';
-import '../../shared/widgets/app_text_field.dart';
 import '../../shared/widgets/app_bottom_bar.dart';
-import '../../shared/components/stat_card.dart';
-import '../../shared/components/quick_action_button.dart';
-import '../../shared/components/status_badge.dart';
 import '../../services/warehouse_service.dart';
 import '../../services/inventory_service.dart';
+import '../../services/order_service.dart';
 import '../../models/order_model.dart';
 import '../../models/product_model.dart';
 import '../../main.dart';
@@ -18,7 +14,9 @@ import 'warehouse_orders_page.dart';
 import 'warehouse_inbound_page.dart';
 import 'warehouse_outbound_page.dart';
 import 'warehouse_inventory_page.dart';
+import 'warehouse_order_detail_page.dart';
 import 'warehouse_return_list_page.dart';
+import 'warehouse_after_sales_page.dart';
 import 'warehouse_settings_page.dart';
 
 class WarehouseHomePage extends StatefulWidget {
@@ -35,7 +33,8 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
 
   List<OrderModel> _pendingOrders = [];
   List<InventoryModel> _inventoryList = [];
-  List<_RecentTask> _recentTasks = [];
+  List<OrderModel> _recentOrders = [];
+  Map<String, dynamic> _dashboardData = {};
 
   @override
   void initState() {
@@ -53,16 +52,23 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
       final appState = context.read<AppState>();
       final warehouseService = WarehouseService();
       final inventoryService = InventoryService();
+      final orderService = OrderService();
 
-      final warehouseId = appState.userId ?? 'demo';
-      final orders = await warehouseService.getPendingOrders(warehouseId);
-      final inventory =
-          await inventoryService.getWarehouseInventory(warehouseId);
+      final warehouseId = appState.userId ?? '0';
+
+      final results = await Future.wait([
+        warehouseService.getDashboard(warehouseId).catchError((_) => <String, dynamic>{}),
+        warehouseService.getPendingOrders(warehouseId).catchError((_) => <OrderModel>[]),
+        inventoryService.getWarehouseInventory(warehouseId).catchError((_) => <InventoryModel>[]),
+        orderService.getWarehouseOrders(warehouseId).catchError((_) => <OrderModel>[]),
+      ]);
 
       if (mounted) {
         setState(() {
-          _pendingOrders = orders;
-          _inventoryList = inventory;
+          _dashboardData = results[0] as Map<String, dynamic>;
+          _pendingOrders = results[1] as List<OrderModel>;
+          _inventoryList = results[2] as List<InventoryModel>;
+          _recentOrders = (results[3] as List<OrderModel>).take(5).toList();
           _isLoading = false;
         });
       }
@@ -70,9 +76,22 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _errorMessage = e.toString();
         });
+        _showErrorSnackbar('加载数据失败: $e');
       }
     }
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -160,7 +179,9 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
             child: Text(
               appState.currentUserName.isNotEmpty
                   ? appState.currentUserName
-                  : '中心仓库 A库区',
+                  : (appState.currentStationName.isNotEmpty
+                      ? appState.currentStationName
+                      : '仓库'),
               style:
                   AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
             ),
@@ -168,7 +189,13 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             color: AppColors.textSecondary,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const WarehouseInventoryPage()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
@@ -226,31 +253,46 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
   }
 
   Widget _buildStatsGrid() {
+    final todayInbound = _dashboardData['todayInbound'] ?? 0;
+    final todayOutbound = _dashboardData['todayOutbound'] ?? 0;
+    final inboundTrend = _dashboardData['inboundTrend'] as double?;
+    final outboundTrend = _dashboardData['outboundTrend'] as double?;
+
     return Row(
       children: [
         Expanded(
           child: _buildStatCard(
             label: '今日入库',
-            value: '1,280',
+            value: '$todayInbound',
             unit: '桶',
             icon: Icons.move_to_inbox,
             iconColor: AppColors.primary,
-            trend: '+12%',
-            trendColor: AppColors.success,
-            isPositive: true,
+            trend: inboundTrend != null
+                ? '${inboundTrend >= 0 ? '+' : ''}${inboundTrend.toStringAsFixed(1)}%'
+                : '0%',
+            trendColor:
+                inboundTrend == null || inboundTrend >= 0
+                    ? AppColors.success
+                    : AppColors.error,
+            isPositive: inboundTrend == null ? null : inboundTrend >= 0,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildStatCard(
             label: '今日出库',
-            value: '960',
+            value: '$todayOutbound',
             unit: '桶',
             icon: Icons.outbox,
             iconColor: AppColors.success,
-            trend: '持平',
-            trendColor: AppColors.primary,
-            isPositive: null,
+            trend: outboundTrend != null
+                ? '${outboundTrend >= 0 ? '+' : ''}${outboundTrend.toStringAsFixed(1)}%'
+                : '0%',
+            trendColor:
+                outboundTrend == null || outboundTrend >= 0
+                    ? AppColors.primary
+                    : AppColors.error,
+            isPositive: outboundTrend == null ? null : outboundTrend >= 0,
           ),
         ),
       ],
@@ -338,7 +380,7 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
   }
 
   Widget _buildWarningCard() {
-    final lowStockItems = _getLowStockItems();
+    final lowStockItems = _inventoryList.where((item) => item.isLowStock).toList();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -396,8 +438,10 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
               ),
             )
           else
-            ...lowStockItems.take(2).map(
-                (item) => _buildWarningItem(item['name']!, item['status']!)),
+            ...lowStockItems.take(2).map((item) => _buildWarningItem(
+                  item.productName ?? '未知产品',
+                  '库存不足 (${item.stock ?? 0}/${item.minStock ?? 0})',
+                )),
         ],
       ),
     );
@@ -409,7 +453,13 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(name, style: AppTextStyles.body2),
+          Expanded(
+            child: Text(
+              name,
+              style: AppTextStyles.body2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           Text(
             status,
             style: AppTextStyles.caption.copyWith(
@@ -422,20 +472,16 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
     );
   }
 
-  List<Map<String, String>> _getLowStockItems() {
-    return [
-      {'name': '18.9L 纯净水 (A品牌)', 'status': '库存不足 (50)'},
-      {'name': '空桶 (普通版)', 'status': '库存不足 (12)'},
-    ];
-  }
-
   Widget _buildOrderStats() {
+    final pendingCount = _dashboardData['pendingOrderCount'] ?? _pendingOrders.length;
+    final returnCount = _dashboardData['pendingReturnCount'] ?? 0;
+
     return Row(
       children: [
         Expanded(
           child: _buildOrderStatCard(
             label: '待接单',
-            count: 5,
+            count: pendingCount is int ? pendingCount : 0,
             icon: Icons.assignment,
             iconColor: AppColors.warning,
             onTap: () => setState(() => _currentIndex = 1),
@@ -445,7 +491,7 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
         Expanded(
           child: _buildOrderStatCard(
             label: '待核对',
-            count: 3,
+            count: returnCount is int ? returnCount : 0,
             icon: Icons.checklist,
             iconColor: AppColors.purple,
             onTap: () => Navigator.push(
@@ -495,26 +541,27 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
                   ),
                   child: Icon(icon, color: iconColor, size: 20),
                 ),
-                Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    child: Text(
-                      '$count',
-                      style: AppTextStyles.captionSmall.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
+                if (count > 0)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: const BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: AppTextStyles.captionSmall.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -589,7 +636,11 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
                 iconColor: AppColors.error,
                 backgroundColor: AppColors.error.withOpacity(0.1),
                 label: '售后处理',
-                onTap: () {},
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const WarehouseAfterSalesPage()),
+                ),
               ),
             ],
           ),
@@ -631,8 +682,6 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
   }
 
   Widget _buildRecentTasks() {
-    final tasks = _getMockTasks();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -645,7 +694,7 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
                   AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => setState(() => _currentIndex = 1),
               child: Text(
                 '查看全部',
                 style: AppTextStyles.caption.copyWith(color: AppColors.primary),
@@ -654,110 +703,125 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
           ],
         ),
         const SizedBox(height: 12),
-        ...tasks.map((task) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildTaskItem(task),
-            )),
+        if (_recentOrders.isEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            alignment: Alignment.center,
+            child: Text(
+              '暂无最近任务',
+              style: AppTextStyles.body2
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          )
+        else
+          ..._recentOrders.map((order) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildTaskItem(order),
+              )),
       ],
     );
   }
 
-  Widget _buildTaskItem(_RecentTask task) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+  Widget _buildTaskItem(OrderModel order) {
+    final isCompleted = order.status == 'completed' || order.status == 'delivered';
+    final isUrgent = order.status == 'pending' || order.status == 'confirmed';
+    final statusColor = isCompleted
+        ? AppColors.success
+        : (isUrgent ? AppColors.warning : AppColors.primary);
+    final statusText = order.statusText;
+    final iconData = isCompleted
+        ? Icons.local_shipping
+        : (isUrgent ? Icons.assignment : Icons.inventory);
+    final itemSummary = order.items != null && order.items!.isNotEmpty
+        ? '${order.items!.first.productName ?? '商品'} × ${order.items!.first.quantity ?? 0}'
+        : '暂无商品';
+    final detail = '${order.stationName ?? '未知水站'} | $itemSummary';
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const WarehouseOrderDetailPage(),
           ),
-        ],
-        border: Border(
-          left: BorderSide(
-            color: task.statusColor,
-            width: 4,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.bgCard,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border(
+            left: BorderSide(
+              color: statusColor,
+              width: 4,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: task.iconColor.withOpacity(0.1),
-              shape: BoxShape.circle,
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(iconData, color: statusColor, size: 20),
             ),
-            child: Icon(task.icon, color: task.iconColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        task.title,
-                        style: AppTextStyles.subtitle2
-                            .copyWith(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: task.statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        task.status,
-                        style: AppTextStyles.captionSmall.copyWith(
-                          color: task.statusColor,
-                          fontWeight: FontWeight.bold,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '订单 ${order.orderNo ?? order.id ?? ''}',
+                          style: AppTextStyles.subtitle2
+                              .copyWith(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  task.detail,
-                  style: AppTextStyles.captionSmall,
-                ),
-              ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          statusText,
+                          style: AppTextStyles.captionSmall.copyWith(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    detail,
+                    style: AppTextStyles.captionSmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  List<_RecentTask> _getMockTasks() {
-    return [
-      _RecentTask(
-        title: '采购入库单 - RK2026041901',
-        status: '待核验',
-        detail: '18.9L 桶装水 x 500 | 操作人: 王管理',
-        icon: Icons.checklist,
-        iconColor: AppColors.primary,
-        statusColor: AppColors.primary,
-      ),
-      _RecentTask(
-        title: '订单出库单 - CK2026041905',
-        status: '已完成',
-        detail: '张记旗舰水站 x 20 | 操作人: 李调度',
-        icon: Icons.local_shipping,
-        iconColor: AppColors.success,
-        statusColor: AppColors.success,
-      ),
-    ];
   }
 
   void _showLogoutDialog() {
@@ -787,22 +851,4 @@ class _WarehouseHomePageState extends State<WarehouseHomePage> {
       ),
     );
   }
-}
-
-class _RecentTask {
-  final String title;
-  final String status;
-  final String detail;
-  final IconData icon;
-  final Color iconColor;
-  final Color statusColor;
-
-  _RecentTask({
-    required this.title,
-    required this.status,
-    required this.detail,
-    required this.icon,
-    required this.iconColor,
-    required this.statusColor,
-  });
 }

@@ -83,10 +83,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { platformApi } from '../../api/platform'
 
 const activeTab = ref('basic')
 const saveLoading = ref(false)
+const loading = ref(false)
 
 const basicConfig = reactive({
   platformName: '水厂订货管理系统',
@@ -115,27 +116,69 @@ const mapConfig = reactive({
 })
 
 const loadConfig = async () => {
+  loading.value = true
   try {
-    const response = await axios.get('/api/platform/config')
-    if (response.data.success) {
-      Object.assign(basicConfig, response.data.data.basic || {})
-      Object.assign(paymentConfig, response.data.data.payment || {})
-      Object.assign(smsConfig, response.data.data.sms || {})
-      Object.assign(mapConfig, response.data.data.map || {})
+    const response: any = await platformApi.getConfig()
+    if (response.success && response.data) {
+      const d = response.data
+      if (d.basic) {
+        Object.assign(basicConfig, {
+          platformName: d.basic.platformName || basicConfig.platformName,
+          platformLogo: d.basic.platformLogo || '',
+          maintenanceMode: d.basic.maintenanceMode === 'true' || d.basic.maintenanceMode === true
+        })
+      }
+      if (d.payment) {
+        Object.assign(paymentConfig, {
+          wechatEnabled: d.payment.wechatEnabled !== 'false' && d.payment.wechatEnabled !== false,
+          wechatAppId: d.payment.wechatAppId || '',
+          wechatMchId: d.payment.wechatMchId || '',
+          wechatApiKey: d.payment.wechatApiKey || ''
+        })
+      }
+      if (d.sms) {
+        Object.assign(smsConfig, {
+          aliyunEnabled: d.sms.aliyunEnabled !== 'false' && d.sms.aliyunEnabled !== false,
+          accessKeyId: d.sms.accessKeyId || '',
+          accessKeySecret: d.sms.accessKeySecret || '',
+          signName: d.sms.signName || ''
+        })
+      }
+      if (d.map) {
+        Object.assign(mapConfig, {
+          provider: d.map.provider || 'amap',
+          webKey: d.map.webKey || '',
+          mockMode: d.map.mockMode !== 'false' && d.map.mockMode !== false
+        })
+      }
     }
   } catch (error) {
     console.error('加载配置失败', error)
+  } finally {
+    loading.value = false
   }
 }
 
 const handleSave = async () => {
   saveLoading.value = true
   try {
-    await axios.put('/api/platform/config', {
-      basic: basicConfig,
-      payment: paymentConfig,
-      sms: smsConfig,
-      map: mapConfig
+    await platformApi.saveConfig({
+      basic: {
+        ...basicConfig,
+        maintenanceMode: String(basicConfig.maintenanceMode)
+      },
+      payment: {
+        ...paymentConfig,
+        wechatEnabled: String(paymentConfig.wechatEnabled)
+      },
+      sms: {
+        ...smsConfig,
+        aliyunEnabled: String(smsConfig.aliyunEnabled)
+      },
+      map: {
+        ...mapConfig,
+        mockMode: String(mapConfig.mockMode)
+      }
     })
     ElMessage.success('保存成功')
   } catch (error) {

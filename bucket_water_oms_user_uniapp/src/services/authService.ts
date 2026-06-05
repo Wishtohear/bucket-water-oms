@@ -89,5 +89,16 @@ export const authService = {
     storage.removeToken()
     storage.removeRefreshToken()
     storage.removeUserInfo()
+  },
+
+  // 微信小程序登录（用 code 换 token）
+  async wechatLogin(code: string) {
+    const result = await post<LoginResult>('/auth/wechat-login', { code })
+    if (result) {
+      storage.setToken(result.token)
+      storage.setRefreshToken(result.refreshToken)
+      storage.setUserInfo(result.userInfo)
+    }
+    return result
   }
 }

@@ -157,9 +157,9 @@ const showAddDialog = () => {
 const editPerson = (person: DeliveryPerson) => {
   isEditing.value = true
   currentPersonId.value = person.id
-  formData.name = person.name
-  formData.phone = person.phone
-  formData.idCard = ''
+  formData.name = person.name || ''
+  formData.phone = person.phone || ''
+  formData.idCard = (person as any).idCard || ''
   dialogVisible.value = true
 }
 

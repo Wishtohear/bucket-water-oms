@@ -20,6 +20,9 @@ class OrderModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deliveredAt;
+  final int? owedBuckets;
+  final int? totalOwedBuckets;
+  final int? returnedBuckets;
 
   OrderModel({
     this.id,
@@ -43,6 +46,9 @@ class OrderModel {
     this.createdAt,
     this.updatedAt,
     this.deliveredAt,
+    this.owedBuckets,
+    this.totalOwedBuckets,
+    this.returnedBuckets,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic>? json) {
@@ -81,6 +87,9 @@ class OrderModel {
       deliveredAt: json['deliveredAt'] != null
           ? DateTime.tryParse(json['deliveredAt'].toString())
           : null,
+      owedBuckets: json['owedBuckets'],
+      totalOwedBuckets: json['totalOwedBuckets'],
+      returnedBuckets: json['returnedBuckets'],
     );
   }
 

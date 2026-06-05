@@ -4,6 +4,10 @@ import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/app_bottom_bar.dart';
 import '../../shared/components/status_badge.dart';
+import '../../services/order_service.dart';
+import '../../services/warehouse_service.dart';
+import '../../models/order_model.dart';
+import 'warehouse_order_detail_page.dart';
 
 class WarehouseOrdersPage extends StatefulWidget {
   const WarehouseOrdersPage({super.key});
@@ -16,61 +20,112 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
   int _selectedTabIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> _pendingOrders = [
-    {
-      'id': '850021',
-      'isUrgent': true,
-      'priority': '紧急',
-      'priorityColor': AppColors.error,
-      'product': '18.9L 桶装水 × 50 桶',
-      'product2': '11.3L 迷你桶 × 20 桶',
-      'customer': '张记旗舰水站',
-      'address': '桂林市秀峰区XX路XX号',
-      'phone': '',
-      'totalQuantity': 70,
-      'amount': 1850.00,
-      'distance': '1.2km',
-      'deliveryTime': '25分钟',
-      'waitTime': '12分钟',
-    },
-    {
-      'id': '850022',
-      'isUrgent': false,
-      'priority': '普通',
-      'priorityColor': AppColors.primary,
-      'product': '18.9L 桶装水 × 30 桶',
-      'product2': '',
-      'customer': '王记纯净水站',
-      'address': '桂林市象山区XX路XX号',
-      'phone': '',
-      'totalQuantity': 30,
-      'amount': 750.00,
-      'distance': '3.5km',
-      'deliveryTime': '40分钟',
-      'waitTime': '5分钟',
-    },
-    {
-      'id': '850023',
-      'isUrgent': false,
-      'priority': '优先',
-      'priorityColor': AppColors.warning,
-      'product': '18.9L 桶装水 × 100 桶',
-      'product2': '空桶回收 × 80 个',
-      'customer': '李老板水站',
-      'address': '桂林市七星区XX路XX号',
-      'phone': '',
-      'totalQuantity': 100,
-      'amount': 2500.00,
-      'distance': '5.8km',
-      'deliveryTime': '55分钟',
-      'waitTime': '8分钟',
-    },
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<OrderModel> _allOrders = [];
+  List<OrderModel> _filteredOrders = [];
+
+  final List<_TabConfig> _tabs = const [
+    _TabConfig('待接单', 'pending', 0),
+    _TabConfig('备货中', 'preparing', 1),
+    _TabConfig('已派单', 'dispatched', 2),
+    _TabConfig('已完成', 'completed', 3),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final orderService = OrderService();
+      final warehouseService = WarehouseService();
+      const warehouseId = '0';
+
+      final results = await Future.wait([
+        orderService.getWarehouseOrders(warehouseId).catchError((_) => <OrderModel>[]),
+        warehouseService.getPendingOrders(warehouseId).catchError((_) => <OrderModel>[]),
+      ]);
+
+      if (mounted) {
+        final orders = <OrderModel>[];
+        orders.addAll(results[0] as List<OrderModel>);
+        orders.addAll(results[1] as List<OrderModel>);
+
+        setState(() {
+          _allOrders = orders;
+          _isLoading = false;
+        });
+        _applyFilter();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+        _showErrorSnackbar('加载订单失败: $e');
+      }
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+      ),
+    );
+  }
+
+  void _applyFilter() {
+    final tab = _tabs[_selectedTabIndex];
+    final query = _searchController.text.toLowerCase().trim();
+
+    setState(() {
+      _filteredOrders = _allOrders.where((order) {
+        final matchesStatus = _matchesStatus(order.status, tab.statusKey);
+        if (!matchesStatus) return false;
+        if (query.isEmpty) return true;
+        final orderNo = (order.orderNo ?? order.id ?? '').toLowerCase();
+        final station = (order.stationName ?? '').toLowerCase();
+        return orderNo.contains(query) || station.contains(query);
+      }).toList();
+    });
+  }
+
+  bool _matchesStatus(String? orderStatus, String tabKey) {
+    if (orderStatus == null) return tabKey == 'pending';
+    switch (tabKey) {
+      case 'pending':
+        return orderStatus == 'pending' || orderStatus == 'confirmed';
+      case 'preparing':
+        return orderStatus == 'preparing' || orderStatus == 'processing';
+      case 'dispatched':
+        return orderStatus == 'dispatched' || orderStatus == 'shipping' || orderStatus == 'in_transit';
+      case 'completed':
+        return orderStatus == 'completed' || orderStatus == 'delivered' || orderStatus == 'cancelled';
+      default:
+        return true;
+    }
+  }
+
+  int _getCountForTab(String statusKey) {
+    return _allOrders.where((o) => _matchesStatus(o.status, statusKey)).length;
   }
 
   @override
@@ -80,15 +135,19 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
         _buildHeader(),
         _buildTabs(),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildSearchBar(),
-                const SizedBox(height: 16),
-                _buildOrderList(),
-                const SizedBox(height: 100),
-              ],
+          child: RefreshIndicator(
+            onRefresh: _loadData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildSearchBar(),
+                  const SizedBox(height: 16),
+                  _buildOrderList(),
+                  const SizedBox(height: 100),
+                ],
+              ),
             ),
           ),
         ),
@@ -117,13 +176,6 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
   }
 
   Widget _buildTabs() {
-    final tabs = [
-      {'label': '待接单 (5)', 'index': 0},
-      {'label': '备货中 (3)', 'index': 1},
-      {'label': '已派单 (8)', 'index': 2},
-      {'label': '已完成', 'index': 3},
-    ];
-
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.bgCard,
@@ -132,14 +184,16 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
         ),
       ),
       child: Row(
-        children: tabs.map((tab) {
-          final isSelected = _selectedTabIndex == tab['index'];
+        children: _tabs.map((tab) {
+          final isSelected = _selectedTabIndex == tab.index;
+          final count = _getCountForTab(tab.statusKey);
           return Expanded(
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  _selectedTabIndex = tab['index'] as int;
+                  _selectedTabIndex = tab.index;
                 });
+                _applyFilter();
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -153,7 +207,7 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                   ),
                 ),
                 child: Text(
-                  tab['label'] as String,
+                  '${tab.label} ($count)',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.body2.copyWith(
                     color: isSelected
@@ -189,6 +243,7 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
             ),
             child: TextField(
               controller: _searchController,
+              onChanged: (_) => _applyFilter(),
               style: AppTextStyles.body2,
               decoration: InputDecoration(
                 hintText: '搜索订单号/水站名称',
@@ -228,7 +283,7 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
-              onTap: () {},
+              onTap: () => _showFilterSnackbar(),
               borderRadius: BorderRadius.circular(16),
               child: const Icon(
                 Icons.filter_list,
@@ -242,9 +297,49 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
     );
   }
 
+  void _showFilterSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('请使用顶部标签切换订单状态'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   Widget _buildOrderList() {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 60),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_filteredOrders.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 60),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.inbox_outlined,
+                size: 64,
+                color: AppColors.textTertiary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '暂无订单',
+                style: AppTextStyles.subtitle2.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
-      children: _pendingOrders.map((order) {
+      children: _filteredOrders.map((order) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildOrderCard(order),
@@ -253,9 +348,21 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order) {
-    final isUrgent = order['isUrgent'] as bool;
-    final hasSecondProduct = (order['product2'] as String).isNotEmpty;
+  Widget _buildOrderCard(OrderModel order) {
+    final status = order.status ?? 'pending';
+    final isUrgent = status == 'pending';
+    final isCompleted = status == 'completed' || status == 'delivered';
+    final priorityText = _getPriorityText(status);
+    final priorityColor = _getPriorityColor(status);
+    final badgeType = isUrgent ? BadgeType.error : (isCompleted ? BadgeType.success : BadgeType.info);
+    final firstItem = order.items != null && order.items!.isNotEmpty
+        ? order.items!.first
+        : null;
+    final productText = firstItem != null
+        ? '${firstItem.productName ?? '商品'} × ${firstItem.quantity ?? 0}'
+        : '暂无商品';
+    final totalQty = order.totalQuantity;
+    final amount = order.totalAmount ?? 0.0;
 
     return AppCard(
       padding: const EdgeInsets.all(16),
@@ -272,13 +379,13 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: order['priorityColor'] as Color,
+                      color: priorityColor,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '订单 #${order['id']}',
+                    '订单 #${order.orderNo ?? order.id ?? ''}',
                     style: AppTextStyles.caption.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -289,26 +396,9 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
               Row(
                 children: [
                   StatusBadge(
-                    text: order['priority'] as String,
-                    type: isUrgent ? BadgeType.error : BadgeType.info,
+                    text: priorityText,
+                    type: badgeType,
                     fontSize: 10,
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.bgInput,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '等待 ${order['waitTime']}',
-                      style: AppTextStyles.captionSmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -336,14 +426,14 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order['customer'] as String,
+                      order.stationName ?? '未知水站',
                       style: AppTextStyles.subtitle2.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '地址: ${order['address']}',
+                      '地址: ${order.deliveryAddress ?? '暂无地址'}',
                       style: AppTextStyles.captionSmall,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -351,7 +441,14 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  final phone = order.contactPhone;
+                  if (phone != null && phone.isNotEmpty) {
+                    _showErrorSnackbar('拨打: $phone');
+                  } else {
+                    _showErrorSnackbar('暂无联系电话');
+                  }
+                },
                 child: Container(
                   width: 32,
                   height: 32,
@@ -380,28 +477,31 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      order['product'] as String,
-                      style: AppTextStyles.caption,
+                    Expanded(
+                      child: Text(
+                        productText,
+                        style: AppTextStyles.caption,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     Text(
-                      '× ${order['totalQuantity']} 桶',
+                      '× $totalQty 桶',
                       style: AppTextStyles.subtitle2.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                if (hasSecondProduct) ...[
+                if (order.items != null && order.items!.length > 1) ...[
                   const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        order['product2'] as String,
-                        style: AppTextStyles.caption,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '共 ${order.items!.length} 种商品',
+                      style: AppTextStyles.captionSmall.copyWith(
+                        color: AppColors.textSecondary,
                       ),
-                    ],
+                    ),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -414,11 +514,11 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '共计 ${order['totalQuantity']} 桶',
+                      '共计 $totalQty 桶',
                       style: AppTextStyles.captionSmall,
                     ),
                     Text(
-                      '¥ ${(order['amount'] as double).toStringAsFixed(2)}',
+                      '¥ ${amount.toStringAsFixed(2)}',
                       style: AppTextStyles.subtitle2.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -429,29 +529,19 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(
-                Icons.location_on_outlined,
-                size: 16,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '距此 ${order['distance']} | 预计配送 ${order['deliveryTime']}',
-                style: AppTextStyles.captionSmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WarehouseOrderDetailPage(),
+                      ),
+                    );
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
@@ -493,7 +583,7 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
                     ),
                     child: Center(
                       child: Text(
-                        '接单',
+                        isCompleted ? '已完成' : '接单',
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -510,53 +600,113 @@ class _WarehouseOrdersPageState extends State<WarehouseOrdersPage> {
     );
   }
 
-  void _onAcceptOrder(Map<String, dynamic> order) {
-    showDialog(
+  String _getPriorityText(String status) {
+    switch (status) {
+      case 'pending':
+        return '待处理';
+      case 'confirmed':
+        return '已确认';
+      case 'preparing':
+        return '备货中';
+      case 'processing':
+        return '处理中';
+      case 'dispatched':
+      case 'shipping':
+      case 'in_transit':
+        return '已派单';
+      case 'delivered':
+        return '已送达';
+      case 'completed':
+        return '已完成';
+      case 'cancelled':
+        return '已取消';
+      default:
+        return status;
+    }
+  }
+
+  Color _getPriorityColor(String status) {
+    switch (status) {
+      case 'pending':
+        return AppColors.error;
+      case 'confirmed':
+      case 'preparing':
+        return AppColors.warning;
+      case 'processing':
+        return AppColors.primary;
+      case 'dispatched':
+      case 'shipping':
+        return AppColors.purple;
+      case 'completed':
+      case 'delivered':
+        return AppColors.success;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  Future<void> _onAcceptOrder(OrderModel order) async {
+    if (order.status == 'completed' || order.status == 'delivered') {
+      _showErrorSnackbar('订单已完成，无需操作');
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('接单确认'),
-        content: Text('确定要接收订单 #${order['id']} 吗？'),
+        content: Text('确定要接收订单 #${order.orderNo ?? order.id} 吗？'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('订单 #${order['id']} 已接收'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('确认接单'),
           ),
         ],
       ),
     );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final orderService = OrderService();
+      final newStatus = order.status == 'pending' ? 'confirmed' : 'preparing';
+      final success = await orderService.updateOrderStatus(
+        order.id ?? '',
+        newStatus,
+      );
+
+      if (success && mounted) {
+        _showSuccessSnackbar('订单 #${order.orderNo ?? order.id} 已接收');
+        await _loadData();
+      } else if (mounted) {
+        _showErrorSnackbar('接单失败，请重试');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackbar('接单失败: $e');
+      }
+    }
   }
 
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认退出'),
-        content: const Text('确定要退出登录吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('确定'),
-          ),
-        ],
+  void _showSuccessSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.success,
       ),
     );
   }
+}
+
+class _TabConfig {
+  final String label;
+  final String statusKey;
+  final int index;
+
+  const _TabConfig(this.label, this.statusKey, this.index);
 }

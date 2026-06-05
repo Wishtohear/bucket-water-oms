@@ -9,6 +9,21 @@ class WarehouseService {
 
   final ApiClient _apiClient = ApiClient();
 
+  Future<Map<String, dynamic>> getDashboard(String warehouseId) async {
+    final response = await _apiClient.get(
+      '/warehouses/dashboard',
+      headers: {'X-Warehouse-Id': warehouseId},
+    );
+
+    if (response.success && response.data != null) {
+      return Map<String, dynamic>.from(response.data);
+    }
+    throw ApiException(
+      response.message ?? '获取仓库首页数据失败',
+      statusCode: response.code,
+    );
+  }
+
   Future<List<OrderModel>> getPendingOrders(String warehouseId) async {
     final response = await _apiClient.get(
       '/warehouses/orders',
@@ -191,6 +206,118 @@ class WarehouseService {
       headers: {'X-Warehouse-Id': warehouseId},
     );
 
+    return response.success;
+  }
+
+  Future<bool> calibrateInventory(
+    String warehouseId,
+    String productId,
+    int quantity,
+    String reason,
+  ) async {
+    final response = await _apiClient.put(
+      '/warehouses/inventory/calibrate',
+      headers: {'X-Warehouse-Id': warehouseId},
+      body: {
+        'productId': productId,
+        'quantity': quantity,
+        'reason': reason,
+      },
+    );
+    return response.success;
+  }
+
+  Future<Map<String, dynamic>> getReturnDetail(String returnId) async {
+    final response = await _apiClient.get('/warehouses/returns/$returnId');
+    if (response.success && response.data != null) {
+      return Map<String, dynamic>.from(response.data);
+    }
+    throw ApiException(
+      response.message ?? '获取回仓详情失败',
+      statusCode: response.code,
+    );
+  }
+
+  Future<bool> confirmReturn(
+    String returnId, {
+    required int actualBuckets,
+    String? remark,
+  }) async {
+    final response = await _apiClient.post(
+      '/warehouses/returns/$returnId/confirm',
+      body: {
+        'actualBuckets': actualBuckets,
+        if (remark != null) 'remark': remark,
+      },
+    );
+    return response.success;
+  }
+
+  Future<bool> recordReturnDiscrepancy(
+    String returnId, {
+    required int actualBuckets,
+    String? remark,
+  }) async {
+    final response = await _apiClient.post(
+      '/warehouses/returns/$returnId/discrepancy',
+      body: {
+        'actualBuckets': actualBuckets,
+        if (remark != null) 'remark': remark,
+      },
+    );
+    return response.success;
+  }
+
+  Future<List<Map<String, dynamic>>> getPreparingOrders(
+    String warehouseId, {
+    String? status,
+  }) async {
+    final queryParams = <String, String>{};
+    if (status != null) queryParams['status'] = status;
+
+    final response = await _apiClient.get(
+      '/warehouses/orders/preparing',
+      queryParams: queryParams,
+      headers: {'X-Warehouse-Id': warehouseId},
+    );
+
+    if (response.success) {
+      final data = response.data;
+      if (data is List) {
+        return data.map((e) => Map<String, dynamic>.from(e)).toList();
+      }
+      return [];
+    } else {
+      throw ApiException(
+        response.message ?? '获取备货订单失败',
+        statusCode: response.code,
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> getWarehouseInfo(String warehouseId) async {
+    final response = await _apiClient.get(
+      '/warehouses/info',
+      headers: {'X-Warehouse-Id': warehouseId},
+    );
+    if (response.success && response.data != null) {
+      return Map<String, dynamic>.from(response.data);
+    }
+    throw ApiException(
+      response.message ?? '获取仓库信息失败',
+      statusCode: response.code,
+    );
+  }
+
+  Future<bool> updateWarehouseInfo(
+    String warehouseId,
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _apiClient.put(
+      '/warehouses/info',
+      headers: {'X-Warehouse-Id': warehouseId},
+      body: data,
+    );
     return response.success;
   }
 

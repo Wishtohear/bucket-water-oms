@@ -1,4 +1,5 @@
 // 水票状态管理 Store
+import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { ticketService, UserTicket } from '@/services/ticketService'
 
@@ -7,11 +8,11 @@ interface TicketUsage {
   quantity: number
 }
 
-const tickets = ref<UserTicket[]>([])
-const selectedTickets = ref<TicketUsage[]>([])
-const loading = ref(false)
+export const useTicketStore = defineStore('ticket', () => {
+  const tickets = ref<UserTicket[]>([])
+  const selectedTickets = ref<TicketUsage[]>([])
+  const loading = ref(false)
 
-export const useTicketStore = () => {
   const availableTickets = computed(() => {
     return tickets.value.filter(t => t.status === 'available' && t.remainingBucketCount > 0)
   })
@@ -37,11 +38,7 @@ export const useTicketStore = () => {
     try {
       const result = await ticketService.getMyTickets({ status })
       if (result && result.list) {
-        if (status) {
-          tickets.value = result.list
-        } else {
-          tickets.value = result.list
-        }
+        tickets.value = result.list
       }
     } catch (error) {
       console.error('加载水票列表失败:', error)
@@ -108,6 +105,4 @@ export const useTicketStore = () => {
     isTicketSelected,
     getSelectedQuantity
   }
-}
-
-export const ticketStore = useTicketStore()
+})

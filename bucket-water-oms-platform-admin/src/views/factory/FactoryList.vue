@@ -12,16 +12,13 @@
       </template>
 
       <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="水厂名称">
-          <el-input v-model="searchForm.name" placeholder="请输入水厂名称" clearable />
-        </el-form-item>
-        <el-form-item label="水厂编码">
-          <el-input v-model="searchForm.code" placeholder="请输入水厂编码" clearable />
+        <el-form-item label="关键字">
+          <el-input v-model="searchForm.keyword" placeholder="名称或编码" clearable />
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-            <el-option label="启用" value="ACTIVE" />
-            <el-option label="停用" value="INACTIVE" />
+            <el-option label="启用" value="active" />
+            <el-option label="停用" value="inactive" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -38,8 +35,8 @@
         <el-table-column prop="address" label="地址" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'ACTIVE' ? 'success' : 'danger'">
-              {{ row.status === 'ACTIVE' ? '启用' : '停用' }}
+            <el-tag :type="isActive(row.status) ? 'success' : 'danger'">
+              {{ isActive(row.status) ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -49,11 +46,11 @@
             <el-button type="primary" link @click="handleDetail(row)">详情</el-button>
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
             <el-button
-              :type="row.status === 'ACTIVE' ? 'warning' : 'success'"
+              :type="isActive(row.status) ? 'warning' : 'success'"
               link
               @click="handleToggleStatus(row)"
             >
-              {{ row.status === 'ACTIVE' ? '停用' : '启用' }}
+              {{ isActive(row.status) ? '停用' : '启用' }}
             </el-button>
           </template>
         </el-table-column>
@@ -109,7 +106,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import { platformApi } from '../../api/platform'
 
 const router = useRouter()
 
@@ -120,8 +117,7 @@ const isEdit = ref(false)
 const formRef = ref()
 
 const searchForm = reactive({
-  name: '',
-  code: '',
+  keyword: '',
   status: ''
 })
 
@@ -131,7 +127,7 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = ref([])
+const tableData = ref<any[]>([])
 
 const formData = reactive({
   id: null as number | null,
@@ -154,16 +150,15 @@ const dialogTitle = computed(() => (isEdit.value ? '编辑水厂' : '创建水�
 const loadData = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/api/platform/factories', {
-      params: {
-        page: pagination.page,
-        size: pagination.size,
-        ...searchForm
-      }
+    const response: any = await platformApi.getAllFactories({
+      keyword: searchForm.keyword,
+      status: searchForm.status,
+      page: pagination.page,
+      size: pagination.size
     })
-    if (response.data.success) {
-      tableData.value = response.data.data.records
-      pagination.total = response.data.data.total
+    if (response.success) {
+      tableData.value = response.data?.records || []
+      pagination.total = response.data?.total || 0
     }
   } catch (error) {
     ElMessage.error('加载数据失败')
@@ -178,7 +173,7 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-  Object.assign(searchForm, { name: '', code: '', status: '' })
+  Object.assign(searchForm, { keyword: '', status: '' })
   handleSearch()
 }
 
@@ -215,8 +210,12 @@ const handleDetail = (row: any) => {
   router.push(`/factories/${row.id}`)
 }
 
+const isActive = (status: string) => status === 'active' || status === 'ACTIVE'
+
 const handleToggleStatus = async (row: any) => {
-  const action = row.status === 'ACTIVE' ? '停用' : '启用'
+  const isActiveNow = isActive(row.status)
+  const action = isActiveNow ? '停用' : '启用'
+  const newStatus = isActiveNow ? 'inactive' : 'active'
   await ElMessageBox.confirm(`确定要${action}水厂"${row.name}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -224,9 +223,7 @@ const handleToggleStatus = async (row: any) => {
   })
 
   try {
-    await axios.put(`/api/platform/factories/${row.id}/status`, {
-      status: row.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
-    })
+    await platformApi.updateFactoryStatus(row.id, newStatus)
     ElMessage.success(`${action}成功`)
     loadData()
   } catch (error) {
@@ -245,10 +242,10 @@ const handleSubmit = async () => {
     submitLoading.value = true
     try {
       if (isEdit.value) {
-        await axios.put(`/api/platform/factories/${formData.id}`, formData)
+        await platformApi.updateFactory(formData.id!, formData)
         ElMessage.success('编辑成功')
       } else {
-        await axios.post('/api/platform/factories', formData)
+        await platformApi.createFactory(formData)
         ElMessage.success('创建成功')
       }
       dialogVisible.value = false

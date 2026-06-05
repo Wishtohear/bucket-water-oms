@@ -20,8 +20,6 @@
             <el-option label="新增" value="CREATE" />
             <el-option label="修改" value="UPDATE" />
             <el-option label="删除" value="DELETE" />
-            <el-option label="启用" value="ENABLE" />
-            <el-option label="停用" value="DISABLE" />
             <el-option label="登录" value="LOGIN" />
             <el-option label="登出" value="LOGOUT" />
           </el-select>
@@ -46,7 +44,7 @@
 
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="createTime" label="操作时间" width="180" />
-        <el-table-column prop="operatorName" label="操作人" width="120" />
+        <el-table-column prop="userName" label="操作人" width="120" />
         <el-table-column prop="module" label="模块" width="120">
           <template #default="{ row }">
             <el-tag size="small">{{ getModuleName(row.module) }}</el-tag>
@@ -61,7 +59,7 @@
         </el-table-column>
         <el-table-column prop="targetType" label="操作对象" width="120" />
         <el-table-column prop="targetName" label="对象名称" show-overflow-tooltip />
-        <el-table-column prop="detail" label="操作详情" show-overflow-tooltip />
+        <el-table-column prop="description" label="操作详情" show-overflow-tooltip />
         <el-table-column prop="ipAddress" label="IP地址" width="140" />
       </el-table>
 
@@ -80,9 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { platformApi } from '../../api/platform'
 
 const loading = ref(false)
 
@@ -90,7 +88,7 @@ const searchForm = reactive({
   module: '',
   action: '',
   operator: '',
-  dateRange: []
+  dateRange: [] as string[]
 })
 
 const pagination = reactive({
@@ -137,21 +135,71 @@ const getActionType = (action: string) => {
   return typeMap[action] || 'info'
 }
 
+const tableData = ref<any[]>([])
+
+const moduleMap: Record<string, string> = {
+  factory: '水厂管理',
+  station: '水站管理',
+  warehouse: '仓库管理',
+  driver: '司机管理',
+  system: '系统配置',
+  product: '产品管理',
+  order: '订单管理'
+}
+
+const actionMap: Record<string, string> = {
+  CREATE: '新增',
+  UPDATE: '修改',
+  DELETE: '删除',
+  ENABLE: '启用',
+  DISABLE: '停用',
+  LOGIN: '登录',
+  LOGOUT: '登出',
+  EXPORT: '导出',
+  IMPORT: '导入'
+}
+
+const getModuleName = (module: string) => moduleMap[module] || module
+const getActionName = (action: string) => actionMap[action] || action
+
+const getActionType = (action: string) => {
+  const typeMap: Record<string, string> = {
+    CREATE: 'success',
+    UPDATE: 'warning',
+    DELETE: 'danger',
+    ENABLE: 'success',
+    DISABLE: 'warning'
+  }
+  return typeMap[action] || 'info'
+}
+
+const formatDateTime = (val: any) => {
+  if (!val) return '-'
+  if (Array.isArray(val)) {
+    const [d, t] = val
+    return `${d} ${t || ''}`
+  }
+  return val
+}
+
 const loadData = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/api/platform/logs', {
-      params: {
-        page: pagination.page,
-        size: pagination.size,
-        ...searchForm,
-        startDate: searchForm.dateRange?.[0],
-        endDate: searchForm.dateRange?.[1]
-      }
+    const response: any = await platformApi.getLogs({
+      page: pagination.page,
+      size: pagination.size,
+      module: searchForm.module || undefined,
+      action: searchForm.action || undefined,
+      userName: searchForm.operator || undefined,
+      startTime: Array.isArray(searchForm.dateRange) && searchForm.dateRange[0] ? String(searchForm.dateRange[0]) : undefined,
+      endTime: Array.isArray(searchForm.dateRange) && searchForm.dateRange[1] ? String(searchForm.dateRange[1]) : undefined
     })
-    if (response.data.success) {
-      tableData.value = response.data.data.records
-      pagination.total = response.data.data.total
+    if (response.success) {
+      tableData.value = (response.data?.records || []).map((row: any) => ({
+        ...row,
+        createTime: formatDateTime(row.createTime)
+      }))
+      pagination.total = response.data?.total || 0
     }
   } catch (error) {
     ElMessage.error('加载数据失败')
@@ -184,7 +232,9 @@ const handleCurrentChange = () => {
   loadData()
 }
 
-loadData()
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

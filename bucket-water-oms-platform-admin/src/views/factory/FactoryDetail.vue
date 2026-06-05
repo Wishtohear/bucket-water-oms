@@ -15,8 +15,8 @@
         <el-descriptions-item label="联系电话">{{ factory.phone }}</el-descriptions-item>
         <el-descriptions-item label="详细地址" :span="2">{{ factory.address }}</el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag :type="factory.status === 'ACTIVE' ? 'success' : 'danger'">
-            {{ factory.status === 'ACTIVE' ? '启用' : '停用' }}
+          <el-tag :type="isActive(factory.status) ? 'success' : 'danger'">
+            {{ isActive(factory.status) ? '启用' : '停用' }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">{{ factory.createTime }}</el-descriptions-item>
@@ -62,17 +62,16 @@
           </template>
           <el-table :data="admins" style="width: 100%">
             <el-table-column prop="name" label="姓名" />
-            <el-table-column prop="username" label="用户名" />
             <el-table-column prop="phone" label="手机号" />
             <el-table-column prop="role" label="角色">
               <template #default="{ row }">
-                <el-tag type="warning">水厂管理员</el-tag>
+                <el-tag type="warning">{{ row.role || '水厂管理员' }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="status" label="状态">
               <template #default="{ row }">
-                <el-tag :type="row.status === 'ACTIVE' ? 'success' : 'danger'">
-                  {{ row.status === 'ACTIVE' ? '启用' : '停用' }}
+                <el-tag :type="isActive(row.status) ? 'success' : 'danger'">
+                  {{ isActive(row.status) ? '启用' : '停用' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -88,7 +87,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { platformApi } from '../../api/platform'
 
 const route = useRoute()
 const router = useRouter()
@@ -111,19 +110,53 @@ const stats = reactive({
   stations: 0,
   warehouses: 0,
   drivers: 0,
-  orders: 0
+  orders: 0,
+  todayOrders: 0,
+  monthSales: 0
 })
 
-const admins = ref([])
+const admins = ref<any[]>([])
+
+const isActive = (status: string) => status === 'active' || status === 'ACTIVE'
+
+const formatDateTime = (val: any) => {
+  if (!val) return '-'
+  if (Array.isArray(val)) {
+    const [d, t] = val
+    return `${d} ${t || ''}`
+  }
+  return val
+}
 
 onMounted(async () => {
   loading.value = true
   try {
-    const response = await axios.get(`/api/platform/factories/${factoryId}`)
-    if (response.data.success) {
-      Object.assign(factory, response.data.data.factory)
-      Object.assign(stats, response.data.data.stats)
-      admins.value = response.data.data.admins || []
+    const response: any = await platformApi.getFactoryById(factoryId)
+    if (response.success && response.data) {
+      const f = response.data.factory || {}
+      Object.assign(factory, {
+        name: f.name || '',
+        code: f.code || '',
+        contact: f.contact || '',
+        phone: f.phone || '',
+        address: f.address || '',
+        status: f.status || '',
+        remark: f.remark || '',
+        createTime: formatDateTime(f.createTime)
+      })
+      const s = response.data.stats || {}
+      Object.assign(stats, {
+        stations: s.stations || 0,
+        warehouses: s.warehouses || 0,
+        drivers: s.drivers || 0,
+        orders: s.orders || 0,
+        todayOrders: s.todayOrders || 0,
+        monthSales: s.monthSales || 0
+      })
+      admins.value = (response.data.admins || []).map((a: any) => ({
+        ...a,
+        lastLoginTime: formatDateTime(a.lastLoginTime)
+      }))
     }
   } catch (error) {
     ElMessage.error('加载数据失败')

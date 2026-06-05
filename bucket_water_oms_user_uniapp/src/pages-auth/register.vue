@@ -169,7 +169,7 @@ const handleRegister = async () => {
 }
 
 const showAgreement = (type: 'user' | 'privacy') => {
-  uni.showToast({ title: `${type === 'user' ? '用户协议' : '隐私政策'}开发中`, icon: 'none' })
+  uni.navigateTo({ url: `/pages-user/agreement?type=${type}` })
 }
 
 const goLogin = () => {

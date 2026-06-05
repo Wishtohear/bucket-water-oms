@@ -54,6 +54,12 @@ public class User extends BaseEntity {
     @Schema(description = "最后登录IP")
     private String lastLoginIp;
 
+    @Schema(description = "邮箱")
+    private String email;
+
+    @Schema(description = "用户名（登录名）")
+    private String username;
+
     public Long getId() {
         return id;
     }

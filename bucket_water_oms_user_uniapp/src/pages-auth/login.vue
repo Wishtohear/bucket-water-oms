@@ -95,6 +95,13 @@ const form = ref({
 
 const isWechatEnv = ref(false)
 
+// 真实环境检测
+try {
+  // #ifdef MP-WEIXIN
+  isWechatEnv.value = true
+  // #endif
+} catch { /* ignore */ }
+
 const canLogin = computed(() => {
   if (loginType.value === 'password') {
     return form.value.phone.length === 11 && form.value.password.length >= 6
@@ -157,9 +164,36 @@ const handleLogin = async () => {
 }
 
 const wechatLogin = async () => {
-  #ifdef MP-WEIXIN
-  uni.showToast({ title: '微信登录开发中', icon: 'none' })
-  #endif
+  // 真实实现：调用 uni.login 获取 code，发送到后端换取 token
+  // #ifdef MP-WEIXIN
+  try {
+    const loginRes = await new Promise<any>((resolve, reject) => {
+      uni.login({
+        provider: 'weixin',
+        success: (res) => resolve(res),
+        fail: (err) => reject(err)
+      })
+    })
+    if (!loginRes.code) {
+      uni.showToast({ title: '获取微信授权失败', icon: 'none' })
+      return
+    }
+    // 发送到后端 wechat-login 接口
+    try {
+      const authService = (await import('@/services/authService')).authService
+      await authService.wechatLogin(loginRes.code)
+      uni.showToast({ title: '登录成功', icon: 'success' })
+      setTimeout(() => uni.reLaunch({ url: '/pages/index/index' }), 800)
+    } catch (apiError: any) {
+      uni.showToast({ title: apiError?.message || '微信登录失败', icon: 'none' })
+    }
+  } catch (error) {
+    uni.showToast({ title: '微信登录失败', icon: 'none' })
+  }
+  // #endif
+  // #ifndef MP-WEIXIN
+  uni.showToast({ title: '请在小程序中使用微信登录', icon: 'none' })
+  // #endif
 }
 
 const goRegister = () => {

@@ -122,6 +122,57 @@ class OrderService {
       );
     }
   }
+
+  Future<bool> acceptOrder(String orderId, String warehouseId) async {
+    final response = await _apiClient.put(
+      '/warehouses/orders/$orderId/accept',
+      headers: {'X-Warehouse-Id': warehouseId},
+    );
+    return response.success;
+  }
+
+  Future<bool> rejectOrder(
+    String orderId,
+    String warehouseId, {
+    required String reason,
+    bool stockInsufficient = false,
+    List<RejectStockDetail> stockDetails = const [],
+  }) async {
+    final response = await _apiClient.post(
+      '/orders/$orderId/reject',
+      headers: {'X-Warehouse-Id': warehouseId},
+      body: {
+        'reason': reason,
+        'stockInsufficient': stockInsufficient,
+        'stockDetails': stockDetails.map((e) => e.toJson()).toList(),
+      },
+    );
+    return response.success;
+  }
+}
+
+class RejectStockDetail {
+  final String? productId;
+  final String? productName;
+  final int? requiredQuantity;
+  final int? currentStock;
+  final int? shortageQuantity;
+
+  RejectStockDetail({
+    this.productId,
+    this.productName,
+    this.requiredQuantity,
+    this.currentStock,
+    this.shortageQuantity,
+  });
+
+  Map<String, dynamic> toJson() => {
+        if (productId != null) 'productId': productId,
+        if (productName != null) 'productName': productName,
+        if (requiredQuantity != null) 'requiredQuantity': requiredQuantity,
+        if (currentStock != null) 'currentStock': currentStock,
+        if (shortageQuantity != null) 'shortageQuantity': shortageQuantity,
+      };
 }
 
 class CreateOrderRequest {

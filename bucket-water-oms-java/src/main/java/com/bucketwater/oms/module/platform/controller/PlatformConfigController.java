@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,36 @@ public class PlatformConfigController {
 
     @Autowired
     private PlatformConfigService configService;
+
+    @GetMapping
+    @Operation(summary = "获取全部配置", description = "按分组返回平台配置（基础/支付/短信/地图）")
+    public Result<Map<String, Map<String, String>>> getAllConfigs() {
+        Map<String, Map<String, String>> result = new HashMap<>();
+        for (String group : new String[]{"basic", "payment", "sms", "map"}) {
+            result.put(group, configService.getConfigMap(group));
+        }
+        return Result.ok(result);
+    }
+
+    @PutMapping
+    @Operation(summary = "整体保存配置", description = "按分组批量保存配置（基础/支付/短信/地图）")
+    @Transactional
+    public Result<Void> saveAllConfigs(@RequestBody Map<String, Map<String, String>> payload) {
+        if (payload == null || payload.isEmpty()) {
+            return Result.ok();
+        }
+        Map<String, String> flat = new HashMap<>();
+        payload.forEach((group, kv) -> {
+            if (kv != null) {
+                kv.forEach((k, v) -> {
+                    String key = group + "." + k;
+                    flat.put(key, v);
+                });
+            }
+        });
+        configService.batchUpdateConfigs(flat);
+        return Result.ok();
+    }
 
     @GetMapping("/groups/{group}")
     @Operation(summary = "获取配置列表", description = "获取指定分组的配置列表")

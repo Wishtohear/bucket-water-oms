@@ -222,13 +222,13 @@ const handleSubmit = async () => {
 
 const showUserAgreement = () => {
   uni.navigateTo({
-    url: '/pages/user/agreement?type=user'
+    url: '/pages-user/agreement?type=user'
   })
 }
 
 const showPrivacyPolicy = () => {
   uni.navigateTo({
-    url: '/pages/user/agreement?type=privacy'
+    url: '/pages-user/agreement?type=privacy'
   })
 }
 

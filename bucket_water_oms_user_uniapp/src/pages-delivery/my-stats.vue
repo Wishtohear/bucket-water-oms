@@ -113,44 +113,51 @@ const currentDate = computed(() => {
   return `${month}月${day}日 星期${weekDay}`
 })
 
-const achievements = computed(() => [
-  {
-    id: 1,
-    icon: '🎯',
-    name: '今日任务',
-    current: stats.value?.todayOrders || 0,
-    target: 10,
-    progress: Math.min(((stats.value?.todayOrders || 0) / 10) * 100, 100),
-    completed: (stats.value?.todayOrders || 0) >= 10
-  },
-  {
-    id: 2,
-    icon: '🔥',
-    name: '连续配送',
-    current: 5,
-    target: 7,
-    progress: 71,
-    completed: false
-  },
-  {
-    id: 3,
-    icon: '⭐',
-    name: '月度之星',
-    current: stats.value?.monthOrders || 0,
-    target: 100,
-    progress: Math.min(((stats.value?.monthOrders || 0) / 100) * 100, 100),
-    completed: (stats.value?.monthOrders || 0) >= 100
-  },
-  {
-    id: 4,
-    icon: '💰',
-    name: '收入目标',
-    current: Math.floor((stats.value?.totalIncome || 0)),
-    target: 10000,
-    progress: Math.min(((stats.value?.totalIncome || 0) / 10000) * 100, 100),
-    completed: (stats.value?.totalIncome || 0) >= 10000
-  }
-])
+const achievements = computed(() => {
+  const todayOrders = stats.value?.todayOrders || 0
+  const monthOrders = stats.value?.monthOrders || 0
+  const totalIncome = stats.value?.totalIncome || 0
+  // 连续配送天数从后端返回的连续字段读取，无则展示 0
+  const continuousDays = (stats.value as any)?.continuousDays || 0
+  return [
+    {
+      id: 1,
+      icon: '🎯',
+      name: '今日任务',
+      current: todayOrders,
+      target: 10,
+      progress: Math.min((todayOrders / 10) * 100, 100),
+      completed: todayOrders >= 10
+    },
+    {
+      id: 2,
+      icon: '🔥',
+      name: '连续配送',
+      current: continuousDays,
+      target: 7,
+      progress: Math.min((continuousDays / 7) * 100, 100),
+      completed: continuousDays >= 7
+    },
+    {
+      id: 3,
+      icon: '⭐',
+      name: '月度之星',
+      current: monthOrders,
+      target: 100,
+      progress: Math.min((monthOrders / 100) * 100, 100),
+      completed: monthOrders >= 100
+    },
+    {
+      id: 4,
+      icon: '💰',
+      name: '收入目标',
+      current: Math.floor(totalIncome),
+      target: 10000,
+      progress: Math.min((totalIncome / 10000) * 100, 100),
+      completed: totalIncome >= 10000
+    }
+  ]
+})
 
 const formatAmount = (amount: number) => {
   return amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -179,30 +186,49 @@ const loadStats = async () => {
   }
 }
 
-const loadChartData = () => {
-  if (chartPeriod.value === 'week') {
-    const weekData = []
-    const today = new Date()
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today)
-      date.setDate(date.getDate() - i)
-      const day = date.getDate()
-      weekData.push({
-        label: ['日', '一', '二', '三', '四', '五', '六'][date.getDay()],
-        count: i === 0 ? (stats.value?.todayOrders || 0) : Math.floor(Math.random() * 10) // 模拟数据
-      })
+const loadChartData = async () => {
+  const period = chartPeriod.value
+  try {
+    // 调用后端真实接口获取图表数据
+    const res: any = await deliveryPersonService.getStats({
+      period
+    } as any).catch(() => null)
+    const list: Array<{ label: string; count: number }> =
+      (res && Array.isArray(res.chart)) ? res.chart :
+      (res && Array.isArray(res.list)) ? res.list : []
+
+    if (list.length > 0) {
+      chartData.value = list
+      return
     }
-    chartData.value = weekData
-  } else {
-    const monthData = []
-    const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
-    for (let i = 1; i <= daysInMonth; i += 5) {
-      monthData.push({
-        label: `${i}日`,
-        count: Math.floor(Math.random() * 20)
-      })
+
+    // 真实接口无数据时，基于统计的今日/月度数据填充前端占位（不再随机）
+    if (period === 'week') {
+      const weekData = []
+      const today = new Date()
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today)
+        date.setDate(date.getDate() - i)
+        weekData.push({
+          label: ['日', '一', '二', '三', '四', '五', '六'][date.getDay()],
+          count: i === 0 ? (stats.value?.todayOrders || 0) : 0
+        })
+      }
+      chartData.value = weekData
+    } else {
+      const monthData = []
+      const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
+      for (let i = 1; i <= daysInMonth; i += 5) {
+        monthData.push({
+          label: `${i}日`,
+          count: 0
+        })
+      }
+      chartData.value = monthData
     }
-    chartData.value = monthData
+  } catch (error) {
+    console.error('加载图表数据失败:', error)
+    chartData.value = []
   }
 }
 

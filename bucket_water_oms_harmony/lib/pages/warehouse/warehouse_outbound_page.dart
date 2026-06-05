@@ -4,6 +4,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../shared/widgets/app_button.dart';
 import '../../shared/widgets/app_bottom_bar.dart';
 import '../../shared/components/status_badge.dart';
+import '../../services/warehouse_service.dart';
 
 class WarehouseOutboundPage extends StatefulWidget {
   const WarehouseOutboundPage({super.key});
@@ -17,56 +18,170 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
   int _selectedTabIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
-  final List<_OutboundItem> _outboundList = [
-    _OutboundItem(
-      code: 'CK2026041905',
-      customer: '张记旗舰水站',
-      status: '待拣货',
-      statusType: BadgeType.primary,
-      items: const [
-        _OutboundProductItem(name: '18.9L 桶装水 (农夫)', quantity: 15),
-        _OutboundProductItem(name: '11.3L 迷你桶 (景田)', quantity: 5),
-      ],
-      time: '2026-04-19 11:20',
-    ),
-    _OutboundItem(
-      code: 'CK2026041904',
-      customer: '李家村便利店',
-      status: '已出库',
-      statusType: BadgeType.success,
-      items: const [
-        _OutboundProductItem(name: '18.9L 桶装水 (怡宝)', quantity: 30),
-      ],
-      time: '2026-04-19 09:15',
-    ),
-    _OutboundItem(
-      code: 'CK2026041903',
-      customer: '西城区配送中心',
-      status: '拣货中',
-      statusType: BadgeType.warning,
-      items: const [
-        _OutboundProductItem(name: '18.9L 纯净水 (哇哈哈)', quantity: 50),
-        _OutboundProductItem(name: '5L 瓶装水 (农夫)', quantity: 100),
-      ],
-      time: '2026-04-19 08:30',
-    ),
-    _OutboundItem(
-      code: 'CK2026041902',
-      customer: '东郊水业公司',
-      status: '已出库',
-      statusType: BadgeType.success,
-      items: const [
-        _OutboundProductItem(name: '18.9L 桶装水 (怡宝)', quantity: 80),
-        _OutboundProductItem(name: '11.3L 迷你桶 (景田)', quantity: 40),
-      ],
-      time: '2026-04-19 07:45',
-    ),
-  ];
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<Map<String, dynamic>> _allOutboundList = [];
+  List<Map<String, dynamic>> _filteredOutboundList = [];
+
+  String _filterStatus = '全部';
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  static const _tabTypes = ['order', 'transfer', 'return'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final warehouseService = WarehouseService();
+      const warehouseId = '0';
+      final list =
+          await warehouseService.getOutboundList(warehouseId);
+
+      if (mounted) {
+        setState(() {
+          _allOutboundList = list;
+          _isLoading = false;
+        });
+        _applyFilter();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+        _showErrorSnackbar('加载出库单失败: $e');
+      }
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _applyFilter() {
+    final type = _tabTypes[_selectedTabIndex];
+    final query = _searchController.text.toLowerCase().trim();
+
+    setState(() {
+      _filteredOutboundList = _allOutboundList.where((item) {
+        final itemType = (item['type'] ?? '').toString();
+        final matchesType = _selectedTabIndex == 0
+            ? (itemType.isEmpty || itemType == 'order')
+            : itemType == type;
+        if (!matchesType) return false;
+        if (_filterStatus != '全部') {
+          final statusText = _getStatusText(item['status']?.toString());
+          if (statusText != _filterStatus) return false;
+        }
+        if (query.isEmpty) return true;
+        final code = (item['outboundNo'] ?? item['code'] ?? '')
+            .toString()
+            .toLowerCase();
+        final customer = (item['customer'] ?? item['stationName'] ?? '')
+            .toString()
+            .toLowerCase();
+        return code.contains(query) || customer.contains(query);
+      }).toList();
+    });
+  }
+
+  String _getStatusText(String? status) {
+    switch (status) {
+      case 'pending':
+        return '待拣货';
+      case 'processing':
+        return '拣货中';
+      case 'confirmed':
+      case 'completed':
+      case 'shipped':
+        return '已出库';
+      case 'cancelled':
+        return '已取消';
+      default:
+        return status ?? '未知';
+    }
+  }
+
+  BadgeType _getStatusBadgeType(String? status) {
+    switch (status) {
+      case 'pending':
+        return BadgeType.primary;
+      case 'processing':
+        return BadgeType.warning;
+      case 'confirmed':
+      case 'completed':
+      case 'shipped':
+        return BadgeType.success;
+      case 'cancelled':
+        return BadgeType.error;
+      default:
+        return BadgeType.info;
+    }
+  }
+
+  String _formatDateTime(dynamic value) {
+    if (value == null) return '';
+    DateTime? dateTime;
+    if (value is DateTime) {
+      dateTime = value;
+    } else if (value is String) {
+      dateTime = DateTime.tryParse(value);
+    } else if (value is int) {
+      dateTime = DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (dateTime == null) return value.toString();
+    final y = dateTime.year.toString();
+    final m = dateTime.month.toString().padLeft(2, '0');
+    final d = dateTime.day.toString().padLeft(2, '0');
+    final h = dateTime.hour.toString().padLeft(2, '0');
+    final min = dateTime.minute.toString().padLeft(2, '0');
+    return '$y-$m-$d $h:$min';
+  }
+
+  String _getTypeText(String? type) {
+    switch (type) {
+      case 'order':
+        return '订单出库';
+      case 'transfer':
+        return '调拨出库';
+      case 'return':
+        return '退货出库';
+      default:
+        return '订单出库';
+    }
   }
 
   @override
@@ -80,7 +195,7 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             _buildTabs(),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: _onRefresh,
+                onRefresh: _loadData,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
@@ -151,6 +266,7 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             child: GestureDetector(
               onTap: () {
                 setState(() => _selectedTabIndex = index);
+                _applyFilter();
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -215,6 +331,7 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             ),
             child: TextField(
               controller: _searchController,
+              onChanged: (_) => _applyFilter(),
               style: AppTextStyles.body2,
               decoration: InputDecoration(
                 hintText: '搜索订单号/客户名称',
@@ -269,19 +386,40 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
   }
 
   Widget _buildOutboundList() {
-    if (_outboundList.isEmpty) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 60),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_filteredOutboundList.isEmpty) {
       return _buildEmptyState();
     }
 
     return Column(
-      children: _outboundList.map((item) => Padding(
+      children: _filteredOutboundList.map((item) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: _buildOutboundCard(item),
       )).toList(),
     );
   }
 
-  Widget _buildOutboundCard(_OutboundItem item) {
+  Widget _buildOutboundCard(Map<String, dynamic> item) {
+    final code = (item['outboundNo'] ?? item['code'] ?? item['id'] ?? '')
+        .toString();
+    final customer = (item['customer'] ??
+            item['stationName'] ??
+            item['customerName'] ??
+            '未知客户')
+        .toString();
+    final status = item['status']?.toString();
+    final statusText = _getStatusText(status);
+    final statusType = _getStatusBadgeType(status);
+    final time = _formatDateTime(
+        item['createdAt'] ?? item['createTime'] ?? item['outboundTime']);
+    final items = _extractProductItems(item);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgCard,
@@ -305,11 +443,11 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCardHeader(item),
+                _buildCardHeader(code, customer, statusText, statusType),
                 const SizedBox(height: 12),
-                _buildProductList(item.items),
+                _buildProductList(items),
                 const SizedBox(height: 12),
-                _buildCardFooter(item),
+                _buildCardFooter(item, code, statusText, status, time),
               ],
             ),
           ),
@@ -318,7 +456,22 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
     );
   }
 
-  Widget _buildCardHeader(_OutboundItem item) {
+  List<_OutboundProductItem> _extractProductItems(Map<String, dynamic> item) {
+    final raw = item['items'] as List?;
+    if (raw == null) return const [];
+    return raw
+        .whereType<Map>()
+        .map((e) => _OutboundProductItem(
+              name: (e['productName'] ?? e['name'] ?? '商品').toString(),
+              quantity: (e['quantity'] is int)
+                  ? e['quantity'] as int
+                  : int.tryParse(e['quantity']?.toString() ?? '0') ?? 0,
+            ))
+        .toList();
+  }
+
+  Widget _buildCardHeader(String code, String customer, String statusText,
+      BadgeType statusType) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,30 +481,42 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '订单号: ${item.code}',
+                '订单号: $code',
                 style: AppTextStyles.captionSmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(
-                item.customer,
+                customer,
                 style: AppTextStyles.subtitle2.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
+        const SizedBox(width: 8),
         StatusBadge(
-          text: item.status,
-          type: item.statusType,
+          text: statusText,
+          type: statusType,
         ),
       ],
     );
   }
 
   Widget _buildProductList(List<_OutboundProductItem> items) {
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          '暂无商品明细',
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
+      );
+    }
     return Column(
       children: items.map((product) => Padding(
         padding: const EdgeInsets.only(bottom: 4),
@@ -377,7 +542,9 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
     );
   }
 
-  Widget _buildCardFooter(_OutboundItem item) {
+  Widget _buildCardFooter(Map<String, dynamic> item, String code,
+      String statusText, String? status, String time) {
+    final isPending = status == 'pending';
     return Column(
       children: [
         Container(
@@ -388,9 +555,12 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              item.time,
-              style: AppTextStyles.captionSmall,
+            Expanded(
+              child: Text(
+                time,
+                style: AppTextStyles.captionSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             Row(
               children: [
@@ -415,7 +585,7 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
                     ),
                   ),
                 ),
-                if (item.status == '待拣货') ...[
+                if (isPending) ...[
                   const SizedBox(width: 8),
                   SizedBox(
                     height: 32,
@@ -468,7 +638,7 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '点击下方按钮创建新的出库单',
+              '下拉刷新或切换标签查看更多',
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.textTertiary,
               ),
@@ -479,10 +649,6 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
     );
   }
 
-  Future<void> _onRefresh() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-  }
-
   void _showFilterDialog() {
     showModalBottomSheet(
       context: context,
@@ -491,14 +657,38 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => _FilterBottomSheet(
+        initialStatus: _filterStatus,
+        startDate: _startDate,
+        endDate: _endDate,
         onApply: (filters) {
+          setState(() {
+            _filterStatus = filters['status'] as String;
+            _startDate = filters['startDate'] as DateTime?;
+            _endDate = filters['endDate'] as DateTime?;
+          });
           Navigator.pop(context);
+          _applyFilter();
         },
       ),
     );
   }
 
-  void _showOutboundDetail(_OutboundItem item) {
+  void _showOutboundDetail(Map<String, dynamic> item) {
+    final code = (item['outboundNo'] ?? item['code'] ?? item['id'] ?? '')
+        .toString();
+    final customer = (item['customer'] ??
+            item['stationName'] ??
+            item['customerName'] ??
+            '未知客户')
+        .toString();
+    final statusText = _getStatusText(item['status']?.toString());
+    final type = _getTypeText(item['type']?.toString());
+    final time = _formatDateTime(
+        item['createdAt'] ?? item['createTime'] ?? item['outboundTime']);
+    final driver = (item['driverName'] ?? item['driver'] ?? '').toString();
+    final remark = (item['remark'] ?? '暂无').toString();
+    final items = _extractProductItems(item);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgCard,
@@ -506,62 +696,164 @@ class _WarehouseOutboundPageState extends State<WarehouseOutboundPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _OutboundDetailSheet(item: item),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '出库详情',
+                    style: AppTextStyles.subtitle1.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(
+                      Icons.close,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildDetailRow('订单号', code),
+              _buildDetailRow('客户名称', customer),
+              _buildDetailRow('出库类型', type),
+              _buildDetailRow('出库状态', statusText),
+              _buildDetailRow('创建时间', time),
+              if (driver.isNotEmpty) _buildDetailRow('司机', driver),
+              _buildDetailRow('备注', remark),
+              const SizedBox(height: 16),
+              Container(
+                height: 1,
+                color: AppColors.borderLight,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '商品明细',
+                style: AppTextStyles.subtitle2,
+              ),
+              const SizedBox(height: 12),
+              if (items.isEmpty)
+                Text(
+                  '暂无商品明细',
+                  style: AppTextStyles.body2
+                      .copyWith(color: AppColors.textSecondary),
+                )
+              else
+                ...items.map((product) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              product.name,
+                              style: AppTextStyles.body2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            'x ${product.quantity}',
+                            style: AppTextStyles.body2
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    )),
+              const SizedBox(height: 20),
+              AppButton(
+                text: '关闭',
+                type: AppButtonType.outline,
+                isFullWidth: true,
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  void _startPicking(_OutboundItem item) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('开始拣货'),
-        content: Text('确认开始为订单 ${item.code} 拣货吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.body2.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                final index = _outboundList.indexOf(item);
-                if (index != -1) {
-                  _outboundList[index] = _OutboundItem(
-                    code: item.code,
-                    customer: item.customer,
-                    status: '拣货中',
-                    statusType: BadgeType.warning,
-                    items: item.items,
-                    time: item.time,
-                  );
-                }
-              });
-            },
-            child: const Text('确认'),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: AppTextStyles.body2.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _OutboundItem {
-  final String code;
-  final String customer;
-  final String status;
-  final BadgeType statusType;
-  final List<_OutboundProductItem> items;
-  final String time;
+  Future<void> _startPicking(Map<String, dynamic> item) async {
+    final code = (item['outboundNo'] ?? item['code'] ?? item['id'] ?? '')
+        .toString();
+    final id = item['id']?.toString();
 
-  const _OutboundItem({
-    required this.code,
-    required this.customer,
-    required this.status,
-    required this.statusType,
-    required this.items,
-    required this.time,
-  });
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('开始拣货'),
+        content: Text('确认开始为订单 $code 拣货吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确认'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted || id == null) return;
+
+    try {
+      final warehouseService = WarehouseService();
+      final success = await warehouseService.confirmOutbound(id);
+
+      if (success && mounted) {
+        _showSuccessSnackbar('订单 $code 已开始拣货');
+        await _loadData();
+      } else if (mounted) {
+        _showErrorSnackbar('操作失败，请重试');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackbar('开始拣货失败: $e');
+      }
+    }
+  }
 }
 
 class _OutboundProductItem {
@@ -575,20 +867,36 @@ class _OutboundProductItem {
 }
 
 class _FilterBottomSheet extends StatefulWidget {
+  final String initialStatus;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final Function(Map<String, dynamic>) onApply;
 
-  const _FilterBottomSheet({required this.onApply});
+  const _FilterBottomSheet({
+    required this.onApply,
+    this.initialStatus = '全部',
+    this.startDate,
+    this.endDate,
+  });
 
   @override
   State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
 }
 
 class _FilterBottomSheetState extends State<_FilterBottomSheet> {
-  String _selectedStatus = '全部';
+  late String _selectedStatus;
   DateTime? _startDate;
   DateTime? _endDate;
 
   final List<String> _statusOptions = ['全部', '待拣货', '拣货中', '已出库'];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStatus = widget.initialStatus;
+    _startDate = widget.startDate;
+    _endDate = widget.endDate;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -689,103 +997,6 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
             ],
           ),
           const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-
-class _OutboundDetailSheet extends StatelessWidget {
-  final _OutboundItem item;
-
-  const _OutboundDetailSheet({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '出库详情',
-                style: AppTextStyles.subtitle1.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(
-                  Icons.close,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildDetailRow('订单号', item.code),
-          _buildDetailRow('客户名称', item.customer),
-          _buildDetailRow('出库状态', item.status),
-          _buildDetailRow('创建时间', item.time),
-          const SizedBox(height: 16),
-          Text(
-            '商品明细',
-            style: AppTextStyles.subtitle2,
-          ),
-          const SizedBox(height: 12),
-          ...item.items.map((product) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  product.name,
-                  style: AppTextStyles.body2,
-                ),
-                Text(
-                  'x ${product.quantity}',
-                  style: AppTextStyles.body2.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          )),
-          const SizedBox(height: 20),
-          AppButton(
-            text: '关闭',
-            type: AppButtonType.outline,
-            isFullWidth: true,
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: AppTextStyles.body2.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          Text(
-            value,
-            style: AppTextStyles.body2.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
         ],
       ),
     );

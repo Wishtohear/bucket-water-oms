@@ -84,25 +84,26 @@ public class PlatformAdminController {
     @Transactional
     public Result<User> createAdmin(@RequestBody @jakarta.validation.Valid CreatePlatformAdminRequest request) {
         LambdaQueryWrapper<User> existWrapper = new LambdaQueryWrapper<>();
-        existWrapper.eq(User::getPhone, request.getPhone());
+        existWrapper.and(w -> w.eq(User::getPhone, request.getPhone())
+                .or().eq(User::getName, request.getUsername()));
         User existing = userMapper.selectOne(existWrapper);
         if (existing != null) {
-            throw new BusinessException(ResultCode.DATA_EXISTS, "手机号已存在");
+            throw new BusinessException(ResultCode.DATA_EXISTS, "手机号或用户名已存在");
         }
 
         User admin = new User();
-        admin.setName(request.getName());
+        admin.setName(request.getName() != null ? request.getName() : request.getUsername());
         admin.setPhone(request.getPhone());
         admin.setRole("PLATFORM_ADMIN");
         admin.setStatus("active");
-        
+
         String rawPassword = request.getPassword() != null ? request.getPassword() : "123456";
         String encodedPassword = passwordEncoder.encode(rawPassword);
         admin.setPassword(encodedPassword);
-        
+
         admin.setCreateTime(LocalDateTime.now());
         admin.setUpdateTime(LocalDateTime.now());
-        
+
         userMapper.insert(admin);
         admin.setPassword(null);
         return Result.ok(admin);
@@ -113,7 +114,7 @@ public class PlatformAdminController {
     @Transactional
     public Result<User> updateAdmin(
             @PathVariable Long id,
-            @RequestBody @jakarta.validation.Valid UpdatePlatformAdminRequest request) {
+            @RequestBody UpdatePlatformAdminRequest request) {
         User admin = userMapper.selectById(id);
         if (admin == null) {
             throw new BusinessException(ResultCode.NOT_FOUND, "管理员不存在");
@@ -125,7 +126,10 @@ public class PlatformAdminController {
         if (request.getPhone() != null) {
             admin.setPhone(request.getPhone());
         }
-        
+        if (request.getEmail() != null) {
+            admin.setEmail(request.getEmail());
+        }
+
         admin.setUpdateTime(LocalDateTime.now());
         userMapper.updateById(admin);
         admin.setPassword(null);
@@ -181,7 +185,9 @@ public class PlatformAdminController {
 
     @lombok.Data
     public static class CreatePlatformAdminRequest {
-        @jakarta.validation.constraints.NotBlank(message = "姓名不能为空")
+        @Schema(description = "用户名（可选，默认使用姓名）")
+        private String username;
+
         @jakarta.validation.constraints.Size(max = 50, message = "姓名长度不能超过50个字符")
         @Schema(description = "管理员姓名")
         private String name;
@@ -191,16 +197,25 @@ public class PlatformAdminController {
         @Schema(description = "手机号（登录账号）")
         private String phone;
 
+        @Schema(description = "邮箱")
+        private String email;
+
         @Schema(description = "密码（默认123456）")
         private String password;
     }
 
     @lombok.Data
     public static class UpdatePlatformAdminRequest {
+        @Schema(description = "用户名")
+        private String username;
+
         @Schema(description = "管理员姓名")
         private String name;
 
         @Schema(description = "手机号")
         private String phone;
+
+        @Schema(description = "邮箱")
+        private String email;
     }
 }

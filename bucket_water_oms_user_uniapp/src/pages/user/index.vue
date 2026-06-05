@@ -99,7 +99,11 @@ const goLogin = () => {
 }
 
 const editProfile = () => {
-  uni.showToast({ title: '功能开发中', icon: 'none' })
+  if (!authStore.isLoggedIn) {
+    uni.navigateTo({ url: '/pages-auth/login' })
+    return
+  }
+  uni.navigateTo({ url: '/pages-user/edit-profile' })
 }
 
 const goOrderList = (status?: string) => {
@@ -107,8 +111,11 @@ const goOrderList = (status?: string) => {
     uni.navigateTo({ url: '/pages-auth/login' })
     return
   }
-  const url = status ? `/pages/order/list?status=${status}` : '/pages/order/list'
-  uni.switchTab({ url: '/pages/order/list' })
+  if (status) {
+    uni.navigateTo({ url: `/pages/order/list?status=${status}` })
+  } else {
+    uni.switchTab({ url: '/pages/order/list' })
+  }
 }
 
 const goAddress = () => {
@@ -136,15 +143,15 @@ const goMyTickets = () => {
 }
 
 const goSettings = () => {
-  uni.navigateTo({ url: '/pages/user/settings' })
+  uni.navigateTo({ url: '/pages-user/settings' })
 }
 
 const goAbout = () => {
-  uni.showToast({ title: '功能开发中', icon: 'none' })
+  uni.navigateTo({ url: '/pages-user/about' })
 }
 
 const goHelp = () => {
-  uni.showToast({ title: '功能开发中', icon: 'none' })
+  uni.navigateTo({ url: '/pages-user/help' })
 }
 
 const logout = () => {

@@ -132,18 +132,18 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { platformApi } from '../../api/platform'
 
 const reportType = ref('sales')
 const salesChartRef = ref<HTMLElement>()
 const comparisonChartRef = ref<HTMLElement>()
 
 const searchForm = reactive({
-  dateRange: [],
+  dateRange: [] as string[],
   factoryId: null as number | null
 })
 
-const factories = ref([])
+const factories = ref<any[]>([])
 
 const salesStats = reactive({
   totalAmount: 0,
@@ -152,72 +152,72 @@ const salesStats = reactive({
   customerCount: 0
 })
 
-const orderTableData = ref([])
+const orderTableData = ref<any[]>([])
+const comparisonTableData = ref<any[]>([])
 
-const comparisonTableData = ref([])
+const formatDate = (val: any) => {
+  if (!val) return undefined
+  if (typeof val === 'string') return val
+  if (val instanceof Date) return val.toISOString().slice(0, 10)
+  return val
+}
 
 const loadSalesData = async () => {
   try {
-    const response = await axios.get('/api/platform/reports/sales', {
-      params: {
-        startDate: searchForm.dateRange?.[0],
-        endDate: searchForm.dateRange?.[1],
-        factoryId: searchForm.factoryId
-      }
+    const response: any = await platformApi.getSalesReport({
+      startDate: formatDate(searchForm.dateRange?.[0]),
+      endDate: formatDate(searchForm.dateRange?.[1]),
+      factoryId: searchForm.factoryId || undefined
     })
-    if (response.data.success) {
-      Object.assign(salesStats, response.data.data.stats)
+    if (response.success) {
+      const s = response.data?.stats || {}
+      salesStats.totalAmount = s.totalAmount || 0
+      salesStats.orderCount = s.orderCount || 0
+      salesStats.avgOrderAmount = s.avgOrderAmount || 0
+      salesStats.customerCount = s.customerCount || 0
     }
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载销售数据失败')
   }
 }
 
 const loadOrderData = async () => {
   try {
-    const response = await axios.get('/api/platform/reports/orders', {
-      params: {
-        startDate: searchForm.dateRange?.[0],
-        endDate: searchForm.dateRange?.[1]
-      }
+    const response: any = await platformApi.getOrderReport({
+      startDate: formatDate(searchForm.dateRange?.[0]),
+      endDate: formatDate(searchForm.dateRange?.[1])
     })
-    if (response.data.success) {
-      orderTableData.value = response.data.data.records
+    if (response.success) {
+      orderTableData.value = response.data?.records || []
     }
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载订单数据失败')
   }
 }
 
 const loadComparisonData = async () => {
   try {
-    const response = await axios.get('/api/platform/reports/comparison', {
-      params: {
-        startDate: searchForm.dateRange?.[0],
-        endDate: searchForm.dateRange?.[1]
-      }
+    const response: any = await platformApi.getComparisonReport({
+      startDate: formatDate(searchForm.dateRange?.[0]),
+      endDate: formatDate(searchForm.dateRange?.[1])
     })
-    if (response.data.success) {
-      comparisonTableData.value = response.data.data.records
+    if (response.success) {
+      comparisonTableData.value = response.data?.records || []
     }
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载对比数据失败')
   }
 }
 
-const handleExport = async () => {
-  try {
-    ElMessage.info('正在导出，请稍候...')
-  } catch (error) {
-    ElMessage.error('导出失败')
-  }
+const handleExport = () => {
+  ElMessage.info('导出功能开发中')
 }
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/platform/factories', { params: { size: 1000 } })
-    if (response.data.success) {
-      factories.value = response.data.data.records
+    const response: any = await platformApi.getAllFactories({ page: 1, size: 1000 })
+    if (response.success) {
+      factories.value = response.data?.records || []
     }
   } catch (error) {
     console.error('加载水厂列表失败', error)

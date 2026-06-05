@@ -1,5 +1,30 @@
-// API 配置
-const BASE_URL = 'http://localhost:8080/api'
+// API 配置 - 通过环境变量切换 baseURL
+// 开发环境: http://localhost:8080/api
+// 生产环境: 由运维配置 VITE_API_BASE_URL
+declare const process: { env: Record<string, string | undefined> }
+
+const detectBaseUrl = (): string => {
+  try {
+    if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
+      return process.env.VITE_API_BASE_URL as string
+    }
+  } catch (_) { /* ignore */ }
+  try {
+    // @ts-ignore uni global
+    if (typeof uni !== 'undefined' && (uni as any).getStorageSync) {
+      const custom = uni.getStorageSync('api_base_url')
+      if (custom) return custom as string
+    }
+  } catch (_) { /* ignore */ }
+  // #ifdef H5
+  return (window as any).__API_BASE_URL__ || 'http://localhost:8080/api'
+  // #endif
+  // #ifndef H5
+  return 'http://localhost:8080/api'
+  // #endif
+}
+
+export const BASE_URL = detectBaseUrl()
 
 const TIMEOUT = 10000
 

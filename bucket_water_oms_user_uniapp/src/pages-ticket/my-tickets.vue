@@ -6,7 +6,7 @@
         <text class="tab-count" v-if="availableCount > 0">{{ availableCount }}</text>
       </view>
       <view class="tab-item" :class="{ active: currentTab === 'used' }" @click="switchTab('used')">
-        <text class="tab-text">已使用</text>
+        <text class="tab-text">已用完</text>
         <text class="tab-count" v-if="usedCount > 0">{{ usedCount }}</text>
       </view>
       <view class="tab-item" :class="{ active: currentTab === 'expired' }" @click="switchTab('expired')">
@@ -19,8 +19,8 @@
       <view class="ticket-card" v-for="ticket in tickets" :key="ticket.id">
         <view class="ticket-header">
           <view class="ticket-info">
-            <text class="ticket-name">{{ ticket.ticketName }}</text>
-            <text class="product-name">{{ ticket.productName }}</text>
+            <text class="ticket-name">{{ ticket.ticketName || ticket.ticketNo }}</text>
+            <text class="product-name">水站: {{ ticket.stationName || '默认水站' }}</text>
           </view>
           <text class="ticket-status" :class="ticket.status">
             {{ getStatusText(ticket.status) }}
@@ -29,23 +29,23 @@
 
         <view class="ticket-detail">
           <view class="detail-item">
-            <text class="detail-label">桶数</text>
-            <text class="detail-value">{{ ticket.bucketCount }} 桶</text>
+            <text class="detail-label">总数</text>
+            <text class="detail-value">{{ ticket.totalCount || 0 }} 桶</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">已用</text>
-            <text class="detail-value">{{ ticket.usedBucketCount }} 桶</text>
+            <text class="detail-value">{{ ticket.usedCount || 0 }} 桶</text>
           </view>
           <view class="detail-item">
             <text class="detail-label">剩余</text>
-            <text class="detail-value highlight">{{ ticket.remainingBucketCount }} 桶</text>
+            <text class="detail-value highlight">{{ ticket.remainingCount || 0 }} 桶</text>
           </view>
         </view>
 
         <view class="ticket-footer">
           <view class="date-info">
             <text class="date-label">购买时间</text>
-            <text class="date-value">{{ formatDate(ticket.purchaseDate) }}</text>
+            <text class="date-value">{{ formatDate(ticket.createdAt) }}</text>
           </view>
           <view class="date-info">
             <text class="date-label">有效期至</text>
@@ -56,7 +56,6 @@
         </view>
 
         <view class="ticket-actions" v-if="ticket.status === 'available'">
-          <button class="action-btn use" @click="goUseTicket(ticket)">使用水票</button>
           <button class="action-btn history" @click="goUsageHistory(ticket.id)">使用记录</button>
         </view>
       </view>
@@ -84,14 +83,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { ticketService, UserTicket } from '@/services/ticketService'
 
 const currentTab = ref<'available' | 'used' | 'expired'>('available')
 const tickets = ref<UserTicket[]>([])
 const loading = ref(false)
-const page = ref(1)
-const pageSize = ref(20)
-const hasMore = ref(true)
+const hasMore = ref(false)
 
 const statusCountMap = ref({
   available: 0,
@@ -107,7 +105,9 @@ const getStatusText = (status: string) => {
   const map: Record<string, string> = {
     available: '可用水票',
     used: '已用完',
-    expired: '已过期'
+    expired: '已过期',
+    active: '可用水票',
+    inactive: '已停用'
   }
   return map[status] || status
 }
@@ -124,99 +124,80 @@ const getEmptyIcon = () => {
 const getEmptyText = () => {
   const texts: Record<string, string> = {
     available: '暂无可用水票',
-    used: '暂无已使用水票',
+    used: '暂无已用水票',
     expired: '暂无已过期水票'
   }
   return texts[currentTab.value] || '暂无水票'
 }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: any) => {
   if (!dateStr) return '--'
-  const date = new Date(dateStr)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return dateStr
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  } catch {
+    return String(dateStr)
+  }
 }
 
 const switchTab = async (tab: 'available' | 'used' | 'expired') => {
   if (currentTab.value === tab) return
   currentTab.value = tab
-  page.value = 1
-  tickets.value = []
-  hasMore.value = true
   await loadTickets()
 }
 
-const loadTickets = async (append = false) => {
-  if (loading.value) return
-  
+const normalizeList = (raw: any): UserTicket[] => {
+  if (Array.isArray(raw)) return raw as UserTicket[]
+  if (raw && Array.isArray(raw.list)) return raw.list as UserTicket[]
+  if (raw && Array.isArray(raw.records)) return raw.records as UserTicket[]
+  return []
+}
+
+const computeStatus = (ticket: UserTicket): 'available' | 'used' | 'expired' => {
+  if (ticket.remainingCount !== undefined && ticket.remainingCount <= 0) return 'used'
+  if (ticket.expireDate) {
+    const exp = new Date(ticket.expireDate)
+    if (!isNaN(exp.getTime()) && exp.getTime() < Date.now()) return 'expired'
+  }
+  return 'available'
+}
+
+const loadTickets = async () => {
   loading.value = true
-  
   try {
-    const statusMap: Record<string, string> = {
-      available: 'available',
-      used: 'used',
-      expired: 'expired'
-    }
-    
-    const result = await ticketService.getMyTickets({
-      status: statusMap[currentTab.value],
-      page: page.value,
-      pageSize: pageSize.value
+    const res = await ticketService.getMyTickets()
+    const all = normalizeList(res)
+    // 补齐 status 字段
+    all.forEach(t => {
+      if (!t.status) t.status = computeStatus(t)
     })
-    
-    if (result && result.list) {
-      if (append) {
-        tickets.value = [...tickets.value, ...result.list]
-      } else {
-        tickets.value = result.list
-      }
-      
-      hasMore.value = tickets.value.length < result.total
-      
-      if (!append) {
-        updateStatusCounts(result.list)
-      }
+    // 按当前 tab 过滤
+    tickets.value = all.filter(t => t.status === currentTab.value)
+    hasMore.value = false
+
+    // 更新各 tab 数量
+    statusCountMap.value = {
+      available: all.filter(t => t.status === 'available').length,
+      used: all.filter(t => t.status === 'used').length,
+      expired: all.filter(t => t.status === 'expired').length
     }
   } catch (error) {
     console.error('加载水票列表失败:', error)
-    uni.showToast({ title: '加载失败', icon: 'error' })
+    uni.showToast({ title: '加载失败', icon: 'none' })
+    tickets.value = []
   } finally {
     loading.value = false
   }
 }
 
-const updateStatusCounts = (ticketList: UserTicket[]) => {
-  const newCounts = {
-    available: currentTab.value === 'available' ? ticketList.length : statusCountMap.value.available,
-    used: currentTab.value === 'used' ? ticketList.length : statusCountMap.value.used,
-    expired: currentTab.value === 'expired' ? ticketList.length : statusCountMap.value.expired
-  }
-  
-  if (currentTab.value !== 'available') {
-    newCounts.available = ticketList.filter(t => t.status === 'available').length
-  }
-  if (currentTab.value !== 'used') {
-    newCounts.used = ticketList.filter(t => t.status === 'used').length
-  }
-  if (currentTab.value !== 'expired') {
-    newCounts.expired = ticketList.filter(t => t.status === 'expired').length
-  }
-  
-  statusCountMap.value = newCounts
-}
-
 const loadMore = () => {
-  if (!hasMore.value || loading.value) return
-  page.value++
-  loadTickets(true)
+  // 后端单页返回全量，无需分页
 }
 
 const goBuyTicket = () => {
-  uni.navigateBack()
-}
-
-const goUseTicket = (ticket: UserTicket) => {
   uni.navigateTo({
-    url: `/pages/product/detail?id=${ticket.productId}&ticketId=${ticket.id}`
+    url: '/pages-ticket/product-tickets'
   })
 }
 
@@ -229,6 +210,10 @@ const goUsageHistory = (ticketId: string) => {
 onMounted(() => {
   loadTickets()
 })
+onShow(() => {
+  // 页面显示时刷新（购买后返回等场景）
+  loadTickets()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -236,7 +221,6 @@ onMounted(() => {
   min-height: 100vh;
   background: $bg-color;
 }
-
 .tabs-bar {
   display: flex;
   background: #fff;
@@ -245,248 +229,132 @@ onMounted(() => {
   top: 0;
   z-index: 100;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-
   .tab-item {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    text-align: center;
     padding: 24rpx 0;
     position: relative;
-    transition: all 0.3s;
-
-    .tab-text {
-      font-size: 28rpx;
-      color: $text-secondary;
-      margin-bottom: 4rpx;
-    }
-
-    .tab-count {
-      font-size: 22rpx;
-      color: $text-tertiary;
-      background: $bg-color;
-      padding: 4rpx 12rpx;
-      border-radius: 12rpx;
-      min-width: 40rpx;
-      text-align: center;
-    }
-
     &.active {
-      .tab-text {
-        color: $primary-color;
-        font-weight: 600;
-      }
-
+      .tab-text { color: $primary-color; font-weight: 600; }
       &::after {
         content: '';
         position: absolute;
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        width: 48rpx;
-        height: 4rpx;
+        width: 60rpx;
+        height: 6rpx;
         background: $primary-color;
-        border-radius: 2rpx;
+        border-radius: 3rpx;
       }
     }
   }
+  .tab-text { font-size: 28rpx; color: #6b7280; }
+  .tab-count {
+    display: inline-block;
+    background: $primary-color;
+    color: #fff;
+    font-size: 20rpx;
+    padding: 2rpx 10rpx;
+    border-radius: 20rpx;
+    margin-left: 8rpx;
+  }
 }
-
 .ticket-list {
+  height: calc(100vh - 100rpx);
   padding: 24rpx;
-
-  .ticket-card {
-    background: #fff;
-    border-radius: $radius-lg;
-    padding: 24rpx;
-    margin-bottom: 24rpx;
-    box-shadow: $shadow-sm;
-
-    .ticket-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20rpx;
-
-      .ticket-info {
-        .ticket-name {
-          display: block;
-          font-size: 32rpx;
-          font-weight: 600;
-          color: $text-primary;
-          margin-bottom: 8rpx;
-        }
-
-        .product-name {
-          display: block;
-          font-size: 26rpx;
-          color: $text-secondary;
-        }
-      }
-
-      .ticket-status {
-        font-size: 24rpx;
-        padding: 6rpx 16rpx;
-        border-radius: 16rpx;
-
-        &.available {
-          background: rgba($success-color, 0.1);
-          color: $success-color;
-        }
-
-        &.used {
-          background: rgba($text-tertiary, 0.1);
-          color: $text-tertiary;
-        }
-
-        &.expired {
-          background: rgba($error-color, 0.1);
-          color: $error-color;
-        }
-      }
-    }
-
-    .ticket-detail {
-      display: flex;
-      justify-content: space-around;
-      padding: 20rpx 0;
-      margin-bottom: 20rpx;
-      border-top: 1rpx solid $border-color;
-      border-bottom: 1rpx solid $border-color;
-
-      .detail-item {
-        text-align: center;
-
-        .detail-label {
-          display: block;
-          font-size: 24rpx;
-          color: $text-secondary;
-          margin-bottom: 8rpx;
-        }
-
-        .detail-value {
-          display: block;
-          font-size: 32rpx;
-          font-weight: 600;
-          color: $text-primary;
-
-          &.highlight {
-            color: $primary-color;
-          }
-        }
-      }
-    }
-
-    .ticket-footer {
-      display: flex;
-      justify-content: space-between;
-
-      .date-info {
-        .date-label {
-          display: block;
-          font-size: 22rpx;
-          color: $text-tertiary;
-          margin-bottom: 4rpx;
-        }
-
-        .date-value {
-          display: block;
-          font-size: 26rpx;
-          color: $text-secondary;
-
-          &.expired {
-            color: $error-color;
-          }
-        }
-      }
-    }
-
-    .ticket-actions {
-      display: flex;
-      gap: 16rpx;
-      margin-top: 20rpx;
-      padding-top: 20rpx;
-      border-top: 1rpx solid $border-color;
-
-      .action-btn {
-        flex: 1;
-        height: 72rpx;
-        font-size: 28rpx;
-        border-radius: 36rpx;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &.use {
-          background: $primary-color;
-          color: #fff;
-        }
-
-        &.history {
-          background: rgba($primary-color, 0.1);
-          color: $primary-color;
-        }
-      }
-    }
-  }
-
-  .load-more,
-  .no-more {
-    text-align: center;
-    padding: 32rpx;
-
-    .loading-text,
-    .no-more-text {
-      font-size: 26rpx;
-      color: $text-tertiary;
-    }
+}
+.ticket-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx dashed #e5e7eb;
+}
+.ticket-info { flex: 1; }
+.ticket-name { font-size: 32rpx; font-weight: 600; color: #1f2937; display: block; }
+.product-name { font-size: 24rpx; color: #6b7280; margin-top: 6rpx; display: block; }
+.ticket-status {
+  font-size: 24rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  &.available, &.active { background: #d1fae5; color: #059669; }
+  &.used { background: #e5e7eb; color: #6b7280; }
+  &.expired { background: #fee2e2; color: #dc2626; }
+}
+.ticket-detail {
+  display: flex;
+  padding: 24rpx 0;
+  .detail-item { flex: 1; text-align: center; }
+  .detail-label { font-size: 24rpx; color: #9ca3af; display: block; }
+  .detail-value { font-size: 30rpx; color: #1f2937; font-weight: 500; margin-top: 6rpx; display: block; }
+  .highlight { color: $primary-color; font-weight: 600; }
+}
+.ticket-footer {
+  display: flex;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #f3f4f6;
+  .date-info { flex: 1; }
+  .date-label { font-size: 22rpx; color: #9ca3af; display: block; }
+  .date-value { font-size: 26rpx; color: #4b5563; margin-top: 4rpx; display: block;
+    &.expired { color: #dc2626; }
   }
 }
-
+.ticket-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  .action-btn {
+    flex: 1;
+    font-size: 26rpx;
+    border-radius: 12rpx;
+    padding: 16rpx 0;
+    margin: 0;
+    border: none;
+    &.use { background: $primary-color; color: #fff; }
+    &.history { background: #f3f4f6; color: #4b5563; }
+  }
+}
+.load-more, .no-more {
+  text-align: center;
+  padding: 32rpx 0;
+  .loading-text, .no-more-text {
+    font-size: 24rpx;
+    color: #9ca3af;
+  }
+}
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 120rpx 0;
-
-  .empty-icon {
-    font-size: 120rpx;
-    margin-bottom: 32rpx;
-  }
-
+  padding: 200rpx 0;
+  .empty-icon { font-size: 120rpx; margin-bottom: 30rpx; }
   .empty-text {
     font-size: 28rpx;
-    color: $text-tertiary;
-    margin-bottom: 48rpx;
+    color: #6b7280;
+    margin-bottom: 40rpx;
   }
-
   .go-buy-btn {
-    padding: 20rpx 48rpx;
     background: $primary-color;
     color: #fff;
+    border-radius: 32rpx;
+    padding: 16rpx 60rpx;
     font-size: 28rpx;
-    border-radius: 40rpx;
     border: none;
   }
 }
-
 .loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
-
-  .loading-text {
-    font-size: 28rpx;
-    color: #fff;
-  }
+  align-items: center;
+  padding: 200rpx 0;
+  .loading-text { font-size: 28rpx; color: #6b7280; }
 }
 </style>
