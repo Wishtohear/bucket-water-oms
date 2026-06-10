@@ -1,0 +1,163 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Symbol files
+.symbols
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Android/IntelliJ
+build/
+*.class
+*.dex
+*.jar
+*.log
+*.keystore
+*.jks
+
+# iOS related
+**/ios/*.pbxuser
+**/ios/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.gutenbook/
+**/ios/**/DeviceInfo/
+**/ios/**/LaunchScreen.storyboard
+**/ios/**/XCdevicesetup.dat
+**/ios/**/xcuserdata
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+**/ios/.env
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/.idea/
+**/android/app/build
+**/android/.gradle
+**/android/app/build.gradle
+**/android/app/build.gradle.kts
+
+# macOS related
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/Flutter.podspec
+**/macos/**/*.entitlements
+**/macos/**/*.mdb
+**/macos/**/*.pem
+
+# Linux related
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache
+**/.pub
+**/linux/.fvmvm_sdk_links
+**/linux/.last_build_id
+**/linux/build/
+**/linux/cmake_install.cmake
+**/linux/Makefile
+**/linux/flutter/*.h
+**/linux/flutter/CMakeLists.txt
+**/linux/flutter/generated_plugin_registrant.cc
+**/linux/flutter/generated_plugin_registrant.h
+**/linux/flutter/generated_plugins.cmake
+**/linux/flutter/generated_plugins.h
+**/linux/flutter/ephemeral/.plugin_symlinks
+**/linux/flutter/ephemeral/cpp_client_wrapper/*
+**/linux/flutter/ephemeral/.plugin_symlinks/flutter_lints/**
+**/linux/.fvm/
+**/fvmvm.md
+.fvm/
+fvm.lock
+fvm.log
+
+# Windows related
+**/windows/.runtests
+**/windows/CMakeLists.txt
+**/windows/CMakeSettings.json
+**/windows/app/CMakeLists.txt
+**/windows/app/Build.vcxproj
+**/windows/app/Build.vcxproj.filters
+**/windows/app/Runner.vcxproj
+**/windows/app/Runner.vcxproj.user
+**/windows/app/Runner.sln
+**/windows/app/Debug/
+**/windows/app/Release/
+**/windows/app/x64/
+**/windows/app/x86/
+**/windows/app/winipc/
+**/windows/app/winuwp/
+
+# Environment files
+.env
+.env.*
+.flutter_env
+.flutter_env.*
+
+# Test related
+coverage/
+test/widget_test.dart
+
+# Build related
+*.apk
+*.app
+*.appbundle
+*.aab
+*.ipa
+*.dylib
+*.so
+*.dll
+*.pdb
+*.exe
+
+# Assets
+assets/fonts/*.ttf
+assets/images/*.png
+assets/images/*.jpg
+assets/images/*.jpeg
+assets/images/*.gif
+assets/images/*.webp
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
+*.zip
+
+# Logs
+*.log
+logs/
+
+# Flutter SDK download
+flutter_windows.zip

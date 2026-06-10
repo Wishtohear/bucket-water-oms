@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 快速签收</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-gradient-to-r from-[#52C41A] to-green-500 px-6 pt-12 pb-6 text-white shadow-lg">
+<div class="flex items-center gap-4 mb-4">
+<a class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full" href="driver_tasks.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold flex-1">订单签收</h1>
+</div>
+<div class="text-center">
+<p class="text-xs opacity-80 mb-2">订单 #<span id="order-number">ORD-2026-0419-0001</span></p>
+<h2 class="text-2xl font-bold mb-1">张记旗舰水站</h2>
+<p class="text-sm opacity-90">桂林市秀峰区XX路88号</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-32">
+<!-- Quick Stats -->
+<div class="bg-white rounded-2xl p-4 shadow-sm">
+<div class="grid grid-cols-3 gap-4 text-center">
+<div>
+<p class="text-2xl font-bold text-[#1890FF]">70</p>
+<p class="text-xs text-gray-500">配送总数</p>
+</div>
+<div>
+<p class="text-2xl font-bold text-green-600">45</p>
+<p class="text-xs text-gray-500">回收空桶</p>
+</div>
+<div>
+<p class="text-2xl font-bold text-orange-500">5</p>
+<p class="text-xs text-gray-500">欠桶</p>
+</div>
+</div>
+</div>
+<!-- Sign Methods -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800">选择签收方式</h3>
+<div class="space-y-3" id="sign-methods">
+<!-- Method 1: Signature -->
+<button class="sign-method w-full p-4 bg-blue-50 border-2 border-blue-500 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectMethod('signature')">
+<div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-2xl text-white" icon="mdi:draw"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-800">签字签收</p>
+<p class="text-xs text-gray-500 mt-1">客户在手机上签名确认</p>
+</div>
+<iconify-icon class="text-blue-500 text-2xl" icon="mdi:check-circle"></iconify-icon>
+</button>
+<!-- Method 2: SMS Code -->
+<button class="sign-method w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectMethod('sms')">
+<div class="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-2xl text-gray-600" icon="mdi:message-text-outline"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-700">短信验证码</p>
+<p class="text-xs text-gray-500 mt-1">发送验证码到客户手机验证</p>
+</div>
+<iconify-icon class="text-gray-300 text-2xl" icon="mdi:circle-outline"></iconify-icon>
+</button>
+<!-- Method 3: Boss Confirm -->
+<button class="sign-method w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl flex items-center gap-4 active:scale-98 transition-transform" onclick="selectMethod('boss')">
+<div class="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-2xl text-gray-600" icon="mdi:cellphone-check"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="font-bold text-gray-700">老板确认</p>
+<p class="text-xs text-gray-500 mt-1">水站老板在APP/小程序中确认</p>
+</div>
+<iconify-icon class="text-gray-300 text-2xl" icon="mdi:circle-outline"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Signature Pad -->
+<div id="signature-section" class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:draw"></iconify-icon>
+客户签字区
+</h3>
+<div class="p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
+<canvas id="signature-pad" class="w-full h-40 bg-white rounded-xl border border-gray-200" style="touch-action: none;"></canvas>
+<div class="flex justify-between items-center mt-3">
+<span class="text-sm text-gray-500">请客户在此区域签名</span>
+<button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium active:bg-blue-100" onclick="clearSignature()">
+<iconify-icon icon="mdi:refresh"></iconify-icon>
+清除重写
+</button>
+</div>
+</div>
+</div>
+<!-- SMS Section -->
+<div id="sms-section" class="hidden bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:message-text-outline"></iconify-icon>
+短信验证码
+</h3>
+<div class="space-y-3">
+<div class="p-4 bg-blue-50 rounded-xl flex items-center gap-3">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-xl text-blue-600" icon="mdi:information"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-blue-700">验证码已发送</p>
+<p class="text-xs text-blue-600 mt-0.5">已发送至: 138****8888</p>
+</div>
+</div>
+<div class="flex gap-3">
+<input class="flex-1 px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-center text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" id="sms-code" placeholder="● ● ● ● ● ●" maxlength="6"/>
+<button class="px-6 py-4 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium" id="resend-btn" onclick="resendSms()">
+重新发送
+</button>
+</div>
+<div class="text-xs text-gray-400 text-center">
+验证码有效期: 5分钟
+</div>
+</div>
+</div>
+<!-- Boss Confirm Section -->
+<div id="boss-section" class="hidden bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:cellphone-check"></iconify-icon>
+老板确认码
+</h3>
+<div class="p-4 bg-blue-50 rounded-xl flex items-start gap-3">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-xl text-blue-600" icon="mdi:account-check"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-blue-700">等待水站老板确认</p>
+<p class="text-xs text-blue-600 mt-1">老板收到通知后，可在APP或小程序中输入确认码确认订单</p>
+</div>
+</div>
+<div class="flex gap-3">
+<input class="flex-1 px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-center text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" id="confirm-code" placeholder="输入确认码" maxlength="6"/>
+<button class="px-6 py-4 bg-blue-500 text-white rounded-xl text-sm font-medium active:bg-blue-600" onclick="confirmWithCode()">
+确认
+</button>
+</div>
+</div>
+<!-- Photos Section -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:camera-outline"></iconify-icon>
+签收照片 <span class="text-red-500">*</span>
+</h3>
+<div class="grid grid-cols-3 gap-3" id="photo-grid">
+<!-- Photo 1 -->
+<div class="relative aspect-square bg-gray-50 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex flex-col items-center justify-center" onclick="takePhoto(1)">
+<img id="photo-1" class="hidden w-full h-full object-cover" src="" alt="照片1"/>
+<div id="photo-placeholder-1" class="text-center">
+<iconify-icon class="text-3xl text-gray-400" icon="mdi:camera-plus"></iconify-icon>
+<p class="text-xs text-gray-400 mt-1">门头照</p>
+</div>
+<button id="photo-delete-1" class="hidden absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center" onclick="deletePhoto(event, 1)">
+<iconify-icon class="text-xs" icon="mdi:close"></iconify-icon>
+</button>
+</div>
+<!-- Photo 2 -->
+<div class="relative aspect-square bg-gray-50 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex flex-col items-center justify-center" onclick="takePhoto(2)">
+<img id="photo-2" class="hidden w-full h-full object-cover" src="" alt="照片2"/>
+<div id="photo-placeholder-2" class="text-center">
+<iconify-icon class="text-3xl text-gray-400" icon="mdi:camera-plus"></iconify-icon>
+<p class="text-xs text-gray-400 mt-1">签收单</p>
+</div>
+<button id="photo-delete-2" class="hidden absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center" onclick="deletePhoto(event, 2)">
+<iconify-icon class="text-xs" icon="mdi:close"></iconify-icon>
+</button>
+</div>
+<!-- Photo 3 -->
+<div class="relative aspect-square bg-gray-50 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 flex flex-col items-center justify-center" onclick="takePhoto(3)">
+<img id="photo-3" class="hidden w-full h-full object-cover" src="" alt="照片3"/>
+<div id="photo-placeholder-3" class="text-center">
+<iconify-icon class="text-3xl text-gray-400" icon="mdi:camera-plus"></iconify-icon>
+<p class="text-xs text-gray-400 mt-1">现场照</p>
+</div>
+<button id="photo-delete-3" class="hidden absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center" onclick="deletePhoto(event, 3)">
+<iconify-icon class="text-xs" icon="mdi:close"></iconify-icon>
+</button>
+</div>
+</div>
+<p class="text-xs text-gray-400">请上传至少3张照片（门头照、签收单、现场情况）</p>
+</div>
+<!-- Notes -->
+<div class="bg-white rounded-3xl p-5 shadow-sm space-y-3">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:note-text-outline"></iconify-icon>
+备注信息
+</h3>
+<textarea class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" rows="3" placeholder="可添加备注信息，如：客户反映桶有破损..."></textarea>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="absolute bottom-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 pb-8">
+<button class="w-full py-4 bg-[#52C41A] text-white rounded-2xl font-bold shadow-lg shadow-green-100 active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="submitSignature()">
+<iconify-icon class="text-2xl" icon="mdi:check-circle"></iconify-icon>
+确认签收
+</button>
+</div>
+</div>
+<script>
+// Current state
+let currentMethod = 'signature';
+const photos = {};
+
+// Initialize signature pad
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 160;
+    
+    // Drawing variables
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', stopDrawing);
+    
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+    
+    function draw(e) {
+        if (!isDrawing) return;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = '#1890FF';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+    
+    function stopDrawing() {
+        isDrawing = false;
+    }
+    
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        lastX = touch.clientX - rect.left;
+        lastY = touch.clientY - rect.top;
+        isDrawing = true;
+    }
+    
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.strokeStyle = '#1890FF';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+    }
+});
+
+function selectMethod(method) {
+    currentMethod = method;
+    
+    // Update button styles
+    document.querySelectorAll('.sign-method').forEach((btn, index) => {
+        const icons = btn.querySelectorAll('iconify-icon');
+        const icon = icons[icons.length - 1];
+        
+        if ((method === 'signature' && index === 0) ||
+            (method === 'sms' && index === 1) ||
+            (method === 'boss' && index === 2)) {
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-blue-50', 'border-blue-500');
+            icons[0].classList.remove('bg-gray-200', 'text-gray-600');
+            icons[0].classList.add('bg-blue-500', 'text-white');
+            icon.classList.remove('text-gray-300');
+            icon.classList.add('text-blue-500');
+            icon.setAttribute('icon', 'mdi:check-circle');
+        } else {
+            btn.classList.add('bg-gray-50', 'border-gray-200');
+            btn.classList.remove('bg-blue-50', 'border-blue-500');
+            icons[0].classList.add('bg-gray-200', 'text-gray-600');
+            icons[0].classList.remove('bg-blue-500', 'text-white');
+            icon.classList.add('text-gray-300');
+            icon.classList.remove('text-blue-500');
+            icon.setAttribute('icon', 'mdi:circle-outline');
+        }
+    });
+    
+    // Show/hide sections
+    document.getElementById('signature-section').classList.toggle('hidden', method !== 'signature');
+    document.getElementById('sms-section').classList.toggle('hidden', method !== 'sms');
+    document.getElementById('boss-section').classList.toggle('hidden', method !== 'boss');
+}
+
+function clearSignature() {
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log('Signature cleared');
+}
+
+function resendSms() {
+    console.log('Resending SMS code...');
+    alert('验证码已重新发送至: 138****8888');
+    
+    // Disable button temporarily
+    const btn = document.getElementById('resend-btn');
+    btn.disabled = true;
+    btn.textContent = '重新发送 (60s)';
+    
+    let countdown = 60;
+    const interval = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.textContent = '重新发送';
+        } else {
+            btn.textContent = `重新发送 (${countdown}s)`;
+        }
+    }, 1000);
+}
+
+function confirmWithCode() {
+    const code = document.getElementById('confirm-code').value;
+    if (code.length !== 6) {
+        alert('请输入6位确认码');
+        return;
+    }
+    
+    console.log('Confirming with code:', code);
+    alert('确认码验证成功！\n正在提交签收信息...');
+    submitSignature();
+}
+
+function takePhoto(index) {
+    console.log(`Taking photo ${index}...`);
+    // In production, open camera
+    alert(`打开相机拍摄${index === 1 ? '门头照' : index === 2 ? '签收单' : '现场照'}\n\n（实际应用中会打开相机拍照）`);
+    
+    // Simulate photo capture
+    const placeholder = document.getElementById(`photo-placeholder-${index}`);
+    const img = document.getElementById(`photo-${index}`);
+    const deleteBtn = document.getElementById(`photo-delete-${index}`);
+    
+    // Use a placeholder image
+    img.src = 'https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg';
+    img.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    deleteBtn.classList.remove('hidden');
+    
+    photos[index] = img.src;
+}
+
+function deletePhoto(event, index) {
+    event.stopPropagation();
+    console.log(`Deleting photo ${index}`);
+    
+    const img = document.getElementById(`photo-${index}`);
+    const placeholder = document.getElementById(`photo-placeholder-${index}`);
+    const deleteBtn = document.getElementById(`photo-delete-${index}`);
+    
+    img.src = '';
+    img.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    deleteBtn.classList.add('hidden');
+    
+    delete photos[index];
+}
+
+function submitSignature() {
+    // Validate photos
+    const photoCount = Object.keys(photos).length;
+    if (photoCount < 3) {
+        alert(`请上传至少3张照片，当前已上传 ${photoCount} 张`);
+        return;
+    }
+    
+    // Validate signature
+    if (currentMethod === 'signature') {
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let hasSignature = false;
+        for (let i = 3; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] !== 0) {
+                hasSignature = true;
+                break;
+            }
+        }
+        if (!hasSignature) {
+            alert('请让客户签名后再提交');
+            return;
+        }
+    } else if (currentMethod === 'sms') {
+        const code = document.getElementById('sms-code').value;
+        if (code.length !== 6) {
+            alert('请输入6位验证码');
+            return;
+        }
+    } else if (currentMethod === 'boss') {
+        const code = document.getElementById('confirm-code').value;
+        if (code.length !== 6) {
+            alert('请输入老板确认码或等待老板确认');
+            return;
+        }
+    }
+    
+    // Prepare submission data
+    const submissionData = {
+        orderId: document.getElementById('order-number').textContent,
+        signMethod: currentMethod,
+        photos: photos,
+        signature: currentMethod === 'signature' ? 'signature_data' : null,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('Submitting signature:', submissionData);
+    
+    // Show success
+    alert(`签收确认成功！\n\n订单号: ${submissionData.orderId}\n签收方式: ${currentMethod === 'signature' ? '签字签收' : currentMethod === 'sms' ? '短信验证码' : '老板确认'}\n照片数量: ${photoCount}张\n\n即将返回任务列表...`);
+    
+    // Redirect to tasks page
+    window.location.href = 'driver_tasks.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 回仓核对</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4 mb-4">
+<a class="text-gray-500" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">回仓核对</h1>
+<div class="ml-auto">
+<span class="px-2 py-1 bg-red-100 text-red-500 text-[10px] font-bold rounded-lg">3 待核对</span>
+</div>
+</div>
+<!-- Sub Tabs -->
+<div class="flex gap-6 text-sm">
+<a class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF] font-medium" href="#">待核对 (3)</a>
+<a class="pb-2 text-gray-400" href="#">已核对 (12)</a>
+<a class="pb-2 text-gray-400" href="#">差异记录</a>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Return Card 1 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-red-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-800">回仓申请 #RT2026042101</span>
+</div>
+<div class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">
+等待 8分钟
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:account"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">张小龙</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-001 | 今日配送 8 单</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-4 mb-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">配送订单</p>
+<p class="text-sm font-bold text-gray-800">#850018</p>
+</div>
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">送达时间</p>
+<p class="text-sm font-bold text-gray-800">14:25</p>
+</div>
+</div>
+</div>
+<div class="space-y-3 mb-4">
+<div class="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:package-variant"></iconify-icon>
+<span class="text-xs text-gray-700">司机上报回收空桶</span>
+</div>
+<span class="text-sm font-bold text-[#1890FF]">68 个</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-orange-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-orange-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs text-gray-700">其中欠桶</span>
+</div>
+<span class="text-sm font-bold text-orange-500">2 个</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-purple-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-purple-500" icon="mdi:truck-outline"></iconify-icon>
+<span class="text-xs text-gray-700">申请补货</span>
+</div>
+<span class="text-sm font-bold text-purple-500">18.9L×20 桶</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_return_check.html'">
+核对空桶
+</button>
+<button class="px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl" onclick="alert('正在打印回仓单...')">
+<iconify-icon icon="mdi:printer-outline"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Return Card 2 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-800">回仓申请 #RT2026042102</span>
+</div>
+<div class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">
+等待 15分钟
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:account"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">刘师傅</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-003 | 今日配送 6 单</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-4 mb-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">配送订单</p>
+<p class="text-sm font-bold text-gray-800">#850016</p>
+</div>
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">送达时间</p>
+<p class="text-sm font-bold text-gray-800">13:40</p>
+</div>
+</div>
+</div>
+<div class="space-y-3 mb-4">
+<div class="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:package-variant"></iconify-icon>
+<span class="text-xs text-gray-700">司机上报回收空桶</span>
+</div>
+<span class="text-sm font-bold text-[#1890FF]">45 个</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-green-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle-outline"></iconify-icon>
+<span class="text-xs text-gray-700">其中欠桶</span>
+</div>
+<span class="text-sm font-bold text-green-500">0 个</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_return_check.html'">
+核对空桶
+</button>
+<button class="px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl" onclick="alert('正在打印回仓单...')">
+<iconify-icon icon="mdi:printer-outline"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- Return Card 3 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+<span class="text-xs font-bold text-gray-800">回仓申请 #RT2026042103</span>
+</div>
+<div class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">
+等待 3分钟
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:account"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">陈司机</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-005 | 今日配送 5 单</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-4 mb-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">配送订单</p>
+<p class="text-sm font-bold text-gray-800">#850015</p>
+</div>
+<div class="text-center p-3 bg-white rounded-xl">
+<p class="text-[10px] text-gray-400 mb-1">送达时间</p>
+<p class="text-sm font-bold text-gray-800">13:15</p>
+</div>
+</div>
+</div>
+<div class="space-y-3 mb-4">
+<div class="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:package-variant"></iconify-icon>
+<span class="text-xs text-gray-700">司机上报回收空桶</span>
+</div>
+<span class="text-sm font-bold text-[#1890FF]">30 个</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-orange-50 rounded-xl">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-orange-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs text-gray-700">其中欠桶</span>
+</div>
+<span class="text-sm font-bold text-orange-500">5 个</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_return_check.html'">
+核对空桶
+</button>
+<button class="px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl" onclick="alert('正在打印回仓单...')">
+<iconify-icon icon="mdi:printer-outline"></iconify-icon>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_orders.html">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+<span class="text-[10px] font-bold">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px]">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

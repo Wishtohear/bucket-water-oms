@@ -1,0 +1,42 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+subprojects { subproject ->
+    subproject.ext {
+        set('flutterVersionCode', project.hasProperty('flutter.versionCode') ? project['flutter.versionCode'] : '1')
+        set('flutterVersionName', project.hasProperty('flutter.versionName') ? project['flutter.versionName'] : '1.0.0')
+        set('flutterCompileSdk', project.hasProperty('flutter.compileSdkVersion') ? project['flutter.compileSdkVersion'] : 35)
+    }
+}
+
+gradle.projectsLoaded {
+    rootProject.subprojects { subproject ->
+        if (subproject.name != 'app') {
+            subproject.plugins.withId('com.android.library') {
+                subproject.android {
+                    if (namespace == null || namespace.isEmpty()) {
+                        namespace = subproject.group ?: "com.example.${subproject.name.replace('-', '_').replace('.', '_')}"
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

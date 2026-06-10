@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>水厂订货管理系统 - 登录</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: white; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col items-center px-8 pt-24">
+<!-- Status Bar Simulation -->
+<div class="absolute top-0 w-full h-11 flex justify-between items-center px-6 text-sm font-semibold">
+<span>09:41</span>
+<div class="flex gap-1.5">
+<iconify-icon icon="mdi:signal"></iconify-icon>
+<iconify-icon icon="mdi:wifi"></iconify-icon>
+<iconify-icon icon="mdi:battery"></iconify-icon>
+</div>
+</div>
+<!-- Logo -->
+<div class="mt-10 mb-12 flex flex-col items-center">
+<div class="w-20 h-20 bg-[#1890FF] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 mb-4">
+<iconify-icon class="text-white text-5xl" icon="mdi:water-pump"></iconify-icon>
+</div>
+<h1 class="text-2xl font-bold text-gray-800 tracking-wider">水厂订货管理系统</h1>
+<p class="text-gray-400 text-sm mt-2">智慧水务 · 快捷订货</p>
+</div>
+<!-- Form -->
+<div class="w-full space-y-5">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+<iconify-icon class="text-xl" icon="mdi:cellphone-iphone"></iconify-icon>
+</span>
+<input class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1890FF] transition-all" placeholder="请输入手机号" type="text" value="13800138000"/>
+</div>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+<iconify-icon class="text-xl" icon="mdi:lock-outline"></iconify-icon>
+</span>
+<input class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1890FF] transition-all" placeholder="请输入密码" type="password" value="123456"/>
+</div>
+</div>
+<!-- Role Select (Simulation purpose) -->
+<div class="w-full mt-8">
+<p class="text-xs text-center text-gray-400 mb-4">选择登录身份进行演示</p>
+<div class="grid grid-cols-1 gap-3 mb-8">
+<div class="grid grid-cols-2 gap-3">
+<a class="flex items-center justify-center py-4 bg-[#1890FF] text-white rounded-xl font-bold shadow-md active:scale-95 transition-transform text-sm" href="owner_index.html">
+                        水站老板端
+                    </a>
+<a class="flex items-center justify-center py-4 bg-[#52C41A] text-white rounded-xl font-bold shadow-md active:scale-95 transition-transform text-sm" href="driver_tasks.html">
+                        司机配送端
+                    </a>
+</div>
+<a class="flex items-center justify-center py-4 bg-[#722ED1] text-white rounded-xl font-bold shadow-md active:scale-95 transition-transform text-sm" href="warehouse_index.html">
+                    仓库管理端
+                </a>
+</div>
+</div>
+<div class="flex justify-between w-full text-sm text-[#1890FF]">
+<a href="#">忘记密码？</a>
+<a href="#">新用户注册</a>
+</div>
+<div class="absolute bottom-10 text-gray-400 text-xs">
+            © 2026 水务科技 版权所有
+        </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>商品下单页 - 确认订单</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Top Nav -->
+<div class="bg-white px-6 pt-12 pb-4 flex justify-between items-center z-10 shadow-sm">
+<a class="w-10 h-10 flex items-center justify-center rounded-full active:bg-gray-100" href="owner_index.html">
+<iconify-icon class="text-2xl text-gray-800" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<span class="font-bold text-gray-800">确认订单</span>
+<div class="w-10"></div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-32">
+<!-- Delivery Info Card -->
+<a class="block bg-white rounded-3xl p-5 shadow-sm border border-gray-50 flex gap-4 active:bg-gray-50 transition-colors" href="#">
+<div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-[#1890FF] shrink-0">
+<iconify-icon class="text-2xl" icon="mdi:map-marker-outline"></iconify-icon>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-gray-800">张老板</span>
+<span class="text-gray-400 text-xs">138****8888</span>
+<span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded">水站老板</span>
+</div>
+<p class="text-xs text-gray-500 leading-relaxed">广西壮族自治区桂林市秀峰区XX路XX号张记旗舰水站</p>
+</div>
+<iconify-icon class="text-gray-400 mt-4" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<!-- Payment Method Selection -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:credit-card-outline"></iconify-icon>
+                支付方式
+            </h3>
+<div class="grid grid-cols-3 gap-3">
+<button class="border-2 border-[#1890FF] bg-blue-50 rounded-2xl p-3 flex flex-col items-center gap-1">
+<iconify-icon class="text-2xl text-[#1890FF]" icon="mdi:calendar-clock"></iconify-icon>
+<span class="text-xs font-bold text-[#1890FF]">月结</span>
+<span class="text-[10px] text-gray-400">账期30天</span>
+</button>
+<button class="border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center gap-1 active:bg-gray-50 transition-colors">
+<iconify-icon class="text-2xl text-gray-400" icon="mdi:wallet-outline"></iconify-icon>
+<span class="text-xs font-bold text-gray-600">预存金</span>
+<span class="text-[10px] text-gray-400">余额¥12,500</span>
+</button>
+<button class="border-2 border-gray-100 rounded-2xl p-3 flex flex-col items-center gap-1 active:bg-gray-50 transition-colors">
+<iconify-icon class="text-2xl text-gray-400" icon="mdi:cash-multiple"></iconify-icon>
+<span class="text-xs font-bold text-gray-600">信用额度</span>
+<span class="text-[10px] text-gray-400">剩余¥5,000</span>
+</button>
+</div>
+</div>
+<!-- Product List -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-gray-800 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:package-variant-closed"></iconify-icon>
+                    商品清单
+                </h3>
+<button class="text-xs text-blue-500 font-bold flex items-center gap-1 active:text-blue-700">
+<iconify-icon icon="mdi:plus-circle-outline"></iconify-icon>
+                    添加商品
+                </button>
+</div>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-start gap-3">
+<img alt="Water" class="w-16 h-16 rounded-xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/a334311da7854958a4c575d1ed971989.jpg"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h4 class="text-sm font-bold text-gray-800">18.9L 经典桶装水</h4>
+<p class="text-[10px] text-gray-400 mt-0.5">库存: 500桶 (仓库A)</p>
+</div>
+<button class="text-gray-300 active:text-red-500">
+<iconify-icon class="text-xl" icon="mdi:close-circle-outline"></iconify-icon>
+</button>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<span class="text-[#1890FF] font-bold">¥8.00</span>
+<span class="text-[10px] text-gray-400">/桶</span>
+<span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded ml-1">月结价</span>
+</div>
+<div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl">
+<button class="text-gray-400 active:text-[#1890FF]">
+<iconify-icon class="text-lg" icon="mdi:minus"></iconify-icon>
+</button>
+<span class="text-sm font-bold text-gray-800 w-8 text-center">50</span>
+<button class="text-[#1890FF] active:text-blue-700">
+<iconify-icon class="text-lg" icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+<div class="text-right mt-1">
+<span class="text-xs text-gray-400">小计: </span>
+<span class="text-sm font-bold text-gray-800">¥400.00</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-3 pt-4 border-t border-gray-50">
+<img alt="Water" class="w-16 h-16 rounded-xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/d946652deb254808b0f7b16e4dfad2a3.jpg"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<div>
+<h4 class="text-sm font-bold text-gray-800">11.3L 迷你桶装水</h4>
+<p class="text-[10px] text-gray-400 mt-0.5">库存: 200桶 (仓库A)</p>
+</div>
+<button class="text-gray-300 active:text-red-500">
+<iconify-icon class="text-xl" icon="mdi:close-circle-outline"></iconify-icon>
+</button>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<span class="text-[#1890FF] font-bold">¥6.00</span>
+<span class="text-[10px] text-gray-400">/桶</span>
+</div>
+<div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl">
+<button class="text-[#1890FF] active:text-blue-700">
+<iconify-icon class="text-lg" icon="mdi:minus"></iconify-icon>
+</button>
+<span class="text-sm font-bold text-gray-800 w-8 text-center">20</span>
+<button class="text-[#1890FF] active:text-blue-700">
+<iconify-icon class="text-lg" icon="mdi:plus"></iconify-icon>
+</button>
+</div>
+</div>
+<div class="text-right mt-1">
+<span class="text-xs text-gray-400">小计: </span>
+<span class="text-sm font-bold text-gray-800">¥120.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Container Service -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#52C41A] text-xl" icon="mdi:refresh-circle"></iconify-icon>
+<span class="text-sm font-bold text-gray-800">空桶回收</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs text-gray-600 font-medium">预计归还 70 个</p>
+<p class="text-[10px] text-gray-400">上次欠桶: 8个</p>
+</div>
+<input checked="" class="w-5 h-5 rounded-full accent-[#52C41A]" type="checkbox"/>
+</div>
+</div>
+<div class="mt-3 p-3 bg-blue-50 rounded-xl">
+<div class="flex justify-between text-xs">
+<span class="text-gray-600">押金桶总数</span>
+<span class="text-gray-800 font-bold">100 个</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-600">当前欠桶</span>
+<span class="text-[#FF4D4F] font-bold">8 个</span>
+</div>
+</div>
+</div>
+<!-- Price Detail -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50 space-y-3">
+<h3 class="font-bold text-gray-800 flex items-center gap-2 mb-3">
+<iconify-icon class="text-[#1890FF]" icon="mdi:calculator"></iconify-icon>
+                费用明细
+            </h3>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">18.9L桶装水 × 50桶</span>
+<span class="text-gray-800 font-medium">¥400.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">11.3L桶装水 × 20桶</span>
+<span class="text-gray-800 font-medium">¥120.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">配送费</span>
+<span class="text-gray-800 font-medium">¥0.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">水票抵扣</span>
+<span class="text-[#FF4D4F]">-¥0.00</span>
+</div>
+<div class="pt-3 border-t border-gray-50 flex justify-between items-center">
+<span class="text-gray-800 font-bold">应付金额</span>
+<div class="text-right">
+<span class="text-2xl font-bold text-[#1890FF]">¥520.00</span>
+<p class="text-[10px] text-gray-400">将从月结额度扣除</p>
+</div>
+</div>
+</div>
+<!-- Account Info Warning -->
+<div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3">
+<div class="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+<iconify-icon class="text-[#1890FF] text-lg" icon="mdi:information-outline"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800 mb-1">账户信息</p>
+<div class="space-y-1">
+<p class="text-[10px] text-gray-600">• 当前支付方式: <span class="text-[#1890FF] font-bold">月结</span></p>
+<p class="text-[10px] text-gray-600">• 信用额度剩余: <span class="text-[#52C41A] font-bold">¥5,000</span></p>
+<p class="text-[10px] text-gray-600">• 本次订单金额: <span class="text-[#1890FF] font-bold">¥520.00</span></p>
+<p class="text-[10px] text-gray-600">• 订单完成后额度剩余: <span class="text-[#52C41A] font-bold">¥4,480.00</span></p>
+</div>
+</div>
+</div>
+<!-- Remark -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex items-center gap-2 mb-3">
+<iconify-icon class="text-gray-500" icon="mdi:note-text-outline"></iconify-icon>
+<span class="text-sm font-bold text-gray-800">订单备注</span>
+</div>
+<textarea class="w-full h-20 text-sm text-gray-500 bg-gray-50 p-3 rounded-2xl border-none focus:ring-1 focus:ring-blue-100" placeholder="备注说明：如有特殊派送要求请在此留言..."></textarea>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="absolute bottom-0 w-full bg-white border-t border-gray-100 z-20">
+<!-- Stock Check Notice -->
+<div class="px-6 py-2 bg-green-50 border-b border-green-100 flex items-center justify-center gap-2">
+<iconify-icon class="text-[#52C41A]" icon="mdi:check-circle"></iconify-icon>
+<span class="text-xs text-[#52C41A] font-medium">库存充足，商品可正常下单</span>
+</div>
+<!-- Action Bar -->
+<div class="h-24 px-6 pb-6 pt-3 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div>
+<p class="text-[10px] text-gray-400">共 70 件商品</p>
+<p class="text-2xl font-bold text-gray-800">¥520.00</p>
+</div>
+<button class="px-12 py-4 bg-[#1890FF] text-white rounded-full font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform text-sm" onclick="submitOrder()">
+                提交订单
+            </button>
+</div>
+</div>
+</div>
+<script>
+function submitOrder() {
+    if(confirm('确认提交订单？\n\n订单金额：¥520.00\n支付方式：月结\n预计送达：明日 14:00 前')) {
+        alert('订单提交成功！\n\n订单号：202604210001\n等待仓库接单...');
+        window.location.href = 'order_list.html';
+    }
+}
+</script>
+</body>
+</html>

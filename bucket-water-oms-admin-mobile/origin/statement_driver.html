@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 月度对账单</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10 flex justify-between items-center">
+<h1 class="text-lg font-bold text-gray-800">月度对账单</h1>
+<button class="bg-blue-50 text-[#1890FF] px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+<iconify-icon icon="mdi:calendar-month-outline"></iconify-icon>
+                2026年04月
+                <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Summary Card -->
+<div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+<div class="flex justify-between items-center mb-6">
+<span class="text-sm text-gray-500">本月待结算金额</span>
+<button class="text-[#1890FF] text-[10px] font-bold flex items-center gap-1">
+                        导出明细 <iconify-icon icon="mdi:file-excel-outline"></iconify-icon>
+                    </button>
+</div>
+<p class="text-4xl font-black text-gray-800 mb-6">¥ 4,850.00</p>
+<div class="grid grid-cols-2 gap-4 pt-6 border-t border-gray-50">
+<div>
+<p class="text-[10px] text-gray-400 mb-1">基本工资</p>
+<p class="text-sm font-bold text-gray-700">¥ 3,000</p>
+</div>
+<div>
+<p class="text-[10px] text-gray-400 mb-1">配送提成 (本月)</p>
+<p class="text-sm font-bold text-[#52C41A]">¥ 1,850</p>
+</div>
+</div>
+</div>
+<!-- Performance Stats -->
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-blue-50 rounded-2xl p-3 text-center">
+<p class="text-[10px] text-blue-400 mb-1">完成订单</p>
+<p class="text-lg font-bold text-blue-600">125 <span class="text-[8px] font-normal">单</span></p>
+</div>
+<div class="bg-green-50 rounded-2xl p-3 text-center">
+<p class="text-[10px] text-green-400 mb-1">送水总数</p>
+<p class="text-lg font-bold text-green-600">3200 <span class="text-[8px] font-normal">桶</span></p>
+</div>
+<div class="bg-purple-50 rounded-2xl p-3 text-center">
+<p class="text-[10px] text-purple-400 mb-1">好评率</p>
+<p class="text-lg font-bold text-purple-600">99%</p>
+</div>
+</div>
+<!-- List Section -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<h3 class="font-bold text-gray-800 mb-4">结算明细</h3>
+<div class="space-y-4">
+<!-- Row -->
+<div class="flex justify-between items-center py-2 border-b border-gray-50">
+<div>
+<p class="text-xs font-bold text-gray-800">配送提成 - 04-18</p>
+<p class="text-[10px] text-gray-400">完成 8 单 · 共 250 桶</p>
+</div>
+<span class="text-sm font-bold text-gray-800">+¥ 125.00</span>
+</div>
+<!-- Row -->
+<div class="flex justify-between items-center py-2 border-b border-gray-50">
+<div>
+<p class="text-xs font-bold text-gray-800">配送提成 - 04-17</p>
+<p class="text-[10px] text-gray-400">完成 10 单 · 共 300 桶</p>
+</div>
+<span class="text-sm font-bold text-gray-800">+¥ 150.00</span>
+</div>
+<!-- Row -->
+<div class="flex justify-between items-center py-2 border-b border-gray-50">
+<div>
+<p class="text-xs font-bold text-gray-800">奖励 - 优质服务奖励</p>
+<p class="text-[10px] text-gray-400">上周零投诉特别奖励</p>
+</div>
+<span class="text-sm font-bold text-blue-600">+¥ 200.00</span>
+</div>
+</div>
+<button class="w-full py-3 mt-4 text-[10px] text-gray-400 text-center">查看全部明细</button>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-3 pt-2">
+<button class="w-full py-4 bg-[#1890FF] text-white rounded-2xl font-bold shadow-lg shadow-blue-100">
+                    确认本月对账无误
+                </button>
+<button class="w-full py-4 bg-white text-[#FF4D4F] border border-red-50 rounded-2xl font-bold">
+                    反馈有争议
+                </button>
+</div>
+</div>
+<!-- Driver Bottom Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_tasks.html">
+<iconify-icon class="text-2xl" icon="mdi:view-dashboard"></iconify-icon>
+<span class="text-[10px]">任务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_barrel_manage.html">
+<iconify-icon class="text-2xl" icon="mdi:barrel"></iconify-icon>
+<span class="text-[10px]">空桶</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="statement_driver.html">
+<iconify-icon class="text-2xl" icon="mdi:file-document-outline"></iconify-icon>
+<span class="text-[10px] font-bold">对账</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

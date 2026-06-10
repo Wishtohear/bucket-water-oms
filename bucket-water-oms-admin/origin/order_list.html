@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>订单管理与跟踪</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex justify-between items-center mb-4">
+<h1 class="text-xl font-bold text-gray-800">我的订单</h1>
+<button class="flex items-center gap-1 text-xs text-gray-500 active:text-gray-700">
+<iconify-icon icon="mdi:filter-variant"></iconify-icon>
+                筛选
+            </button>
+</div>
+<!-- Tabs -->
+<div class="flex justify-between text-sm font-medium overflow-x-auto hide-scrollbar">
+<button class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF] whitespace-nowrap">全部</button>
+<button class="pb-2 text-gray-400 whitespace-nowrap">待审查 <span class="bg-red-500 text-white text-[10px] px-1.5 rounded-full ml-1">2</span></button>
+<button class="pb-2 text-gray-400 whitespace-nowrap">备货中</button>
+<button class="pb-2 text-gray-400 whitespace-nowrap">配送中</button>
+<button class="pb-2 text-gray-400 whitespace-nowrap">已完成</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Order 1 - Active Delivery -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border-2 border-blue-100">
+<div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-50">
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">订单号: 202604210001</span>
+<span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-bold">配送中</span>
+</div>
+<span class="text-xs text-gray-400">今天 13:40</span>
+</div>
+<!-- Map Placeholder -->
+<div class="h-24 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl mb-4 relative overflow-hidden">
+<img alt="Map" class="absolute inset-0 w-full h-full object-cover opacity-30" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/ca8bb098b390472cb12a82074d0bda83.jpg"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-white/95 px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
+<iconify-icon class="text-[#1890FF] animate-pulse" icon="mdi:truck-delivery"></iconify-icon>
+<span class="text-[10px] font-bold text-gray-700">司机距离您 1.2km</span>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-4 mb-4">
+<div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+<iconify-icon class="text-2xl text-[#1890FF]" icon="mdi:account-hard-hat"></iconify-icon>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-sm text-gray-800">配送员：王力</h4>
+<p class="text-[10px] text-gray-400 mt-0.5">预计今天 14:30 送达</p>
+</div>
+<div class="flex gap-2">
+<a class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center" href="tel:13912345678">
+<iconify-icon class="text-blue-500" icon="mdi:phone"></iconify-icon>
+</a>
+<a class="w-8 h-8 bg-green-50 rounded-full flex items-center justify-center" href="sms:13912345678">
+<iconify-icon class="text-green-500" icon="mdi:message-text-outline"></iconify-icon>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Progress Timeline -->
+<div class="bg-gray-50 rounded-2xl p-4 space-y-3">
+<p class="text-xs font-bold text-gray-700 mb-2">配送进度</p>
+<div class="space-y-3 relative before:content-[''] before:absolute before:left-[7px] before:top-3 before:bottom-3 before:w-[2px] before:bg-gray-200">
+<div class="relative flex items-start gap-3">
+<div class="relative z-10 w-4 h-4 rounded-full bg-[#1890FF] flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-white"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-gray-800">配送中 - 正在送往水站</p>
+<p class="text-[10px] text-gray-400 mt-0.5">今天 13:40</p>
+</div>
+</div>
+<div class="relative flex items-start gap-3">
+<div class="relative z-10 w-4 h-4 rounded-full bg-[#1890FF] flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-white"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-gray-800">已出库，商品正在配送</p>
+<p class="text-[10px] text-gray-400 mt-0.5">今天 11:20</p>
+</div>
+</div>
+<div class="relative flex items-start gap-3">
+<div class="relative z-10 w-4 h-4 rounded-full bg-[#52C41A] flex items-center justify-center">
+<iconify-icon class="text-white text-[8px]" icon="mdi:check"></iconify-icon>
+</div>
+<div class="opacity-60">
+<p class="text-xs font-bold text-gray-600">仓库已确认接单</p>
+<p class="text-[10px] text-gray-400 mt-0.5">今天 10:45</p>
+</div>
+</div>
+<div class="relative flex items-start gap-3">
+<div class="relative z-10 w-4 h-4 rounded-full bg-[#52C41A] flex items-center justify-center">
+<iconify-icon class="text-white text-[8px]" icon="mdi:check"></iconify-icon>
+</div>
+<div class="opacity-60">
+<p class="text-xs font-bold text-gray-600">订单已提交，等待仓库审查</p>
+<p class="text-[10px] text-gray-400 mt-0.5">今天 09:30</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex justify-end gap-2 mt-4">
+<a class="px-4 py-1.5 text-xs border border-gray-200 rounded-full text-gray-600 active:bg-gray-100" href="order_detail.html">查看详情</a>
+</div>
+</div>
+<!-- Order 2 - Pending Review -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">订单号: 202604210002</span>
+<span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded font-bold">待审查</span>
+</div>
+<span class="text-xs text-gray-400">今天 11:20</span>
+</div>
+<div class="flex gap-3 mb-3">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-xl border-2 border-white" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/a334311da7854958a4c575d1ed971989.jpg"/>
+<img class="w-12 h-12 rounded-xl border-2 border-white" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/d946652deb254808b0f7b16e4dfad2a3.jpg"/>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">18.9L经典桶装水 × 30桶</p>
+<p class="text-[10px] text-gray-500 mt-0.5">11.3L迷你桶装水 × 20桶</p>
+<p class="text-sm font-bold text-[#1890FF] mt-1">¥ 360.00</p>
+</div>
+</div>
+<div class="bg-orange-50 rounded-xl p-3 flex items-center gap-2 mb-3">
+<iconify-icon class="text-orange-500" icon="mdi:information-outline"></iconify-icon>
+<p class="text-xs text-orange-600">仓库尚未接单，可修改或取消订单</p>
+</div>
+<div class="flex justify-end gap-2">
+<button class="px-4 py-1.5 text-xs border border-gray-200 rounded-full text-gray-600 active:bg-gray-100">取消订单</button>
+<button class="px-4 py-1.5 text-xs bg-blue-50 text-[#1890FF] rounded-full font-bold active:bg-blue-100">修改订单</button>
+</div>
+</div>
+<!-- Order 3 - Preparing -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">订单号: 202604200088</span>
+<span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-bold">备货中</span>
+</div>
+<span class="text-xs text-gray-400">昨天 16:30</span>
+</div>
+<div class="flex gap-3 mb-3">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-xl border-2 border-white" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/a334311da7854958a4c575d1ed971989.jpg"/>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">18.9L经典桶装水 × 100桶</p>
+<p class="text-sm font-bold text-[#1890FF] mt-1">¥ 800.00</p>
+</div>
+</div>
+<div class="bg-blue-50 rounded-xl p-3 flex items-center gap-2">
+<iconify-icon class="text-blue-500 animate-spin" style="animation-duration: 2s;" icon="mdi:loading"></iconify-icon>
+<p class="text-xs text-blue-600">仓库正在备货中，预计今日17:00前完成</p>
+</div>
+</div>
+<!-- Order 4 - Completed -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">订单号: 202604180082</span>
+<span class="text-[10px] bg-green-100 text-green-600 px-2 py-0.5 rounded font-bold">已完成</span>
+</div>
+<span class="text-xs text-gray-400">04-18 14:30</span>
+</div>
+<div class="flex gap-3 mb-3">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-xl border-2 border-white" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/a334311da7854958a4c575d1ed971989.jpg"/>
+<img class="w-12 h-12 rounded-xl border-2 border-white" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/6c621f601aa040919c05cf6528880f04.jpg"/>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">18.9L经典桶装水 × 50桶</p>
+<p class="text-[10px] text-gray-500 mt-0.5">瓶装水550ml × 30箱</p>
+<div class="flex items-center gap-2 mt-1">
+<p class="text-sm font-bold text-[#1890FF]">¥ 1,150.00</p>
+<span class="text-[10px] text-gray-400">月结</span>
+</div>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 flex items-center gap-3 mb-3">
+<iconify-icon class="text-gray-400" icon="mdi:image-multiple-outline"></iconify-icon>
+<span class="text-xs text-gray-600">签收照片 3张</span>
+<div class="flex gap-1 ml-auto">
+<div class="w-10 h-10 bg-gray-200 rounded"></div>
+<div class="w-10 h-10 bg-gray-200 rounded"></div>
+<div class="w-10 h-10 bg-gray-200 rounded"></div>
+</div>
+</div>
+<div class="flex justify-end gap-2">
+<button class="px-4 py-1.5 text-xs border border-gray-200 rounded-full text-gray-600 active:bg-gray-100">查看明细</button>
+<button class="px-4 py-1.5 text-xs bg-blue-50 text-[#1890FF] rounded-full font-bold active:bg-blue-100">再来一单</button>
+</div>
+</div>
+<!-- Order 5 - Rejected -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">订单号: 202604150075</span>
+<span class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold">已拒单</span>
+</div>
+<span class="text-xs text-gray-400">04-15 09:12</span>
+</div>
+<div class="flex gap-3 mb-3">
+<div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-2xl text-gray-400" icon="mdi:water-outline"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">11.3L 迷你桶装水 × 50桶</p>
+<p class="text-sm font-bold text-[#1890FF] mt-1">¥ 300.00</p>
+</div>
+</div>
+<div class="bg-red-50 rounded-xl p-3 mb-3">
+<div class="flex items-center gap-2 mb-1">
+<iconify-icon class="text-red-500" icon="mdi:alert-circle-outline"></iconify-icon>
+<span class="text-xs font-bold text-red-600">拒单原因</span>
+</div>
+<p class="text-xs text-gray-600">仓库库存不足，请选择其他仓库或减少订购数量</p>
+</div>
+<div class="flex justify-end gap-2">
+<button class="px-4 py-1.5 text-xs border border-gray-200 rounded-full text-gray-600 active:bg-gray-100">查看详情</button>
+<button class="px-4 py-1.5 text-xs bg-blue-50 text-[#1890FF] rounded-full font-bold active:bg-blue-100">重新下单</button>
+</div>
+</div>
+</div>
+<!-- Navigation Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="owner_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<div class="flex flex-col items-center gap-1 text-[#1890FF]">
+<iconify-icon class="text-2xl" icon="mdi:format-list-bulleted"></iconify-icon>
+<span class="text-[10px] font-bold">订单</span>
+</div>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement.html">
+<iconify-icon class="text-2xl" icon="mdi:finance"></iconify-icon>
+<span class="text-[10px]">财务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="my.html">
+<iconify-icon class="text-2xl" icon="mdi:account-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

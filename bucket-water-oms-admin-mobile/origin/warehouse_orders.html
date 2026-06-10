@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 订单管理</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4 mb-4">
+<a class="text-gray-500" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">订单管理</h1>
+</div>
+<!-- Sub Tabs -->
+<div class="flex gap-6 text-sm">
+<a class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF] font-medium" href="#">待接单 (5)</a>
+<a class="pb-2 text-gray-400" href="warehouse_prepare_list.html">备货中 (3)</a>
+<a class="pb-2 text-gray-400" href="#">已派单 (8)</a>
+<a class="pb-2 text-gray-400" href="#">已完成</a>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Search & Filter -->
+<div class="flex gap-2">
+<div class="relative flex-1">
+<iconify-icon class="absolute left-3 top-3 text-gray-400 text-lg" icon="mdi:magnify"></iconify-icon>
+<input class="w-full pl-10 pr-4 py-2.5 bg-white rounded-2xl text-sm border-none shadow-sm focus:ring-1 focus:ring-[#1890FF]" placeholder="搜索订单号/水站名称" type="text"/>
+</div>
+<button class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center text-gray-500 shadow-sm">
+<iconify-icon class="text-xl" icon="mdi:filter-variant"></iconify-icon>
+</button>
+</div>
+<!-- Order List -->
+<div class="space-y-3">
+<!-- Order Card 1 - Urgent -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-gray-800">订单 #850021</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-lg">紧急</span>
+<span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">等待 12分钟</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">张记旗舰水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市秀峰区XX路XX号</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="flex justify-between">
+<span class="text-gray-500">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">× 50 桶</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">11.3L 迷你桶</span>
+<span class="font-bold text-gray-800">× 20 桶</span>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
+<span class="text-[10px] text-gray-400">共计 70 桶</span>
+<span class="text-xs font-bold text-[#1890FF]">¥ 1,850.00</span>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<iconify-icon class="text-gray-400 text-sm" icon="mdi:map-marker-outline"></iconify-icon>
+<span class="text-[10px] text-gray-500">距此 1.2km | 预计配送 25分钟</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-white border border-[#1890FF] text-[#1890FF] rounded-xl text-xs font-bold" onclick="window.location.href='warehouse_order_detail.html'">查看详情</button>
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_order_detail.html'">接单</button>
+</div>
+</div>
+<!-- Order Card 2 - Normal -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-xs font-bold text-gray-800">订单 #850022</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-lg">普通</span>
+<span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">等待 5分钟</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">王记纯净水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市象山区XX路XX号</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="flex justify-between">
+<span class="text-gray-500">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">× 30 桶</span>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
+<span class="text-[10px] text-gray-400">共计 30 桶</span>
+<span class="text-xs font-bold text-[#1890FF]">¥ 750.00</span>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<iconify-icon class="text-gray-400 text-sm" icon="mdi:map-marker-outline"></iconify-icon>
+<span class="text-[10px] text-gray-500">距此 3.5km | 预计配送 40分钟</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-white border border-[#1890FF] text-[#1890FF] rounded-xl text-xs font-bold" onclick="window.location.href='warehouse_order_detail.html'">查看详情</button>
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_order_detail.html'">接单</button>
+</div>
+</div>
+<!-- Order Card 3 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-gray-800">订单 #850023</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[10px] text-orange-500 font-bold bg-orange-50 px-2 py-0.5 rounded-lg">优先</span>
+<span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg">等待 8分钟</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">李老板水站</p>
+<p class="text-[10px] text-gray-400">地址: 桂林市七星区XX路XX号</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="bg-gray-50 rounded-xl p-3 mb-4">
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="flex justify-between">
+<span class="text-gray-500">18.9L 桶装水</span>
+<span class="font-bold text-gray-800">× 100 桶</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">空桶回收</span>
+<span class="font-bold text-gray-800">× 80 个</span>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center">
+<span class="text-[10px] text-gray-400">共计 100 桶 | 回收 80 桶</span>
+<span class="text-xs font-bold text-[#1890FF]">¥ 2,500.00</span>
+</div>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<iconify-icon class="text-gray-400 text-sm" icon="mdi:map-marker-outline"></iconify-icon>
+<span class="text-[10px] text-gray-500">距此 5.8km | 预计配送 55分钟</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 bg-white border border-[#1890FF] text-[#1890FF] rounded-xl text-xs font-bold" onclick="window.location.href='warehouse_order_detail.html'">查看详情</button>
+<button class="flex-1 py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-100" onclick="window.location.href='warehouse_order_detail.html'">接单</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_orders.html">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+<span class="text-[10px] font-bold">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px]">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

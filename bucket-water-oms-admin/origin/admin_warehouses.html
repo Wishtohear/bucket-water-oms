@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f0f2f5; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        .sidebar-item:hover { background: #f5f5f5; }
+        .sidebar-item-active { background: #e6f7ff; color: #1890FF; border-right: 3px solid #1890FF; }
+        .table-row:hover { background-color: #fafafa; }
+        .warehouse-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .warehouse-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white flex flex-col border-r border-gray-200">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-[#1890FF] rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white text-xl" icon="mdi:water"></iconify-icon>
+</div>
+<span class="text-lg font-bold text-gray-800">水厂运营后台</span>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_index.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:view-dashboard-outline"></iconify-icon>
+<span class="font-medium">后台首页</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_stations.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:store-outline"></iconify-icon>
+<span class="font-medium">水站管理</span>
+</a>
+<a class="sidebar-item sidebar-item-active flex items-center px-6 py-4 transition-colors" href="admin_warehouses.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">仓库管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_drivers.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:truck-outline"></iconify-icon>
+<span class="font-medium">司机管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_products.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:package-variant"></iconify-icon>
+<span class="font-medium">产品管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_policies.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:file-certificate-outline"></iconify-icon>
+<span class="font-medium">销售政策</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_inventory.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">库存管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_finance.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:finance"></iconify-icon>
+<span class="font-medium">财务管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_reports.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:chart-bar"></iconify-icon>
+<span class="font-medium">报表统计</span>
+</a>
+<div class="px-6 py-4 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">系统设置</div>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_settings.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:cog-outline"></iconify-icon>
+<span class="font-medium">系统配置</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-100">
+<a class="flex items-center px-4 py-3 text-gray-500 hover:text-red-500 transition-colors rounded-xl" href="admin_login.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:logout"></iconify-icon>
+<span class="font-medium">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold text-gray-800">仓库管理</h2>
+<nav class="flex text-sm text-gray-400">
+<span class="hover:text-blue-500 cursor-pointer">管理后台</span>
+<span class="mx-2">/</span>
+<span class="text-gray-600">仓库管理</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-[#1890FF] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors">
+<iconify-icon icon="mdi:plus"></iconify-icon>
+<span>新增仓库</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Body -->
+<div class="flex-1 overflow-y-auto p-8">
+<!-- Summary Stats -->
+<div class="grid grid-cols-4 gap-6 mb-6">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-blue-50 text-blue-500 rounded-xl">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400 mb-1">仓库总数</p>
+<h3 class="text-2xl font-bold text-gray-800">10 个</h3>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-green-50 text-green-500 rounded-xl">
+<iconify-icon class="text-2xl" icon="mdi:water"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400 mb-1">总库存</p>
+<h3 class="text-2xl font-bold text-green-500">15,680 桶</h3>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-orange-50 text-orange-500 rounded-xl">
+<iconify-icon class="text-2xl" icon="mdi:alert-circle"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400 mb-1">库存预警</p>
+<h3 class="text-2xl font-bold text-orange-500">2 个仓库</h3>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-50">
+<div class="flex items-center gap-4">
+<div class="p-3 bg-purple-50 text-purple-500 rounded-xl">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-400 mb-1">待处理订单</p>
+<h3 class="text-2xl font-bold text-gray-800">48 单</h3>
+</div>
+</div>
+</div>
+</div>
+<!-- Warehouse Grid -->
+<div class="grid grid-cols-2 gap-6">
+<!-- Warehouse Card 1 -->
+<div class="warehouse-card bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<h4 class="text-lg font-bold text-gray-800">中心仓库 A库区</h4>
+<p class="text-xs text-gray-400">仓库编号: WH-2024-001</p>
+</div>
+</div>
+<span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full border border-green-100">正常运营</span>
+</div>
+<div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
+<iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+<span>杭州市拱墅区XX路128号</span>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-2xl">
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">成品库存</p>
+<p class="text-lg font-bold text-gray-800">5,200 <span class="text-xs font-normal">桶</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">空桶库存</p>
+<p class="text-lg font-bold text-gray-800">1,800 <span class="text-xs font-normal">个</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">覆盖水站</p>
+<p class="text-lg font-bold text-blue-500">120 <span class="text-xs font-normal">家</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-4 text-xs">
+<span class="text-gray-400">今日入库: <span class="font-bold text-gray-700">1,280桶</span></span>
+<span class="text-gray-400">今日出库: <span class="font-bold text-gray-700">960桶</span></span>
+</div>
+<button class="text-blue-500 text-sm font-bold">管理详情</button>
+</div>
+</div>
+<!-- Warehouse Card 2 -->
+<div class="warehouse-card bg-white p-6 rounded-3xl shadow-sm border border-orange-50">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<h4 class="text-lg font-bold text-gray-800">西区分仓</h4>
+<p class="text-xs text-gray-400">仓库编号: WH-2024-002</p>
+</div>
+</div>
+<span class="px-2 py-1 text-[10px] font-bold bg-orange-50 text-orange-500 rounded-full border border-orange-100 border-2">库存预警</span>
+</div>
+<div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
+<iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+<span>杭州市西湖区XX路56号</span>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-2xl">
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">成品库存</p>
+<p class="text-lg font-bold text-red-500">180 <span class="text-xs font-normal text-red-400">桶 ⚠️</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">空桶库存</p>
+<p class="text-lg font-bold text-gray-800">420 <span class="text-xs font-normal">个</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">覆盖水站</p>
+<p class="text-lg font-bold text-blue-500">85 <span class="text-xs font-normal">家</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-4 text-xs">
+<span class="text-gray-400">今日入库: <span class="font-bold text-gray-700">200桶</span></span>
+<span class="text-gray-400">今日出库: <span class="font-bold text-gray-700">350桶</span></span>
+</div>
+<button class="text-blue-500 text-sm font-bold">管理详情</button>
+</div>
+</div>
+<!-- Warehouse Card 3 -->
+<div class="warehouse-card bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-500">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<h4 class="text-lg font-bold text-gray-800">南区分仓</h4>
+<p class="text-xs text-gray-400">仓库编号: WH-2024-003</p>
+</div>
+</div>
+<span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full border border-green-100">正常运营</span>
+</div>
+<div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
+<iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+<span>杭州市滨江区XX路88号</span>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-2xl">
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">成品库存</p>
+<p class="text-lg font-bold text-gray-800">4,500 <span class="text-xs font-normal">桶</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">空桶库存</p>
+<p class="text-lg font-bold text-gray-800">2,100 <span class="text-xs font-normal">个</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">覆盖水站</p>
+<p class="text-lg font-bold text-blue-500">95 <span class="text-xs font-normal">家</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-4 text-xs">
+<span class="text-gray-400">今日入库: <span class="font-bold text-gray-700">800桶</span></span>
+<span class="text-gray-400">今日出库: <span class="font-bold text-gray-700">620桶</span></span>
+</div>
+<button class="text-blue-500 text-sm font-bold">管理详情</button>
+</div>
+</div>
+<!-- Warehouse Card 4 -->
+<div class="warehouse-card bg-white p-6 rounded-3xl shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<h4 class="text-lg font-bold text-gray-800">北区分仓</h4>
+<p class="text-xs text-gray-400">仓库编号: WH-2024-004</p>
+</div>
+</div>
+<span class="px-2 py-1 text-[10px] font-bold bg-green-50 text-green-500 rounded-full border border-green-100">正常运营</span>
+</div>
+<div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
+<iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+<span>杭州市余杭区XX路168号</span>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-2xl">
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">成品库存</p>
+<p class="text-lg font-bold text-gray-800">3,200 <span class="text-xs font-normal">桶</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">空桶库存</p>
+<p class="text-lg font-bold text-gray-800">1,500 <span class="text-xs font-normal">个</span></p>
+</div>
+<div class="text-center">
+<p class="text-[10px] text-gray-400 mb-1">覆盖水站</p>
+<p class="text-lg font-bold text-blue-500">88 <span class="text-xs font-normal">家</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex gap-4 text-xs">
+<span class="text-gray-400">今日入库: <span class="font-bold text-gray-700">650桶</span></span>
+<span class="text-gray-400">今日出库: <span class="font-bold text-gray-700">580桶</span></span>
+</div>
+<button class="text-blue-500 text-sm font-bold">管理详情</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body>
+</html>

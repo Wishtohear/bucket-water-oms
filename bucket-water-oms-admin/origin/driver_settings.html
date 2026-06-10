@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 个人设置</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F4F7F9; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .menu-item:active { background-color: #f1f5f9; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header / Profile Section -->
+<div class="bg-[#1890FF] px-6 pt-14 pb-10 rounded-b-[40px] shadow-lg">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-2xl border-2 border-white/50 overflow-hidden bg-white/20 p-1">
+<img alt="Driver Avatar" class="w-full h-full rounded-xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+</div>
+<div class="text-white flex-1">
+<h2 class="text-xl font-bold">王力师傅</h2>
+<p class="text-xs opacity-80 mt-1">工号: DRV-2024-001</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 bg-white/20 rounded-lg text-[10px] backdrop-blur-sm">豫A·88888</span>
+<span class="px-2 py-0.5 bg-white/20 rounded-lg text-[10px] backdrop-blur-sm">在线</span>
+</div>
+</div>
+<button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+<iconify-icon class="text-white text-xl" icon="mdi:cog-outline"></iconify-icon>
+</button>
+</div>
+<!-- Quick Stats -->
+<div class="grid grid-cols-3 gap-3 mt-6">
+<div class="bg-white/10 rounded-xl p-3 text-center backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">今日配送</p>
+<p class="text-lg font-bold">8 单</p>
+</div>
+<div class="bg-white/10 rounded-xl p-3 text-center backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">累计完成</p>
+<p class="text-lg font-bold">1,258 单</p>
+</div>
+<div class="bg-white/10 rounded-xl p-3 text-center backdrop-blur-sm border border-white/10">
+<p class="text-[10px] opacity-70">本月收入</p>
+<p class="text-lg font-bold">¥8.5k</p>
+</div>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar px-6 pt-6 pb-24 space-y-4 -mt-4">
+<!-- Account Info Card -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-xl" icon="mdi:account-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-500">联系电话</p>
+<p class="text-sm font-bold text-gray-800">138****8888</p>
+</div>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-[#52C41A]">
+<iconify-icon class="text-xl" icon="mdi:car-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-500">绑定车辆</p>
+<p class="text-sm font-bold text-gray-800">豫A·88888 蓝色货车</p>
+</div>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500">
+<iconify-icon class="text-xl" icon="mdi:warehouse"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-500">负责仓库</p>
+<p class="text-sm font-bold text-gray-800">中心仓库 A库区</p>
+</div>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
+<iconify-icon class="text-xl" icon="mdi:map-marker-radius-outline"></iconify-icon>
+</div>
+<div>
+<p class="text-xs text-gray-500">配送区域</p>
+<p class="text-sm font-bold text-gray-800">桂林市全城</p>
+</div>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</div>
+<!-- Settings List -->
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-50">
+<a class="menu-item flex items-center justify-between p-4 border-b border-gray-50" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-lg" icon="mdi:bell-ring-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">消息通知</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-[#52C41A] bg-green-50 px-2 py-1 rounded-full">已开启</span>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</a>
+<a class="menu-item flex items-center justify-between p-4 border-b border-gray-50" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center text-purple-500">
+<iconify-icon class="text-lg" icon="mdi:map-marker-path"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">导航设置</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-500">高德地图</span>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</a>
+<a class="menu-item flex items-center justify-between p-4 border-b border-gray-50" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-[#52C41A]">
+<iconify-icon class="text-lg" icon="mdi:printer-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">蓝牙打印</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-500">已连接</span>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</a>
+<a class="menu-item flex items-center justify-between p-4 border-b border-gray-50" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-orange-500">
+<iconify-icon class="text-lg" icon="mdi:shield-check-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">账号安全</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<a class="menu-item flex items-center justify-between p-4 border-b border-gray-50" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-500">
+<iconify-icon class="text-lg" icon="mdi:headset"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">联系客服</span>
+</div>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</a>
+<a class="menu-item flex items-center justify-between p-4" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center text-gray-500">
+<iconify-icon class="text-lg" icon="mdi:information-outline"></iconify-icon>
+</div>
+<span class="text-sm font-medium text-gray-700">关于我们</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">v2.1.0</span>
+<iconify-icon class="text-gray-300" icon="mdi:chevron-right"></iconify-icon>
+</div>
+</a>
+</div>
+<!-- Driver Status Toggle -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-50">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-[#52C41A]">
+<iconify-icon class="text-xl" icon="mdi:access-point"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-800">在线接单</p>
+<p class="text-[10px] text-gray-400 mt-0.5">开启后将接收新配送任务</p>
+</div>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value="" id="online-toggle" checked/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-200 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#1890FF]"></div>
+</label>
+</div>
+<div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#1890FF] text-lg" icon="mdi:information-outline"></iconify-icon>
+<span class="text-xs text-[#1890FF]">切换为离线后，当前配送任务不受影响，但不会接收新订单。</span>
+</div>
+</div>
+</div>
+<!-- Logout Button -->
+<a class="flex items-center justify-center gap-2 w-full py-4 bg-white rounded-3xl text-[#FF4D4F] font-bold shadow-sm border border-red-50 active:scale-95 transition-transform" href="login.html">
+<iconify-icon class="text-xl" icon="mdi:logout-variant"></iconify-icon>
+<span>退出登录</span>
+</a>
+<!-- Version Info -->
+<div class="text-center py-4">
+<p class="text-[10px] text-gray-300">水厂订货管理系统 · 司机端 v2.1.0</p>
+<p class="text-[10px] text-gray-300 mt-1">2026-04-21</p>
+</div>
+</div>
+<!-- Driver Bottom Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_tasks.html">
+<iconify-icon class="text-2xl" icon="mdi:view-dashboard-outline"></iconify-icon>
+<span class="text-[10px]">任务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="driver_barrel_manage.html">
+<iconify-icon class="text-2xl" icon="mdi:barrel"></iconify-icon>
+<span class="text-[10px]">空桶</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement_driver.html">
+<iconify-icon class="text-2xl" icon="mdi:file-document-outline"></iconify-icon>
+<span class="text-[10px]">对账</span>
+</a>
+<div class="flex flex-col items-center gap-1 text-[#1890FF]">
+<iconify-icon class="text-2xl" icon="mdi:account-cog"></iconify-icon>
+<span class="text-[10px] font-bold">我的</span>
+</div>
+</div>
+</div>
+<script>
+// Toggle switch functionality
+document.getElementById('online-toggle').addEventListener('change', function() {
+    if(this.checked) {
+        console.log('Switched to online mode');
+        updateOnlineStatus('online');
+        alert('您已上线，现在可以接收新配送任务');
+    } else {
+        console.log('Switched to offline mode');
+        updateOnlineStatus('offline');
+        alert('您已离线，将不会接收新配送任务\n当前配送任务不受影响');
+    }
+});
+
+function updateOnlineStatus(status) {
+    const statusText = document.getElementById('status-text');
+    const indicator = document.getElementById('online-indicator');
+    
+    if (status === 'online') {
+        statusText.textContent = '在线';
+        indicator.className = 'w-3 h-3 bg-green-400 rounded-full';
+    } else if (status === 'offline') {
+        statusText.textContent = '离线';
+        indicator.className = 'w-3 h-3 bg-gray-400 rounded-full';
+    }
+}
+
+function updateLocation() {
+    console.log('Updating GPS location...');
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                console.log(`Location updated: ${lat}, ${lng}`);
+                alert(`位置已更新\n纬度: ${lat.toFixed(6)}\n经度: ${lng.toFixed(6)}\n\n此功能将在实际设备上调用后端API`);
+                
+                // In production, send to API
+                // fetch('/drivers/location', { method: 'POST', body: JSON.stringify({ lat, lng }) })
+            },
+            function(error) {
+                console.error('Location error:', error);
+                alert('获取位置失败，请检查定位权限设置');
+            }
+        );
+    } else {
+        alert('您的浏览器不支持定位功能');
+    }
+}
+
+function selectMapApp(app) {
+    console.log(`Selected map app: ${app}`);
+    alert(`已选择 ${app === 'amap' ? '高德地图' : app === 'baidu' ? '百度地图' : '腾讯地图'} 作为默认导航应用`);
+}
+
+function connectBluetoothPrinter() {
+    console.log('Connecting to Bluetooth printer...');
+    alert('正在搜索蓝牙打印机...\n\n提示：请确保打印机已开启并处于配对模式\n支持的打印机：佳博、智崎等58mm/80mm蓝牙打印机');
+}
+
+function showSecuritySettings() {
+    alert('账号安全设置\n\n• 修改登录密码\n• 绑定手机号: 138****8888\n• 绑定微信号: 已绑定\n• 设备管理\n\n这些功能将在正式版本中开放');
+}
+
+function showAbout() {
+    alert('水厂订货管理系统 · 司机端\n\n版本: v2.1.0\n构建时间: 2026-04-21\n\n© 2026 水厂订货管理系统\n技术支持: 400-xxx-xxxx');
+}
+
+function confirmLogout() {
+    if (confirm('确定要退出登录吗？\n\n退出后将无法接收新的配送任务。')) {
+        console.log('Logging out...');
+        window.location.href = 'login.html';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Driver settings page loaded');
+    // Start location tracking if online
+    const toggle = document.getElementById('online-toggle');
+    if (toggle.checked) {
+        updateLocation();
+    }
+});
+</script>
+</body>
+</html>

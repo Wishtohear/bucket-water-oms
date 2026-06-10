@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>系统设置 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f0f2f5; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        .sidebar-item:hover { background: #f5f5f5; }
+        .sidebar-item-active { background: #e6f7ff; color: #1890FF; border-right: 3px solid #1890FF; }
+        .settings-card { transition: all 0.2s; }
+        .settings-card:hover { border-color: #1890FF; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-white flex flex-col border-r border-gray-200">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-[#1890FF] rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white text-xl" icon="mdi:water"></iconify-icon>
+</div>
+<span class="text-lg font-bold text-gray-800">水厂运营后台</span>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_index.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:view-dashboard-outline"></iconify-icon>
+<span class="font-medium">后台首页</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_stations.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:store-outline"></iconify-icon>
+<span class="font-medium">水站管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_policies.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:file-certificate-outline"></iconify-icon>
+<span class="font-medium">销售政策</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_inventory.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:warehouse"></iconify-icon>
+<span class="font-medium">库存管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_finance.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:finance"></iconify-icon>
+<span class="font-medium">财务管理</span>
+</a>
+<a class="sidebar-item flex items-center px-6 py-4 text-gray-600 hover:text-[#1890FF] transition-colors" href="admin_reports.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:chart-bar"></iconify-icon>
+<span class="font-medium">报表统计</span>
+</a>
+<div class="px-6 py-4 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">系统设置</div>
+<a class="sidebar-item sidebar-item-active flex items-center px-6 py-4 transition-colors" href="admin_settings.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:cog-outline"></iconify-icon>
+<span class="font-medium">系统配置</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-100">
+<a class="flex items-center px-4 py-3 text-gray-500 hover:text-red-500 transition-colors rounded-xl" href="admin_login.html">
+<iconify-icon class="text-xl mr-3" icon="mdi:logout"></iconify-icon>
+<span class="font-medium">退出登录</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold text-gray-800">系统设置与维护</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-gray-400">最后同步时间: 2026-04-19 15:20:01</span>
+</div>
+</header>
+<!-- Scrollable Body -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- Section: Admin Management -->
+<div>
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-gray-800">管理员权限</h3>
+<button class="text-blue-500 text-sm font-bold">+ 添加管理员</button>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="settings-card bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+<img alt="Admin" class="w-12 h-12 rounded-full border" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/18a9491e2c6f46398fe35cbc670740dd.jpg"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-gray-800">超级管理员 (张三)</p>
+<p class="text-xs text-gray-400">拥有所有系统权限 · 最后登录: 2小时前</p>
+</div>
+<button class="text-gray-400 hover:text-blue-500"><iconify-icon icon="mdi:pencil-outline"></iconify-icon></button>
+</div>
+<div class="settings-card bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+<img alt="Admin" class="w-12 h-12 rounded-full border" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/18a9491e2c6f46398fe35cbc670740dd.jpg"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-gray-800">财务主管 (李四)</p>
+<p class="text-xs text-gray-400">财务模块完全权限 · 最后登录: 1天前</p>
+</div>
+<button class="text-gray-400 hover:text-blue-500"><iconify-icon icon="mdi:pencil-outline"></iconify-icon></button>
+</div>
+</div>
+</div>
+<!-- Section: Base Configuration -->
+<div>
+<h3 class="text-lg font-bold text-gray-800 mb-4">基础业务配置</h3>
+<div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+<div class="p-8 space-y-6">
+<div class="grid grid-cols-2 gap-8">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">水厂名称</label>
+<input class="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" value="清泉流响水厂总部"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">客服电话</label>
+<input class="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" value="400-888-9999"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">对账单确认期限</label>
+<div class="relative">
+<input class="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none" type="number" value="3"/>
+<span class="absolute right-4 top-2.5 text-sm text-gray-400">天</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-1 italic">水站收到对账单后，需在此期限内确认或提出争议</p>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">库存预警阈值 (通用)</label>
+<div class="relative">
+<input class="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none" type="number" value="200"/>
+<span class="absolute right-4 top-2.5 text-sm text-gray-400">单位</span>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-gray-50 flex justify-end gap-3">
+<button class="px-6 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold">重置</button>
+<button class="px-6 py-2 bg-[#1890FF] text-white rounded-xl font-bold shadow-lg shadow-blue-100">保存全局设置</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Logs -->
+<div>
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-gray-800">系统审计日志</h3>
+<button class="text-blue-500 text-sm font-bold">查看全部</button>
+</div>
+<div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-gray-50 text-xs text-gray-400 font-bold uppercase">
+<tr>
+<th class="px-8 py-4">时间</th>
+<th class="px-8 py-4">操作员</th>
+<th class="px-8 py-4">动作</th>
+<th class="px-8 py-4">IP地址</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-gray-50">
+<tr>
+<td class="px-8 py-4 text-gray-400">2026-04-19 14:32:01</td>
+<td class="px-8 py-4 font-bold">超级管理员</td>
+<td class="px-8 py-4 text-gray-600">修改了 [滨江花园水站] 的销售政策</td>
+<td class="px-8 py-4 text-gray-400">192.168.1.45</td>
+</tr>
+<tr>
+<td class="px-8 py-4 text-gray-400">2026-04-19 11:20:45</td>
+<td class="px-8 py-4 font-bold">财务主管</td>
+<td class="px-8 py-4 text-gray-600">导出了 2026年03月 财务结算汇总报表</td>
+<td class="px-8 py-4 text-gray-400">192.168.1.12</td>
+</tr>
+<tr>
+<td class="px-8 py-4 text-gray-400">2026-04-18 17:05:30</td>
+<td class="px-8 py-4 font-bold">超级管理员</td>
+<td class="px-8 py-4 text-gray-600">新增了管理员账号: 仓管经理 (王五)</td>
+<td class="px-8 py-4 text-gray-400">192.168.1.45</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body>
+</html>

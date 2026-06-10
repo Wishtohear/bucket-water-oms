@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>水厂管理系统 - 管理员登录</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .login-card {
+            box-shadow: 0 20px 50px rgba(24, 144, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+<div class="max-w-4xl w-full bg-white rounded-3xl overflow-hidden flex login-card h-[600px]">
+<!-- Left: Branding -->
+<div class="w-1/2 bg-[#1890FF] p-12 flex flex-col justify-between text-white relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-8">
+<div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+<iconify-icon class="text-[#1890FF] text-2xl" icon="mdi:water"></iconify-icon>
+</div>
+<span class="text-2xl font-bold tracking-wider">水厂订货管理系统</span>
+</div>
+<h1 class="text-4xl font-bold leading-tight mb-4">数字化水厂<br/>智慧运营后台</h1>
+<p class="text-blue-100 text-lg">高效连接水站，实时掌控销售、财务与库存，提升水厂运营效能。</p>
+</div>
+<div class="relative z-10 flex items-center gap-4 text-sm opacity-80">
+<span>© 2026 水厂管理系统</span>
+<span class="w-1 h-1 bg-white rounded-full"></span>
+<span>当前日期: 2026-04-19</span>
+</div>
+<!-- Background patterns -->
+<div class="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-400 rounded-full opacity-20"></div>
+<div class="absolute top-40 -left-10 w-40 h-40 bg-blue-300 rounded-full opacity-10"></div>
+</div>
+<!-- Right: Login Form -->
+<div class="w-1/2 p-16 flex flex-col justify-center">
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-gray-800 mb-2">欢迎回来</h2>
+<p class="text-gray-400">请使用管理员账号登录后台</p>
+</div>
+<form action="admin_index.html" class="space-y-6" method="GET">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">账号</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+<iconify-icon class="text-xl" icon="mdi:account-outline"></iconify-icon>
+</span>
+<input class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="请输入管理员账号" type="text" value="admin"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">密码</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+<iconify-icon class="text-xl" icon="mdi:lock-outline"></iconify-icon>
+</span>
+<input class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="请输入登录密码" type="password" value="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<label class="flex items-center">
+<input checked="" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-600">记住登录状态</span>
+</label>
+<a class="text-sm text-blue-600 hover:text-blue-500" href="#">忘记密码？</a>
+</div>
+<button class="w-full bg-[#1890FF] text-white py-3.5 rounded-xl font-bold text-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-200 active:scale-[0.98]" type="submit">
+                    立即登录
+                </button>
+</form>
+<div class="mt-8 pt-8 border-t border-gray-100 flex justify-center gap-6">
+<p class="text-sm text-gray-400">其他登录方式</p>
+<div class="flex gap-4">
+<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+<iconify-icon icon="mdi:wechat"></iconify-icon>
+</button>
+<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+<iconify-icon icon="mdi:cellphone"></iconify-icon>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

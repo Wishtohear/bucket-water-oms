@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 库存盘点</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4 mb-4">
+<a class="text-gray-500" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">库存盘点</h1>
+</div>
+<!-- Sub Tabs -->
+<div class="flex gap-6 text-sm">
+<a class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF] font-medium" href="#">当前库存</a>
+<a class="pb-2 text-gray-400" href="#">盘点任务</a>
+<a class="pb-2 text-gray-400" href="#">变动记录</a>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Search -->
+<div class="relative">
+<iconify-icon class="absolute left-3 top-3 text-gray-400 text-lg" icon="mdi:magnify"></iconify-icon>
+<input class="w-full pl-10 pr-4 py-2.5 bg-white rounded-2xl text-sm border-none shadow-sm focus:ring-1 focus:ring-[#1890FF]" placeholder="搜索水种、配件名称" type="text"/>
+</div>
+<!-- Inventory Stats Summary -->
+<div class="bg-gradient-to-br from-[#1890FF] to-blue-500 rounded-3xl p-5 text-white shadow-lg shadow-blue-100">
+<div class="flex justify-between items-center mb-4">
+<span class="text-xs opacity-80">总库存种类</span>
+<span class="text-xs opacity-80">最后盘点: 2026-04-15</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold">24</span>
+<span class="text-sm opacity-90">类物品</span>
+</div>
+<div class="mt-4 flex gap-4">
+<button class="flex-1 bg-white/20 py-2 rounded-xl text-xs font-bold backdrop-blur-sm active:scale-95 transition-all">全库盘点</button>
+<button class="flex-1 bg-white/20 py-2 rounded-xl text-xs font-bold backdrop-blur-sm active:scale-95 transition-all">差异调整</button>
+</div>
+</div>
+<!-- Inventory List -->
+<div class="space-y-3">
+<!-- Item 1 -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-50">
+<div class="flex gap-3">
+<img alt="Water 18.9L" class="w-14 h-14 rounded-xl bg-gray-50 object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/4b6d139fbfe04610b3ee327a98bebba7.jpg"/>
+<div class="flex-1">
+<h4 class="font-bold text-gray-800 text-sm">18.9L 桶装水 (农夫)</h4>
+<p class="text-[10px] text-gray-400 mt-0.5">库位: A-01-05 | 分类: 饮用水</p>
+<div class="flex justify-between items-end mt-2">
+<span class="text-lg font-bold text-[#1890FF]">500 <span class="text-[10px] font-normal text-gray-400">桶</span></span>
+<button class="text-[#1890FF] text-[10px] font-bold">校准库存</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-50">
+<div class="flex gap-3">
+<img alt="Empty Barrel" class="w-14 h-14 rounded-xl bg-gray-50 object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/c6e63aae9f1b489294b48e9cd7b4faf8.jpg"/>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-bold text-gray-800 text-sm">空桶 (标准版)</h4>
+<span class="text-[10px] text-[#FF4D4F] font-bold">低于预警值</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-0.5">库位: B-02-01 | 分类: 包装物</p>
+<div class="flex justify-between items-end mt-2">
+<span class="text-lg font-bold text-gray-800">12 <span class="text-[10px] font-normal text-gray-400">个</span></span>
+<button class="text-[#1890FF] text-[10px] font-bold">校准库存</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-50">
+<div class="flex gap-3">
+<img alt="Water 11.3L" class="w-14 h-14 rounded-xl bg-gray-50 object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/44034251a27d49b3af786779c0111025.jpg"/>
+<div class="flex-1">
+<h4 class="font-bold text-gray-800 text-sm">11.3L 迷你桶 (景田)</h4>
+<p class="text-[10px] text-gray-400 mt-0.5">库位: A-02-12 | 分类: 饮用水</p>
+<div class="flex justify-between items-end mt-2">
+<span class="text-lg font-bold text-gray-800">240 <span class="text-[10px] font-normal text-gray-400">桶</span></span>
+<button class="text-[#1890FF] text-[10px] font-bold">校准库存</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant-outline"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_outbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-up"></iconify-icon>
+<span class="text-[10px]">出库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px] font-bold">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

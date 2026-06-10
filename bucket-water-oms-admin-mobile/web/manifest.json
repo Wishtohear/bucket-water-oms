@@ -1,0 +1,11 @@
+{
+  "name": "水厂订货管理系统",
+  "short_name": "水厂OMS",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0175C2",
+  "theme_color": "#0175C2",
+  "description": "水厂订货管理系统移动端",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}

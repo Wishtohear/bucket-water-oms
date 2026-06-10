@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 首页</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Status Bar -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+<iconify-icon class="text-[#722ED1] text-lg" icon="mdi:warehouse"></iconify-icon>
+</div>
+<span class="font-bold text-gray-800">中心仓库 A库区</span>
+</div>
+<div class="flex gap-4">
+<iconify-icon class="text-xl text-gray-500" icon="mdi:qrcode-scan"></iconify-icon>
+<iconify-icon class="text-xl text-gray-500" icon="mdi:account-circle-outline"></iconify-icon>
+</div>
+</div>
+<div class="flex gap-8 text-sm font-medium border-b border-gray-50">
+<a class="pb-2 border-b-2 border-[#1890FF] text-[#1890FF]" href="#">概览</a>
+<a class="pb-2 text-gray-400" href="warehouse_inbound.html">入库</a>
+<a class="pb-2 text-gray-400" href="warehouse_outbound.html">出库</a>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-24">
+<!-- Today's Stats -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-blue-50">
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-[#1890FF] text-xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-xs text-gray-400">今日入库</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold text-gray-800">1,280</span>
+<span class="text-[10px] text-gray-400">桶</span>
+</div>
+<div class="mt-2 text-[10px] text-green-500">
+<iconify-icon icon="mdi:arrow-up"></iconify-icon> 12% 较昨日
+                    </div>
+</div>
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-blue-50">
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-[#52C41A] text-xl" icon="mdi:tray-arrow-up"></iconify-icon>
+<span class="text-xs text-gray-400">今日出库</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold text-gray-800">960</span>
+<span class="text-[10px] text-gray-400">桶</span>
+</div>
+<div class="mt-2 text-[10px] text-blue-500">
+<iconify-icon icon="mdi:minus"></iconify-icon> 持平昨日
+                    </div>
+</div>
+</div>
+<!-- Inventory Warning -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-red-50">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#FF4D4F] text-xl" icon="mdi:alert-circle"></iconify-icon>
+<h3 class="font-bold text-gray-800 text-sm">库存预警</h3>
+</div>
+<span class="px-2 py-0.5 bg-red-100 text-[#FF4D4F] text-[10px] rounded-full font-bold">3条记录</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between text-xs py-2 border-b border-gray-50 last:border-0">
+<span class="text-gray-600">18.9L 纯净水 (A品牌)</span>
+<span class="text-[#FF4D4F] font-bold">库存不足 (50)</span>
+</div>
+<div class="flex items-center justify-between text-xs py-2 border-b border-gray-50 last:border-0">
+<span class="text-gray-600">空桶 (普通版)</span>
+<span class="text-[#FF4D4F] font-bold">库存不足 (12)</span>
+</div>
+</div>
+</div>
+<!-- Order Management & Return Check Stats -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-orange-50 relative">
+<div class="absolute -top-1 right-2 px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+5
+</div>
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-orange-500 text-xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+<span class="text-xs text-gray-400">待接单</span>
+</div>
+<a class="text-sm font-bold text-gray-800 hover:text-[#1890FF]" href="warehouse_orders.html">查看订单</a>
+</div>
+<div class="bg-white p-4 rounded-3xl shadow-sm border border-purple-50 relative">
+<div class="absolute -top-1 right-2 px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+3
+</div>
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-purple-500 text-xl" icon="mdi:truck-check"></iconify-icon>
+<span class="text-xs text-gray-400">待核对</span>
+</div>
+<a class="text-sm font-bold text-gray-800 hover:text-[#1890FF]" href="warehouse_return_list.html">回仓核对</a>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="bg-white rounded-3xl p-4 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">快捷操作</h3>
+<div class="grid grid-cols-4 gap-4">
+<a class="flex flex-col items-center gap-2" href="warehouse_orders.html">
+<div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-600">订单管理</span>
+</a>
+<a class="flex flex-col items-center gap-2" href="warehouse_inbound.html">
+<div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-[#1890FF]">
+<iconify-icon class="text-2xl" icon="mdi:plus-box-outline"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-600">采购入库</span>
+</a>
+<a class="flex flex-col items-center gap-2" href="warehouse_return_list.html">
+<div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500">
+<iconify-icon class="text-2xl" icon="mdi:truck-check"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-600">回仓核对</span>
+</a>
+<a class="flex flex-col items-center gap-2" href="warehouse_after_sales.html">
+<div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500">
+<iconify-icon class="text-2xl" icon="mdi:headset"></iconify-icon>
+</div>
+<span class="text-[10px] text-gray-600">售后处理</span>
+</a>
+</div>
+</div>
+<!-- Recent Tasks -->
+<div class="space-y-3">
+<div class="flex justify-between items-center px-1">
+<h3 class="font-bold text-gray-800">最近任务</h3>
+<a class="text-xs text-blue-500" href="#">查看全部</a>
+</div>
+<div class="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-gray-50">
+<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+<iconify-icon class="text-[#1890FF] text-xl" icon="mdi:truck-check"></iconify-icon>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-gray-800 text-sm">采购入库单 - RK2026041901</h4>
+<span class="text-[10px] px-2 py-0.5 bg-blue-100 text-[#1890FF] rounded-full">待核验</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-1">18.9L 桶装水 x 500 | 操作人: 王管理</p>
+</div>
+</div>
+<div class="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-gray-50">
+<div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+<iconify-icon class="text-[#52C41A] text-xl" icon="mdi:cart-outline"></iconify-icon>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-gray-800 text-sm">订单出库单 - CK2026041905</h4>
+<span class="text-[10px] px-2 py-0.5 bg-green-100 text-[#52C41A] rounded-full">已完成</span>
+</div>
+<p class="text-[10px] text-gray-400 mt-1">张记旗舰水站 x 20 | 操作人: 李调度</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="warehouse_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_orders.html">
+<iconify-icon class="text-2xl" icon="mdi:clipboard-list-outline"></iconify-icon>
+<span class="text-[10px]">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inbound.html">
+<iconify-icon class="text-2xl" icon="mdi:tray-arrow-down"></iconify-icon>
+<span class="text-[10px]">入库</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_inventory.html">
+<iconify-icon class="text-2xl" icon="mdi:warehouse"></iconify-icon>
+<span class="text-[10px]">库存</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="warehouse_settings.html">
+<iconify-icon class="text-2xl" icon="mdi:account-cog-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

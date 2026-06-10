@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>司机端 - 路线规划</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .waypoint-marker { animation: bounce 1s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .map-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-20 flex items-center gap-4">
+<a class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full" href="driver_tasks.html">
+<iconify-icon class="text-2xl text-gray-800" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800 flex-1">智能路线规划</h1>
+<button class="w-10 h-10 flex items-center justify-center bg-blue-50 rounded-full" onclick="refreshRoute()">
+<iconify-icon class="text-xl text-blue-600" icon="mdi:refresh"></iconify-icon>
+</button>
+</div>
+<!-- Route Summary Card -->
+<div class="bg-gradient-to-r from-[#1890FF] to-blue-500 px-6 py-4 text-white">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-xs opacity-80 mb-1">最优配送路线</p>
+<div class="flex items-baseline gap-3">
+<span class="text-3xl font-bold">45</span>
+<span class="text-sm opacity-80">分钟</span>
+</div>
+</div>
+<div class="text-right">
+<div class="flex items-center gap-3 text-sm">
+<div class="text-center">
+<p class="text-xl font-bold">12.5</p>
+<p class="text-[10px] opacity-80">公里</p>
+</div>
+<div class="w-px h-8 bg-white/30"></div>
+<div class="text-center">
+<p class="text-xl font-bold">3</p>
+<p class="text-[10px] opacity-80">个站点</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-3 flex items-center gap-2 text-xs bg-white/10 py-2 px-3 rounded-xl">
+<iconify-icon icon="mdi:alert-circle-outline"></iconify-icon>
+<span>已为您避开拥堵路段，优先配送近距离订单</span>
+</div>
+</div>
+<!-- Map Area (Simulated) -->
+<div class="relative h-64 bg-gray-100 overflow-hidden">
+<!-- Simulated Map Background -->
+<div class="absolute inset-0 map-placeholder">
+<div class="w-full h-full flex items-center justify-center">
+<iconify-icon class="text-8xl text-blue-500 opacity-20" icon="mdi:map"></iconify-icon>
+</div>
+</div>
+<!-- Route Overlay -->
+<svg class="absolute inset-0 w-full h-full" viewBox="0 0 375 256" preserveAspectRatio="xMidYMid slice">
+<!-- Route Line -->
+<path d="M 50 200 Q 100 150 150 160 T 250 100 T 320 60" fill="none" stroke="#1890FF" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+<!-- Start Point -->
+<circle cx="50" cy="200" r="8" fill="#52C41A"/>
+<circle cx="50" cy="200" r="12" fill="#52C41A" opacity="0.3"/>
+<!-- Waypoint 1 -->
+<circle cx="150" cy="160" r="8" fill="#1890FF" class="waypoint-marker"/>
+<circle cx="150" cy="160" r="12" fill="#1890FF" opacity="0.3"/>
+<!-- Waypoint 2 -->
+<circle cx="250" cy="100" r="8" fill="#1890FF" class="waypoint-marker"/>
+<circle cx="250" cy="100" r="12" fill="#1890FF" opacity="0.3"/>
+<!-- End Point -->
+<circle cx="320" cy="60" r="8" fill="#FF4D4F"/>
+<circle cx="320" cy="60" r="12" fill="#FF4D4F" opacity="0.3"/>
+</svg>
+<!-- Map Controls -->
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center active:bg-gray-50" onclick="zoomIn()">
+<iconify-icon class="text-xl text-gray-700" icon="mdi:plus"></iconify-icon>
+</button>
+<button class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center active:bg-gray-50" onclick="zoomOut()">
+<iconify-icon class="text-xl text-gray-700" icon="mdi:minus"></iconify-icon>
+</button>
+<button class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center active:bg-gray-50" onclick="centerOnLocation()">
+<iconify-icon class="text-xl text-gray-700" icon="mdi:crosshairs-gps"></iconify-icon>
+</button>
+</div>
+<!-- Map Type Toggle -->
+<div class="absolute bottom-4 left-4 flex gap-2">
+<button class="px-3 py-1.5 bg-white rounded-lg text-xs font-medium shadow-lg active:bg-blue-50 active:text-blue-600" onclick="setMapType('standard')">2D</button>
+<button class="px-3 py-1.5 bg-white rounded-lg text-xs font-medium shadow-lg active:bg-blue-50 active:text-blue-600" onclick="setMapType('satellite')">卫星</button>
+<button class="px-3 py-1.5 bg-white rounded-lg text-xs font-medium shadow-lg active:bg-blue-50 active:text-blue-600" onclick="setMapType('traffic')">路况</button>
+</div>
+</div>
+<!-- Route Details -->
+<div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-4 pb-32 space-y-4">
+<!-- Delivery Sequence -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:map-marker-path"></iconify-icon>
+配送顺序
+</h3>
+<div class="space-y-4" id="waypoint-list">
+<!-- Waypoint 0 - Start -->
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">
+<iconify-icon class="text-sm" icon="mdi:home"></iconify-icon>
+</div>
+<div class="w-0.5 h-12 bg-gray-200"></div>
+</div>
+<div class="flex-1 pb-4">
+<div class="p-3 bg-green-50 rounded-xl border border-green-200">
+<div class="flex items-center justify-between mb-2">
+<span class="px-2 py-0.5 bg-green-500 text-white text-[10px] font-bold rounded">起点</span>
+<span class="text-xs text-gray-400">当前位置</span>
+</div>
+<p class="text-sm font-bold text-gray-800">中心仓库 A库区</p>
+<p class="text-xs text-gray-500 mt-1">秀峰区XX路12号</p>
+</div>
+</div>
+</div>
+<!-- Waypoint 1 -->
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 bg-[#1890FF] rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+<div class="w-0.5 h-12 bg-gray-200"></div>
+</div>
+<div class="flex-1 pb-4">
+<div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-[#1890FF] text-white text-[10px] font-bold rounded">第1站</span>
+<span class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">距您 2.5km</span>
+</div>
+<span class="text-xs text-gray-400">预计 14:00 到达</span>
+</div>
+<p class="text-sm font-bold text-gray-800">张记旗舰水站</p>
+<p class="text-xs text-gray-500 mt-1">秀峰区XX路88号 · <span class="text-blue-600">预约 14:00</span></p>
+<div class="mt-2 flex items-center gap-3 text-xs">
+<span class="px-2 py-1 bg-white rounded text-gray-600">18.9L × 50桶</span>
+<span class="px-2 py-1 bg-white rounded text-gray-600">11.3L × 20桶</span>
+</div>
+<div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between">
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="viewOnMap(1)">
+<iconify-icon icon="mdi:map-marker"></iconify-icon>
+地图查看
+</button>
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="navigateTo(1)">
+<iconify-icon icon="mdi:navigation"></iconify-icon>
+导航
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Waypoint 2 -->
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 bg-[#1890FF] rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+<div class="w-0.5 h-12 bg-gray-200"></div>
+</div>
+<div class="flex-1 pb-4">
+<div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-[#1890FF] text-white text-[10px] font-bold rounded">第2站</span>
+<span class="text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded">距上站 2.3km</span>
+</div>
+<span class="text-xs text-gray-400">预计 14:20 到达</span>
+</div>
+<p class="text-sm font-bold text-gray-800">李家水铺</p>
+<p class="text-xs text-gray-500 mt-1">七星区龙隐路12号 · <span class="text-gray-400">无预约</span></p>
+<div class="mt-2 flex items-center gap-3 text-xs">
+<span class="px-2 py-1 bg-white rounded text-gray-600">18.9L × 100桶</span>
+</div>
+<div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between">
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="viewOnMap(2)">
+<iconify-icon icon="mdi:map-marker"></iconify-icon>
+地图查看
+</button>
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="navigateTo(2)">
+<iconify-icon icon="mdi:navigation"></iconify-icon>
+导航
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Waypoint 3 -->
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 bg-[#FF4D4F] rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+</div>
+<div class="flex-1">
+<div class="p-3 bg-red-50 rounded-xl border border-red-200">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-[#FF4D4F] text-white text-[10px] font-bold rounded">第3站</span>
+<span class="text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded">距上站 3.7km</span>
+</div>
+<span class="text-xs text-gray-400">预计 14:45 到达</span>
+</div>
+<p class="text-sm font-bold text-gray-800">好运来水店</p>
+<p class="text-xs text-gray-500 mt-1">象山区环城南二路56号 · <span class="text-gray-400">无预约</span></p>
+<div class="mt-2 flex items-center gap-3 text-xs">
+<span class="px-2 py-1 bg-white rounded text-gray-600">18.9L × 30桶</span>
+<span class="px-2 py-1 bg-white rounded text-gray-600">11.3L × 15桶</span>
+</div>
+<div class="mt-2 pt-2 border-t border-red-200 flex items-center justify-between">
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="viewOnMap(3)">
+<iconify-icon icon="mdi:map-marker"></iconify-icon>
+地图查看
+</button>
+<button class="text-xs text-[#1890FF] font-medium flex items-center gap-1" onclick="navigateTo(3)">
+<iconify-icon icon="mdi:navigation"></iconify-icon>
+导航
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Traffic Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:car-connected"></iconify-icon>
+路况信息
+</h3>
+<div class="grid grid-cols-3 gap-4 text-center">
+<div class="p-3 bg-green-50 rounded-xl">
+<div class="flex items-center justify-center gap-2 mb-1">
+<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+<span class="text-xs text-gray-600">畅通</span>
+</div>
+<p class="text-lg font-bold text-green-600">8km</p>
+</div>
+<div class="p-3 bg-yellow-50 rounded-xl">
+<div class="flex items-center justify-center gap-2 mb-1">
+<div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+<span class="text-xs text-gray-600">缓慢</span>
+</div>
+<p class="text-lg font-bold text-yellow-600">3.5km</p>
+</div>
+<div class="p-3 bg-red-50 rounded-xl">
+<div class="flex items-center justify-center gap-2 mb-1">
+<div class="w-2 h-2 bg-red-500 rounded-full"></div>
+<span class="text-xs text-gray-600">拥堵</span>
+</div>
+<p class="text-lg font-bold text-red-600">1km</p>
+</div>
+</div>
+</div>
+<!-- Map App Selection -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:cellphone"></iconify-icon>
+启动导航
+</h3>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center gap-3 p-3 bg-blue-50 border-2 border-blue-500 rounded-xl active:bg-blue-100" onclick="startNavigation('amap')">
+<div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+<span class="text-white font-bold text-sm">高</span>
+</div>
+<div class="text-left">
+<p class="text-sm font-bold text-gray-800">高德地图</p>
+<p class="text-xs text-gray-500">推荐</p>
+</div>
+</button>
+<button class="flex items-center gap-3 p-3 bg-green-50 border-2 border-green-200 rounded-xl active:bg-green-100" onclick="startNavigation('baidu')">
+<div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+<span class="text-white font-bold text-sm">百</span>
+</div>
+<div class="text-left">
+<p class="text-sm font-bold text-gray-800">百度地图</p>
+<p class="text-xs text-gray-500">备选</p>
+</div>
+</button>
+<button class="flex items-center gap-3 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl active:bg-gray-100" onclick="startNavigation('txmap')">
+<div class="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
+<span class="text-white font-bold text-sm">腾</span>
+</div>
+<div class="text-left">
+<p class="text-sm font-bold text-gray-800">腾讯地图</p>
+<p class="text-xs text-gray-500">备选</p>
+</div>
+</button>
+<button class="flex items-center gap-3 p-3 bg-gray-50 border-2 border-gray-200 rounded-xl active:bg-gray-100" onclick="startNavigation('system')">
+<div class="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-white" icon="mdi:map"></iconify-icon>
+</div>
+<div class="text-left">
+<p class="text-sm font-bold text-gray-800">系统地图</p>
+<p class="text-xs text-gray-500">默认</p>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="absolute bottom-0 w-full p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 pb-8">
+<button class="w-full py-4 bg-[#1890FF] text-white rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="startNavigation('amap')">
+<iconify-icon class="text-2xl" icon="mdi:navigation"></iconify-icon>
+开始配送导航
+</button>
+</div>
+</div>
+<script>
+// Route data
+const routeData = {
+    totalTime: 45,
+    totalDistance: 12.5,
+    waypoints: [
+        { id: 0, name: '中心仓库 A库区', address: '秀峰区XX路12号', lat: 25.2819, lng: 110.2900, type: 'warehouse' },
+        { id: 1, name: '张记旗舰水站', address: '秀峰区XX路88号', lat: 25.2850, lng: 110.2950, type: 'station', eta: '14:00', products: ['18.9L × 50桶', '11.3L × 20桶'] },
+        { id: 2, name: '李家水铺', address: '七星区龙隐路12号', lat: 25.2900, lng: 110.3000, type: 'station', eta: '14:20', products: ['18.9L × 100桶'] },
+        { id: 3, name: '好运来水店', address: '象山区环城南二路56号', lat: 25.2950, lng: 110.3100, type: 'station', eta: '14:45', products: ['18.9L × 30桶', '11.3L × 15桶'] }
+    ]
+};
+
+let currentMapType = 'standard';
+
+function refreshRoute() {
+    console.log('Refreshing route...');
+    alert('正在重新计算最优路线...\n请稍候');
+    // In production, call API to recalculate route
+}
+
+function zoomIn() {
+    console.log('Zooming in');
+    alert('地图放大');
+}
+
+function zoomOut() {
+    console.log('Zooming out');
+    alert('地图缩小');
+}
+
+function centerOnLocation() {
+    console.log('Centering on current location');
+    alert('正在定位...\n当前位置: 桂林市秀峰区XX路12号');
+}
+
+function setMapType(type) {
+    currentMapType = type;
+    console.log(`Map type changed to: ${type}`);
+    alert(`地图模式: ${type === 'standard' ? '2D标准' : type === 'satellite' ? '卫星地图' : '实时路况'}`);
+}
+
+function viewOnMap(waypointId) {
+    const waypoint = routeData.waypoints.find(w => w.id === waypointId);
+    console.log(`Viewing waypoint ${waypointId} on map:`, waypoint);
+    alert(`查看地图\n\n${waypoint.name}\n地址: ${waypoint.address}\n坐标: ${waypoint.lat}, ${waypoint.lng}`);
+}
+
+function navigateTo(waypointId) {
+    const waypoint = routeData.waypoints.find(w => w.id === waypointId);
+    console.log(`Navigating to waypoint ${waypointId}:`, waypoint);
+    
+    // Ask user to select map app
+    const choice = confirm('是否启动高德地图进行导航？\n\n目标: ' + waypoint.name + '\n地址: ' + waypoint.address);
+    
+    if (choice) {
+        startNavigation('amap');
+    }
+}
+
+function startNavigation(app) {
+    console.log(`Starting navigation with: ${app}`);
+    
+    // Construct waypoints for navigation
+    const waypointCoords = routeData.waypoints
+        .filter(w => w.id > 0) // Exclude warehouse (current location)
+        .map(w => `${w.lng},${w.lat}`)
+        .join(';');
+    
+    const destination = routeData.waypoints[routeData.waypoints.length - 1];
+    
+    let navigationUrl = '';
+    
+    switch(app) {
+        case 'amap':
+            // 高德地图
+            navigationUrl = `https://uri.amap.com/navigation?to=${destination.lng},${destination.lat},${destination.name}&mode=car&callnative=1`;
+            break;
+        case 'baidu':
+            // 百度地图
+            navigationUrl = `https://api.map.baidu.com/direction?destination=latlng:${destination.lat},${destination.lng}|name:${destination.name}&mode=driving&output=html&src=yourCompany/yourAppName`;
+            break;
+        case 'txmap':
+            // 腾讯地图
+            navigationUrl = `https://apis.map.qq.com/jsapi?qt=nav&to=latlng:${destination.lat},${destination.lng},${destination.name}&type=car&ref=myapp`;
+            break;
+        case 'system':
+        default:
+            // 系统默认地图
+            navigationUrl = `geo:${destination.lat},${destination.lng}?q=${destination.lat},${destination.lng}(${destination.name})`;
+            break;
+    }
+    
+    console.log('Navigation URL:', navigationUrl);
+    alert(`正在打开${app === 'amap' ? '高德地图' : app === 'baidu' ? '百度地图' : app === 'txmap' ? '腾讯地图' : '系统地图'}导航...\n\n目标: ${destination.name}\n地址: ${destination.address}\n总站点: ${routeData.waypoints.length - 1}个\n总距离: ${routeData.totalDistance}km\n预计时间: ${routeData.totalTime}分钟`);
+}
+
+// Page initialization
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Route planning page loaded');
+    console.log('Route data:', routeData);
+});
+</script>
+</body>
+</html>

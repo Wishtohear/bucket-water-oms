@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 选择司机</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10 flex-shrink-0">
+<div class="flex items-center gap-4">
+<a class="w-9 h-9 flex items-center justify-center bg-gray-50 rounded-full" href="warehouse_prepare_list.html">
+<iconify-icon class="text-2xl text-gray-600" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800 flex-1 text-center pr-9">选择配送司机</h1>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-4 pb-24">
+<!-- Order Info Summary -->
+<div class="bg-white rounded-2xl p-4 shadow-sm mb-4">
+<div class="flex justify-between items-start mb-3">
+<div>
+<p class="text-[10px] text-gray-400">订单编号</p>
+<p class="text-sm font-bold text-gray-800">#850018</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-gray-400">配送目的地</p>
+<p class="text-sm font-bold text-gray-800">张记旗舰水站</p>
+</div>
+</div>
+<div class="p-3 bg-gray-50 rounded-xl space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">配送距离</span>
+<span class="font-medium text-gray-800">1.2km</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">预计配送时长</span>
+<span class="font-medium text-gray-800">约 25分钟</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">商品数量</span>
+<span class="font-medium text-gray-800">18.9L×50 + 11.3L×20</span>
+</div>
+</div>
+</div>
+<!-- Driver List Title -->
+<h3 class="font-bold text-gray-800 text-sm mb-3">可用司机 (3)</h3>
+<!-- Driver List -->
+<div class="space-y-3">
+<!-- Driver 1 - Recommended -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border-2 border-[#1890FF] relative">
+<div class="absolute -top-2 left-4 px-2 py-0.5 bg-[#1890FF] text-white text-[10px] font-bold rounded-full">
+推荐
+</div>
+<div class="flex items-start gap-3">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full border-2 border-green-400 overflow-hidden">
+<img alt="Driver Avatar" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-[8px] font-bold">
+空
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-bold text-gray-800">张小龙</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-001</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<iconify-icon class="text-yellow-500 text-sm" icon="mdi:star"></iconify-icon>
+<span class="text-[10px] text-gray-600">4.9分</span>
+<span class="text-[10px] text-gray-300">|</span>
+<span class="text-[10px] text-gray-400">1,258单</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-3">
+<div class="p-2 bg-green-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前位置</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">仓库内</p>
+</div>
+<div class="p-2 bg-blue-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前任务</p>
+<p class="text-xs font-bold text-[#1890FF] mt-0.5">0 单</p>
+</div>
+<div class="p-2 bg-purple-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">今日已完成</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">8 单</p>
+</div>
+</div>
+<button class="w-full py-2.5 bg-[#1890FF] text-white rounded-xl text-xs font-bold mt-3 shadow-md shadow-blue-100">
+确认派单
+</button>
+</div>
+<!-- Driver 2 -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+<div class="flex items-start gap-3">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full border-2 border-blue-400 overflow-hidden">
+<img alt="Driver Avatar" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-[8px] font-bold">
+1
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-bold text-gray-800">刘师傅</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-003</p>
+</div>
+<button class="w-8 h-8 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<iconify-icon class="text-yellow-500 text-sm" icon="mdi:star"></iconify-icon>
+<span class="text-[10px] text-gray-600">4.7分</span>
+<span class="text-[10px] text-gray-300">|</span>
+<span class="text-[10px] text-gray-400">986单</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-3">
+<div class="p-2 bg-blue-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前位置</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">1.5km</p>
+</div>
+<div class="p-2 bg-orange-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前任务</p>
+<p class="text-xs font-bold text-orange-500 mt-0.5">1 单</p>
+</div>
+<div class="p-2 bg-purple-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">今日已完成</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">6 单</p>
+</div>
+</div>
+<button class="w-full py-2.5 bg-white border border-[#1890FF] text-[#1890FF] rounded-xl text-xs font-bold mt-3">
+选择此司机
+</button>
+</div>
+<!-- Driver 3 -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+<div class="flex items-start gap-3">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full border-2 border-orange-400 overflow-hidden">
+<img alt="Driver Avatar" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-orange-500 text-white rounded-full flex items-center justify-center text-[8px] font-bold">
+2
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm font-bold text-gray-800">陈司机</p>
+<p class="text-[10px] text-gray-400">工号: DRV-2024-005</p>
+</div>
+<button class="w-8 h-8 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center flex-shrink-0">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<iconify-icon class="text-yellow-500 text-sm" icon="mdi:star"></iconify-icon>
+<span class="text-[10px] text-gray-600">4.6分</span>
+<span class="text-[10px] text-gray-300">|</span>
+<span class="text-[10px] text-gray-400">752单</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 mt-3">
+<div class="p-2 bg-blue-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前位置</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">2.3km</p>
+</div>
+<div class="p-2 bg-orange-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">当前任务</p>
+<p class="text-xs font-bold text-orange-500 mt-0.5">2 单</p>
+</div>
+<div class="p-2 bg-purple-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400">今日已完成</p>
+<p class="text-xs font-bold text-gray-800 mt-0.5">5 单</p>
+</div>
+</div>
+<button class="w-full py-2.5 bg-white border border-[#1890FF] text-[#1890FF] rounded-xl text-xs font-bold mt-3">
+选择此司机
+</button>
+</div>
+<!-- Driver 4 - Busy -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 opacity-60">
+<div class="flex items-start gap-3">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full border-2 border-gray-300 bg-gray-100 overflow-hidden">
+<img alt="Driver Avatar" class="w-full h-full object-cover opacity-50" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/2566b5396b094ab1a625df1e2a348bad.jpg"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div>
+<p class="text-sm font-bold text-gray-500">王师傅</p>
+<p class="text-[10px] text-gray-400 mt-1">工号: DRV-2024-007</p>
+<div class="flex items-center gap-2 mt-1">
+<iconify-icon class="text-yellow-500 text-sm" icon="mdi:star"></iconify-icon>
+<span class="text-[10px] text-gray-400">4.5分</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 bg-gray-100 rounded-xl text-center mt-3">
+<p class="text-xs text-gray-500">当前任务已满 (4单)，暂不可派单</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

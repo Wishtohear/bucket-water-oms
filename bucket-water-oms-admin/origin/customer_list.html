@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>客户管理 - 水厂订货管理系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10">
+<div class="flex items-center gap-4">
+<a class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50" href="owner_index.html">
+<iconify-icon class="text-xl text-gray-600" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800">客户管理</h1>
+<div class="ml-auto">
+<button class="bg-[#1890FF] text-white px-3 py-1.5 rounded-xl text-xs flex items-center gap-1">
+<iconify-icon icon="mdi:account-plus-outline"></iconify-icon>
+                        新增客户
+                    </button>
+</div>
+</div>
+<!-- Search -->
+<div class="mt-4 relative">
+<iconify-icon class="absolute left-3 top-3 text-gray-400 text-lg" icon="mdi:magnify"></iconify-icon>
+<input class="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-2xl text-sm border-none focus:ring-1 focus:ring-[#1890FF]" placeholder="搜索客户姓名、电话或地址" type="text"/>
+</div>
+</div>
+<!-- Scroll Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-3 pb-24">
+<!-- Filter Tabs -->
+<div class="flex gap-2 mb-2 overflow-x-auto hide-scrollbar">
+<button class="px-4 py-1.5 bg-[#1890FF] text-white rounded-full text-xs shrink-0">全部客户</button>
+<button class="px-4 py-1.5 bg-white text-gray-500 rounded-full text-xs shrink-0 border border-gray-100">欠费客户</button>
+<button class="px-4 py-1.5 bg-white text-gray-500 rounded-full text-xs shrink-0 border border-gray-100">欠桶客户</button>
+<button class="px-4 py-1.5 bg-white text-gray-500 rounded-full text-xs shrink-0 border border-gray-100">活跃客户</button>
+</div>
+<!-- Customer Card 1 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+<img alt="Customer Avatar" class="w-full h-full rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/c8552e5188ad493b88794201879bfbd0.jpg"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-800">王大拿</h3>
+<p class="text-[10px] text-gray-400">138****8888</p>
+</div>
+</div>
+<span class="bg-blue-50 text-[#1890FF] text-[10px] px-2 py-0.5 rounded-lg">常客</span>
+</div>
+<div class="bg-gray-50 rounded-2xl p-3 flex justify-between">
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">账户余额</p>
+<p class="text-xs font-bold text-gray-800">¥ 1,200.00</p>
+</div>
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">剩余水票</p>
+<p class="text-xs font-bold text-gray-800">12 张</p>
+</div>
+<div class="text-center flex-1">
+<p class="text-[10px] text-gray-400 mb-0.5">欠桶数</p>
+<p class="text-xs font-bold text-[#FF4D4F]">2 个</p>
+</div>
+</div>
+<div class="mt-3 flex justify-between items-center">
+<p class="text-[10px] text-gray-400 truncate w-40">
+<iconify-icon class="inline" icon="mdi:map-marker-outline"></iconify-icon>
+                        幸福小区12号楼2单元301
+                    </p>
+<div class="flex gap-2">
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl">
+<iconify-icon icon="mdi:phone-outline"></iconify-icon>
+</button>
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl text-xs px-3 font-medium">详情</button>
+</div>
+</div>
+</div>
+<!-- Customer Card 2 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-500">
+<img alt="Customer Avatar" class="w-full h-full rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/c8552e5188ad493b88794201879bfbd0.jpg"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-800">李美丽</h3>
+<p class="text-[10px] text-gray-400">135****6666</p>
+</div>
+</div>
+<span class="bg-red-50 text-[#FF4D4F] text-[10px] px-2 py-0.5 rounded-lg">欠费</span>
+</div>
+<div class="bg-gray-50 rounded-2xl p-3 flex justify-between">
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">账户余额</p>
+<p class="text-xs font-bold text-[#FF4D4F]">-¥ 240.00</p>
+</div>
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">剩余水票</p>
+<p class="text-xs font-bold text-gray-800">0 张</p>
+</div>
+<div class="text-center flex-1">
+<p class="text-[10px] text-gray-400 mb-0.5">欠桶数</p>
+<p class="text-xs font-bold text-gray-800">0 个</p>
+</div>
+</div>
+<div class="mt-3 flex justify-between items-center">
+<p class="text-[10px] text-gray-400 truncate w-40">
+<iconify-icon class="inline" icon="mdi:map-marker-outline"></iconify-icon>
+                        阳光嘉园8号楼1单元1502
+                    </p>
+<div class="flex gap-2">
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl">
+<iconify-icon icon="mdi:phone-outline"></iconify-icon>
+</button>
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl text-xs px-3 font-medium">详情</button>
+</div>
+</div>
+</div>
+<!-- Customer Card 3 -->
+<div class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
+<img alt="Customer Avatar" class="w-full h-full rounded-2xl object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/c8552e5188ad493b88794201879bfbd0.jpg"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-800">赵经理 (盛世贸易)</h3>
+<p class="text-[10px] text-gray-400">189****0000</p>
+</div>
+</div>
+<span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-lg">企业</span>
+</div>
+<div class="bg-gray-50 rounded-2xl p-3 flex justify-between">
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">账户余额</p>
+<p class="text-xs font-bold text-gray-800">¥ 5,000.00</p>
+</div>
+<div class="text-center flex-1 border-r border-gray-200">
+<p class="text-[10px] text-gray-400 mb-0.5">剩余水票</p>
+<p class="text-xs font-bold text-gray-800">150 张</p>
+</div>
+<div class="text-center flex-1">
+<p class="text-[10px] text-gray-400 mb-0.5">欠桶数</p>
+<p class="text-xs font-bold text-gray-800">15 个</p>
+</div>
+</div>
+<div class="mt-3 flex justify-between items-center">
+<p class="text-[10px] text-gray-400 truncate w-40">
+<iconify-icon class="inline" icon="mdi:map-marker-outline"></iconify-icon>
+                        科技园B座20层办公区
+                    </p>
+<div class="flex gap-2">
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl">
+<iconify-icon icon="mdi:phone-outline"></iconify-icon>
+</button>
+<button class="p-2 bg-gray-50 text-gray-500 rounded-xl text-xs px-3 font-medium">详情</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 flex items-center justify-around pb-4">
+<a class="flex flex-col items-center gap-1 text-[#1890FF]" href="owner_index.html">
+<iconify-icon class="text-2xl" icon="mdi:home-variant"></iconify-icon>
+<span class="text-[10px] font-bold">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="order_list.html">
+<iconify-icon class="text-2xl" icon="mdi:format-list-bulleted"></iconify-icon>
+<span class="text-[10px]">订单</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="statement.html">
+<iconify-icon class="text-2xl" icon="mdi:finance"></iconify-icon>
+<span class="text-[10px]">财务</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400" href="my.html">
+<iconify-icon class="text-2xl" icon="mdi:account-outline"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</a>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>仓库管理 - 售后详情</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        body { background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'PingFang SC', sans-serif; }
+        .mobile-container { width: 375px; height: 812px; background: #F8FAFC; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border-radius: 40px; border: 8px solid #333; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container flex flex-col">
+<!-- Header -->
+<div class="bg-white px-6 pt-12 pb-4 shadow-sm z-10 flex items-center gap-4">
+<a class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full" href="warehouse_after_sales.html">
+<iconify-icon class="text-2xl text-gray-800" icon="mdi:chevron-left"></iconify-icon>
+</a>
+<h1 class="text-lg font-bold text-gray-800 flex-1">售后详情</h1>
+<div class="flex items-center gap-2">
+<span class="text-[10px] px-2 py-1 bg-orange-100 text-orange-500 font-bold rounded-lg">待处理</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4 pb-32">
+<!-- Basic Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-xs text-gray-400 mb-1">售后单号</p>
+<p class="text-sm font-bold text-gray-800">#AS2026042101</p>
+</div>
+<div class="text-right">
+<p class="text-xs text-gray-400 mb-1">申请时间</p>
+<p class="text-sm font-bold text-gray-800">2026-04-21 14:00</p>
+</div>
+</div>
+<div class="p-4 bg-orange-50 rounded-2xl mb-4">
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-orange-500 text-xl" icon="mdi:alert-circle"></iconify-icon>
+<span class="text-sm font-bold text-orange-700">补货申请</span>
+</div>
+<p class="text-xs text-orange-600 leading-relaxed">水站反映配送时商品数量不足，需要补发缺失商品</p>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
+<iconify-icon class="text-xl text-[#1890FF]" icon="mdi:store"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-gray-800">张记旗舰水站</p>
+<p class="text-[10px] text-gray-400">水站编号: WS-2024-0158</p>
+</div>
+<button class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
+<iconify-icon class="text-lg" icon="mdi:phone"></iconify-icon>
+</button>
+</div>
+<div class="flex items-start gap-2">
+<iconify-icon class="text-[#1890FF] mt-0.5" icon="mdi:map-marker-outline"></iconify-icon>
+<div>
+<p class="text-xs text-gray-800 leading-relaxed">桂林市秀峰区XX路XX号张记旗舰水站</p>
+</div>
+</div>
+</div>
+<!-- Order Info -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">关联订单信息</h3>
+<div class="flex justify-between items-start mb-3">
+<div>
+<p class="text-xs text-gray-400 mb-1">订单编号</p>
+<p class="text-sm font-bold text-gray-800">#850018</p>
+</div>
+<div class="text-right">
+<p class="text-xs text-gray-400 mb-1">配送时间</p>
+<p class="text-sm font-bold text-gray-800">2026-04-21 14:25</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-gray-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400 mb-1">配送司机</p>
+<p class="text-xs font-bold text-gray-800">张小龙</p>
+</div>
+<div class="p-3 bg-gray-50 rounded-xl text-center">
+<p class="text-[10px] text-gray-400 mb-1">配送车辆</p>
+<p class="text-xs font-bold text-gray-800">桂C·12345</p>
+</div>
+</div>
+</div>
+<!-- Issue Details -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">问题明细</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between py-3 border-b border-gray-50">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[#1890FF]" icon="mdi:water"></iconify-icon>
+<span class="text-sm text-gray-700">18.9L 桶装水 (农夫)</span>
+</div>
+<div class="text-right">
+<span class="text-sm font-bold text-red-500">缺少 3 桶</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-3">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:bottle-tonic-outline"></iconify-icon>
+<span class="text-sm text-gray-700">11.3L 迷你桶 (景田)</span>
+</div>
+<div class="text-right">
+<span class="text-sm font-bold text-red-500">缺少 2 桶</span>
+</div>
+</div>
+</div>
+<div class="mt-4 p-4 bg-orange-50 rounded-xl">
+<div class="flex items-center gap-2 mb-2">
+<iconify-icon class="text-orange-500" icon="mdi:message-text-outline"></iconify-icon>
+<span class="text-xs font-bold text-orange-700">客户描述</span>
+</div>
+<p class="text-xs text-gray-600 leading-relaxed">下午14点配送的订单，水站清点后发现18.9L桶装水少了3桶，11.3L少了2桶，请尽快补发。</p>
+</div>
+</div>
+<!-- Photos -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">附件照片</h3>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar">
+<img alt="Proof photo 1" class="w-24 h-24 rounded-xl object-cover flex-shrink-0" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/8c9f0c9ea0e54aad8c7fa97da245e18a.jpg"/>
+<img alt="Proof photo 2" class="w-24 h-24 rounded-xl object-cover flex-shrink-0" src="https://modao.cc/agent-py/media/generated_images/2026-04-19/c6e63aae9f1b489294b48e9cd7b4faf8.jpg"/>
+</div>
+</div>
+<!-- Stock Check -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">库存检查</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle"></iconify-icon>
+<span class="text-xs text-gray-700">18.9L 桶装水 (农夫)</span>
+</div>
+<span class="text-xs font-bold text-green-500">库存充足 (150桶)</span>
+</div>
+<div class="flex items-center justify-between py-2">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle"></iconify-icon>
+<span class="text-xs text-gray-700">11.3L 迷你桶 (景田)</span>
+</div>
+<span class="text-xs font-bold text-green-500">库存充足 (80桶)</span>
+</div>
+</div>
+</div>
+<!-- Processing Options -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">处理方式</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 p-4 bg-blue-50 rounded-xl cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-[#1890FF] transition-all">
+<input class="w-5 h-5 accent-[#1890FF]" name="process_type" type="radio" value="replenish"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-gray-800">补发商品</p>
+<p class="text-[10px] text-gray-400 mt-1">生成新的配送单，补发缺失的商品</p>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-[#1890FF] transition-all">
+<input class="w-5 h-5 accent-[#1890FF]" name="process_type" type="radio" value="refund"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-gray-800">退款处理</p>
+<p class="text-[10px] text-gray-400 mt-1">直接退款到水站账户</p>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl cursor-pointer has-[:checked]:ring-2 has-[:checked]:ring-[#1890FF] transition-all">
+<input class="w-5 h-5 accent-[#1890FF]" name="process_type" type="radio" value="reject"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-gray-800">拒绝申请</p>
+<p class="text-[10px] text-gray-400 mt-1">核实后发现不存在问题，拒绝售后</p>
+</div>
+</label>
+</div>
+</div>
+<!-- Remark -->
+<div class="bg-white rounded-3xl p-5 shadow-sm">
+<h3 class="font-bold text-gray-800 text-sm mb-4">处理备注 <span class="text-gray-400 text-xs">(选填)</span></h3>
+<textarea class="w-full p-4 bg-gray-50 rounded-xl text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-[#1890FF]" placeholder="请输入处理备注..." rows="3"></textarea>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="absolute bottom-0 w-full p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 flex gap-3 pb-8">
+<button class="flex-1 py-4 bg-white border border-[#FF4D4F] text-[#FF4D4F] rounded-2xl font-bold text-sm shadow-sm active:scale-95 transition-transform">
+拒绝
+</button>
+<button class="flex-1 py-4 bg-[#52C41A] text-white rounded-2xl font-bold text-sm shadow-lg shadow-green-100 active:scale-95 transition-transform" onclick="alert('已生成补发配送单')">
+确认补发
+</button>
+</div>
+</div>
+</body>
+</html>
